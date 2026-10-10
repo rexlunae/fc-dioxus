@@ -1620,6 +1620,9 @@ pub enum ResizeUnit { Percent, Px }   // % of the split; CSS px for edge handles
   `fc-terminal__text--danger`; two table headers marked sorted at once; busy-button label
   spans in some fixtures and not others; markup from before and after a binding mixed
   in the carousel, splitter, menu, and select fixtures.
+- **Editor marks started at a bare caret**
+  ([future-css#55](https://github.com/rexlunae/future-css/issues/55)): the first typed
+  character skips the undo history, and IME input can land outside the new mark.
 
 Components and prerequisites this library needs from future-css, each filed as an issue
 upstream under [DESIGN.md, Upstream first](DESIGN.md#upstream-first). Nothing listed here

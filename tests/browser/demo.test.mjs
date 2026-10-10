@@ -729,6 +729,7 @@ test("the webview sandboxes its frame, keeps its own history, and refuses unsafe
   await until("document.querySelector('#webview [role=status]').textContent === 'Refused or failed to load'");
   await evaluate(`${view}.querySelector('.fc-webview__overlay button').click()`);
   await until(`${view}.dataset.fcState !== 'error' && ${view}.querySelector('.fc-webview__overlay').hidden`);
+  assert.equal(await evaluate(`${address}.value`), "https://example.com/", "Retry shows the page it reloads, not the refused address");
   // Reload navigates the frame again, so a load event follows.
   await until(`${view}.dataset.fcState === 'loaded'`);
   await evaluate(`${button("Reload")}.click()`);
@@ -805,4 +806,28 @@ test("the editor runs upstream's binding: marks report across the selection and 
   const readonly = "document.querySelectorAll('#editor .fc-editor')[3]";
   assert.equal(await evaluate(`${readonly}.querySelector('.fc-editor__content').isContentEditable`), false);
   assert.equal(await evaluate(`${readonly}.querySelector('[data-fc-mark=bold]').disabled`), true);
+});
+
+test("an editor removed from the page releases its document listeners", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const listeners = async () => {
+    const { result } = await send("Runtime.evaluate", { expression: "document" });
+    const { listeners } = await send("DOMDebugger.getEventListeners", { objectId: result.objectId });
+    return listeners.filter(l => l.type === "selectionchange").length;
+  };
+  const editors = "document.querySelectorAll('#editor .fc-editor').length";
+  // Every mounted editor binds once its module loads.
+  await until(`[...document.querySelectorAll('#editor .fc-toolbar')].every(t => [...t.querySelectorAll('button')].some(b => b.tabIndex === 0))`);
+  const mounted = await listeners();
+  const toggle = "[...document.querySelectorAll('#editor button')].find(b => b.textContent.includes('new document'))";
+  await evaluate(`${toggle}.click()`);
+  await until(`${editors} === 4`);
+  await until(`(async () => true)()`);
+  const deadline = Date.now() + 5000;
+  while (Date.now() < deadline && await listeners() !== mounted - 1) await sleep(80);
+  assert.equal(await listeners(), mounted - 1, "the removed editor's selectionchange listener is gone");
+  await evaluate(`${toggle}.click()`);
+  await until(`${editors} === 5`);
+  while (Date.now() < deadline + 5000 && await listeners() !== mounted) await sleep(80);
+  assert.equal(await listeners(), mounted, "a remounted editor binds exactly once");
 });

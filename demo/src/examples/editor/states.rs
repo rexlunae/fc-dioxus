@@ -12,6 +12,7 @@ pub fn States() -> Element {
     const PREWRAP: Bem = Bem::new("fc-u-prewrap");
     let mut html = use_signal(|| DOCUMENT.to_owned());
     let mut marks = use_signal(Vec::<Mark>::new);
+    let mut drafting = use_signal(|| true);
     let active = marks()
         .iter()
         .map(|mark| format!("{mark:?}"))
@@ -31,7 +32,13 @@ pub fn States() -> Element {
             Editor { label: name!("Saving document"), initial: TrustedHtml::assume_trusted(DOCUMENT), state: EditorState::Saving }
             Editor { label: name!("Unsaved document"), initial: TrustedHtml::assume_trusted(DOCUMENT), state: EditorState::Error }
             Editor { label: name!("Published document"), initial: TrustedHtml::assume_trusted(DOCUMENT), readonly: true }
-            Editor { label: name!("New document"), placeholder: "Start writing…".to_owned() }
+            // Removing an editor releases its binding: no listener outlives it.
+            Button { variant: ButtonVariant::Secondary, onclick: move |_| drafting.toggle(),
+                if drafting() { "Discard the new document" } else { "Start a new document" }
+            }
+            if drafting() {
+                Editor { label: name!("New document"), placeholder: "Start writing…".to_owned() }
+            }
             Prose {
                 h2 { "Rendered prose" }
                 p { "Text with " strong { "strong" } ", " em { "emphasis" } ", " code { "code" } ", a " a { href: "#editor", "link" } ", " del { "removed" } " and " ins { "inserted" } " text." }

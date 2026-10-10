@@ -81,6 +81,7 @@
     "upstream/tokens.json": "3c3ecb22efa773e8790c99ee2d19a08ad4f2a9a7a396002b026fdb61aacf6449",
     "upstream/fixtures.html": "6fc1897dbb480687f59fc533597db471037290c75badf72668e73ebf39b2d4c0",
     "upstream/theme-presets.ts": "ce6f2e81d06cf5c9bcd6030e3e82aca5ad8aad082a8248feadfd2cf996f202c9",
+    "upstream/webview.ts": "2b1d1b9e3dddc30e37222d76d5bb3b983916069ee190d0fa0e7dae7fb0f622a1",
     "upstream/LICENSE": "28253dc5801e1215701f7ea59022130473e7ebf1fb4d6ffa0b2b62ab68380050",
     "crates/fc-dioxus/assets/js/editor.js": "86b1330f973ea82c2788ef298b80c5c97adfa308588a39aaf979aa0ccdc93d4d",
     "crates/fc-dioxus/assets/js/selection.js": "f754263b1a8b727e9e8a07bc7eb1e89a191871dc1a7d42ecafeb140f0e2ca0cd",

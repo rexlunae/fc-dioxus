@@ -1,12 +1,11 @@
 //! `frame_url` against upstream's own `isSafeFrameUrl`, run by Node from the pinned
-//! checkout. Only absolute addresses are compared: for relative ones and bare hosts the
+//! snapshot in `upstream/`. Only absolute addresses are compared: for relative ones and bare hosts the
 //! port deliberately differs (documented on `frame_url`), since upstream resolves them
 //! against the host page.
 #![forbid(unsafe_code)]
 
 use fc_dioxus::behavior::url::frame_url;
 use std::{
-    fs,
     io::Write,
     path::Path,
     process::{Command, Stdio},
@@ -48,21 +47,9 @@ const INPUTS: &[&str] = &[
 
 #[test]
 fn absolute_addresses_get_the_same_verdict_as_upstream() -> Result<(), Box<dyn std::error::Error>> {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let pin = fs::read_to_string(root.join("upstream.toml"))?;
-    let rev = pin
-        .lines()
-        .find_map(|line| line.strip_prefix("rev = \""))
-        .and_then(|rest| rest.strip_suffix('"'))
-        .ok_or("upstream.toml has no rev")?;
-    let module = root
-        .join("target/upstream")
-        .join(rev)
-        .join("src/js/webview.ts");
-    assert!(
-        module.exists(),
-        "run `cargo xtask sync-upstream` to check out {rev}"
-    );
+    // Upstream's file is part of the committed snapshot (`upstream/`, kept in step with
+    // the pin by `cargo xtask sync-upstream`), so a fresh clone can run this.
+    let module = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../upstream/webview.ts");
     let script = format!(
         "import {{ isSafeFrameUrl }} from {path:?}; let text = ''; for await (const chunk of process.stdin) text += chunk; console.log(JSON.stringify(JSON.parse(text).map(u => isSafeFrameUrl(u))));",
         path = module.to_string_lossy(),

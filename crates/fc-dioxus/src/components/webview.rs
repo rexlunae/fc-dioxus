@@ -269,7 +269,15 @@ pub fn Webview(
                 if failed {
                     p { class: BEM.element("error"), {error.clone().unwrap_or_else(|| "This page could not be loaded.".to_owned())} }
                     Button { variant: ButtonVariant::Secondary, size: ButtonSize::Sm,
-                        onclick: move |_| if !history.peek().is_empty() { reload() },
+                        onclick: move |_| {
+                            // The address bar may still hold the refused address; show the
+                            // page that is actually being reloaded.
+                            let shown = history.peek().get(at()).cloned();
+                            if let Some(url) = shown {
+                                draft.set(url);
+                                reload();
+                            }
+                        },
                         "Retry"
                     }
                 }
