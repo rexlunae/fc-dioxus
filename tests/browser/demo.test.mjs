@@ -372,6 +372,41 @@ test("the sidebar collapses to a titled rail and the multiselect filters, bulk-s
   await until(`!${ms}.open && document.activeElement === ${ms}.querySelector('summary')`);
 });
 
+test("splitters move by key and pointer, collapse with Enter, and settle once", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const bar = "document.querySelector('#splitter [role=separator]')";
+  const pane = `document.getElementById(${bar}.getAttribute('aria-controls'))`;
+  await evaluate(`${bar}.scrollIntoView({ block: 'center' }); ${bar}.focus()`);
+  await press("ArrowRight", "ArrowRight", 39);
+  await until(`${bar}.getAttribute('aria-valuenow') === '40' && ${pane}.style.getPropertyValue('--fc-split-size') === '40%'`);
+  await press("Enter", "Enter", 13);
+  await until(`${bar}.getAttribute('aria-valuenow') === '15'`);
+  await press("Enter", "Enter", 13);
+  await until(`${bar}.getAttribute('aria-valuenow') === '40'`);
+  await press("End", "End", 35);
+  await until(`${bar}.getAttribute('aria-valuenow') === '70'`);
+  await press("Home", "Home", 36);
+  await until(`${bar}.getAttribute('aria-valuenow') === '15'`);
+
+  const box = await evaluate(`(() => { const r = ${bar}.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; })()`);
+  await send("Input.dispatchMouseEvent", { type: "mousePressed", x: box.x, y: box.y, button: "left", clickCount: 1 });
+  await sleep(200);
+  for (const step of [20, 60, 100]) {
+    await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: box.x + step, y: box.y, button: "left", buttons: 1 });
+    await sleep(60);
+  }
+  await send("Input.dispatchMouseEvent", { type: "mouseReleased", x: box.x + 100, y: box.y, button: "left", clickCount: 1 });
+  await until(`Number(${bar}.getAttribute('aria-valuenow')) > 15`);
+  await until(`document.querySelector('#splitter [role=status]').textContent.includes(${bar}.getAttribute('aria-valuenow') + '%')`);
+
+  const collapsed = "[...document.querySelectorAll('#splitter [role=separator]')][2]";
+  assert.equal(await evaluate(`document.getElementById(${collapsed}.getAttribute('aria-controls')).hidden`), true, "a pane at zero is hidden");
+  const fixed = "[...document.querySelectorAll('#splitter [role=separator]')].pop()";
+  await evaluate(`${fixed}.focus()`);
+  await press("ArrowRight", "ArrowRight", 39);
+  assert.equal(await evaluate(`${fixed}.getAttribute('aria-valuenow')`), "50", "a disabled bar does not move");
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

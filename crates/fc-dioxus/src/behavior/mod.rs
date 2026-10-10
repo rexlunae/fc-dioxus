@@ -3,3 +3,4 @@
 
 pub mod roving;
 pub mod sort;
+pub mod splitter;

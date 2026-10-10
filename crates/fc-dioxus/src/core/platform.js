@@ -19,6 +19,10 @@ try {
     const max = node.scrollWidth - node.clientWidth;
     return `${offset <= 1} ${offset >= max - 1}`;
   }
+  if (operation === "capture") {
+    // Pointer capture keeps a drag's moves coming to the handle wherever the pointer goes.
+    try { node.setPointerCapture(Number(option)); return "ok"; } catch { return "rejected"; }
+  }
   if (operation === "indeterminate") {
     if (!("indeterminate" in node)) return "unsupported";
     node.indeterminate = option === "on";

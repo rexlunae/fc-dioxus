@@ -400,6 +400,11 @@ const CASES: &[Case] = &[
         &["fc-multiselect"],
         || rsx! { fc_demo::examples::multiselect::States {} },
     ),
+    (
+        "splitter",
+        &["fc-split__pane", "fc-resizable"],
+        || rsx! { fc_demo::examples::splitter::States {} },
+    ),
 ];
 
 #[test]

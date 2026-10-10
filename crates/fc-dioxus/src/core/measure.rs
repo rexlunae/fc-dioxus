@@ -58,6 +58,10 @@ pub(crate) enum CustomProperty {
     ToolProgress,
     /// The filled part of a slider's track, as a percentage length.
     SliderPct,
+    /// A split pane's or resizable element's size.
+    SplitSize,
+    /// A stacked split's block size.
+    SplitBlockSize,
 }
 impl CustomProperty {
     const fn name(self) -> &'static str {
@@ -65,6 +69,8 @@ impl CustomProperty {
             Self::ProgressValue => "--fc-progress-value",
             Self::ToolProgress => "--fc-tool-progress",
             Self::SliderPct => "--fc-slider-pct",
+            Self::SplitSize => "--fc-split-size",
+            Self::SplitBlockSize => "--fc-split-block-size",
         }
     }
 }

@@ -142,6 +142,8 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("NavGroup", "nav"),
     ("NavFooter", "nav"),
     ("MultiSelect", "multiselect"),
+    ("Split", "splitter"),
+    ("Resizable", "splitter"),
 ];
 
 /// The examples that render every Divider state.
@@ -431,6 +433,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Multiselect",
         render: || rsx! { examples::multiselect::States {} },
         source: include_str!("examples/multiselect/states.rs"),
+    },
+    Example {
+        id: "splitter",
+        title: "Splitters",
+        render: || rsx! { examples::splitter::States {} },
+        source: include_str!("examples/splitter/states.rs"),
     },
 ];
 

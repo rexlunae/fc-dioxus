@@ -34,6 +34,7 @@ pub mod semantic;
 pub mod slider;
 pub mod spinner;
 pub mod split_button;
+pub mod splitter;
 pub mod suggestion;
 pub mod table;
 pub mod tabs;

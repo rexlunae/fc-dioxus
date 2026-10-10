@@ -19,7 +19,8 @@ where Dioxus forces a change, this file changes in the same commit.
 `Suggestions`, `Suggestion`, `ToolCall`, `Chat`, `ChatGroup`, `Message`, `MessageAction`,
 `MessagePart`, `Tabs`, `Tab`, `TabPanel`, `Toolbar`, `ToolbarItem`, `ToolbarDivider`,
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
-`NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, and `MultiSelect`, plus the
+`NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`, and
+`Resizable`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -199,6 +200,15 @@ Current action/surface APIs refine the proposals below:
   because browsers fire a toggle event for a details that starts open. It does not
   write upstream's `data-fc-values`, which would put app values in an attribute;
   `fc_id` adds kind, id, state, and `data-fc-count`.
+- `Split` (a percentage of the split) and `Resizable` (pixels, with an edge handle) port
+  `splitter.ts` through `behavior::splitter`: arrows move the bar rather than the value
+  (so direction and which side the pane is on decide growth), Shift moves ten steps,
+  Home and End go to the bounds, Enter collapses and restores, and a pane at zero is
+  `hidden`. Pointer drags capture the pointer through `DomBridge::capture_pointer`;
+  Escape puts the bar back. `Resize { value, settled }` lets an app persist only sizes
+  the user let go of. Unlike upstream, a `Resizable`'s `max` is required rather than
+  measured from its container. Upstream's fixture omits bounds its binding adds, so the
+  panes and edge handles are compared and the bars between panes are covered by tests.
 - `name!("…")` builds an `AccessibleName` from a literal, rejecting a blank one at
   compile time.
 - `Timestamp::iso8601` accepts validated UTC instants alongside epoch milliseconds, and

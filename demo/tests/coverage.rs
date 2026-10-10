@@ -74,6 +74,7 @@ const IMPLEMENTED: &[&str] = &[
     "table.css",
     "nav.css",
     "multiselect.css",
+    "splitter.css",
 ];
 
 #[test]

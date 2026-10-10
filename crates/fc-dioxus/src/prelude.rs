@@ -49,6 +49,7 @@ pub use crate::{
         ShimmerText, Spinner, SpinnerKind, SpinnerLabel, SpinnerSize, SpinnerTone,
     },
     components::split_button::SplitButton,
+    components::splitter::{Resizable, Resize, Split},
     components::suggestion::{Suggestion, Suggestions},
     components::table::{SortMode, Table, TableCell, TableColumn, TableRow},
     components::tabs::{Activation, Tab, TabPanel, Tabs},

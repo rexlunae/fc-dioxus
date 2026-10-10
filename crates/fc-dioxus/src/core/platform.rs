@@ -133,6 +133,12 @@ impl DomBridge {
     pub async fn page(self, id: &Id, forward: bool) -> Result<(), DomError> {
         Self::send("page", id.as_str(), if forward { "next" } else { "prev" }).await
     }
+    /// Route a pointer's events to an element for the rest of a drag.
+    /// # Errors
+    /// Returns a host error when the target or API is unavailable.
+    pub async fn capture_pointer(self, id: &Id, pointer: i32) -> Result<(), DomError> {
+        Self::send("capture", id.as_str(), &pointer.to_string()).await
+    }
     /// Show a checkbox as mixed, which only a DOM property can express. Without a host
     /// the checkbox renders unchecked.
     /// # Errors
