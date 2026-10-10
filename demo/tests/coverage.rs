@@ -62,6 +62,11 @@ const IMPLEMENTED: &[&str] = &[
     "approval.css",
     "user-prompt.css",
     "device-auth.css",
+    "reasoning.css",
+    "citation.css",
+    "suggestion.css",
+    "tool-call.css",
+    "chat.css",
 ];
 
 #[test]

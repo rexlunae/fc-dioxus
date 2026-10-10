@@ -111,6 +111,18 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Approval", "approval"),
     ("UserPrompt", "user-prompt"),
     ("DeviceAuth", "device-auth"),
+    ("Reasoning", "reasoning"),
+    ("Cite", "citation"),
+    ("Sources", "citation"),
+    ("Source", "citation"),
+    ("Suggestions", "suggestion"),
+    ("Suggestion", "suggestion"),
+    ("ToolCall", "tool-call"),
+    ("Chat", "chat"),
+    ("ChatGroup", "chat"),
+    ("Message", "chat"),
+    ("MessageAction", "chat"),
+    ("MessagePart", "chat"),
 ];
 
 /// The examples that render every Divider state.
@@ -328,6 +340,36 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Device sign-in",
         render: || rsx! { examples::device_auth::States {} },
         source: include_str!("examples/device_auth/states.rs"),
+    },
+    Example {
+        id: "reasoning",
+        title: "Reasoning traces",
+        render: || rsx! { examples::reasoning::States {} },
+        source: include_str!("examples/reasoning/states.rs"),
+    },
+    Example {
+        id: "citation",
+        title: "Citations & sources",
+        render: || rsx! { examples::citation::States {} },
+        source: include_str!("examples/citation/states.rs"),
+    },
+    Example {
+        id: "suggestion",
+        title: "Suggested prompts",
+        render: || rsx! { examples::suggestion::States {} },
+        source: include_str!("examples/suggestion/states.rs"),
+    },
+    Example {
+        id: "tool-call",
+        title: "Tool calls",
+        render: || rsx! { examples::tool_call::States {} },
+        source: include_str!("examples/tool_call/states.rs"),
+    },
+    Example {
+        id: "chat",
+        title: "Chat",
+        render: || rsx! { examples::chat::States {} },
+        source: include_str!("examples/chat/states.rs"),
     },
 ];
 

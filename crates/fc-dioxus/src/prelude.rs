@@ -8,10 +8,12 @@ pub use crate::{
     components::button::{Button, ButtonProps, ButtonSize, ButtonType, ButtonVariant},
     components::button_group::{ButtonGroup, ControlGroup, ControlLabel, ControlLayout, GroupName},
     components::card::*,
+    components::chat::{Chat, ChatGroup, Message, MessageAction, MessagePart, SentAt},
     components::check::{
         CheckGroup, CheckState, Checkbox, ControlName, Radio, RadioChoice, RadioScope, Switch,
         SwitchRow, SwitchSize,
     },
+    components::citation::{Cite, Source, Sources},
     components::description_list::{DescriptionItem, DescriptionList, DlLayout},
     components::dialog::{Dialog, DialogPlacement, DialogSize},
     components::disclosure::Disclosure,
@@ -30,6 +32,7 @@ pub use crate::{
     components::navbar::{NavBadge, Navbar, NavbarItem},
     components::pagination::{page_window, PageItem, Pagination},
     components::popover::{Popover, Tooltip},
+    components::reasoning::Reasoning,
     components::search::{Search, SearchView},
     components::segmented::{Segment, Segmented, Segments},
     components::semantic::{
@@ -39,9 +42,11 @@ pub use crate::{
         ShimmerText, Spinner, SpinnerKind, SpinnerLabel, SpinnerSize, SpinnerTone,
     },
     components::split_button::SplitButton,
+    components::suggestion::{Suggestion, Suggestions},
     components::toast::{
         use_toasts, Toast, ToastAction, ToastList, ToastOptions, ToastTone, Toaster, Toasts,
     },
+    components::tool_call::{ToolCall, ToolProgress},
     core::{
         attrs::{FcData, InvalidTimestamp, Kind, Timestamp},
         class::{Bem, ClassList, Modifier},

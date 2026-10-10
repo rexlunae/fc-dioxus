@@ -243,11 +243,29 @@ pub(crate) fn availability_attributes(availability: &super::state::Availability)
 
 /// Declare truncation and keep the full value reachable, as upstream's contract requires.
 pub(crate) fn clipped_attributes(text: &super::text::Clipped) -> Vec<Attribute> {
+    let mut attributes = truncated_attribute(text);
+    attributes.extend(full_text_title(text));
+    attributes
+}
+
+/// `data-fc-truncated`, for the element that represents the whole record.
+pub(crate) fn truncated_attribute(text: &super::text::Clipped) -> Vec<Attribute> {
     if text.is_truncated() {
-        vec![
-            Attribute::new("data-fc-truncated", "true", None, false),
-            Attribute::new("title", text.full_text().to_owned(), None, false),
-        ]
+        vec![Attribute::new("data-fc-truncated", "true", None, false)]
+    } else {
+        Vec::new()
+    }
+}
+
+/// The full value as a `title`, for the element showing the shortened text.
+pub(crate) fn full_text_title(text: &super::text::Clipped) -> Vec<Attribute> {
+    if text.is_truncated() {
+        vec![Attribute::new(
+            "title",
+            text.full_text().to_owned(),
+            None,
+            false,
+        )]
     } else {
         Vec::new()
     }

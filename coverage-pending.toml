@@ -2,8 +2,6 @@
 # every state, parity checks, and showcase are implemented. New files fail inventory.
 pending = [
 "carousel.css",
-"chat.css",
-"citation.css",
 "code.css",
 "composer.css",
 "context-strip.css",
@@ -15,16 +13,13 @@ pending = [
 "menu.css",
 "multiselect.css",
 "nav.css",
-"reasoning.css",
 "select.css",
 "slider.css",
 "splitter.css",
-"suggestion.css",
 "table.css",
 "tabs.css",
 "terminal.css",
 "theme-picker.css",
-"tool-call.css",
 "toolbar.css",
 "webview.css",
 ]

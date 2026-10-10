@@ -332,6 +332,31 @@ const CASES: &[Case] = &[
         &["fc-device-auth"],
         || rsx! { fc_demo::examples::device_auth::States {} },
     ),
+    (
+        "reasoning",
+        &["fc-reasoning"],
+        || rsx! { fc_demo::examples::reasoning::States {} },
+    ),
+    (
+        "citation",
+        &["fc-cite", "fc-sources"],
+        || rsx! { fc_demo::examples::citation::States {} },
+    ),
+    (
+        "suggestion",
+        &["fc-suggestions"],
+        || rsx! { fc_demo::examples::suggestion::States {} },
+    ),
+    (
+        "tool-call",
+        &["fc-tool"],
+        || rsx! { fc_demo::examples::tool_call::States {} },
+    ),
+    (
+        "chat",
+        &["fc-chat"],
+        || rsx! { fc_demo::examples::chat::States {} },
+    ),
 ];
 
 #[test]

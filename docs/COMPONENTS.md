@@ -15,7 +15,9 @@ where Dioxus forces a change, this file changes in the same commit.
 `FabMenuItem`, `Masthead`, `MastheadLink`, `Navbar`, `NavbarItem`, `Pagination`,
 `Search`, `SearchView`, `Dialog`, `RadioScope`, `Popover`, `Tooltip`, `Toast`,
 `ToastList`, `Toaster` (with `use_toasts`), `AgentStatus`, `Metric`, `Transfer`,
-`Approval`, `UserPrompt`, and `DeviceAuth`, plus the
+`Approval`, `UserPrompt`, `DeviceAuth`, `Reasoning`, `Cite`, `Sources`, `Source`,
+`Suggestions`, `Suggestion`, `ToolCall`, `Chat`, `ChatGroup`, `Message`, `MessageAction`,
+and `MessagePart`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -147,6 +149,14 @@ Current action/surface APIs refine the proposals below:
   `DeviceAuth::code` is rendered as text only, never as an attribute. `UserPrompt` is a
   `<form>` unless it is a `region`. `AgentStatus` takes a `Lifecycle` and a polite live
   label. `Lifecycle::ALL` and `Lifecycle::is_settled` support state-driven UI.
+- `Reasoning` is a `<details>` whose summary says "Thinking" while live and "Thought"
+  once settled. `Cite` names itself "Source n: title" and links to a `Source` by id.
+  `Suggestion` is a card with title and hint, or a `pill`.
+- `ToolCall` writes its state as `data-fc-state` and as text, shows determinate
+  progress through `--fc-tool-progress` or an indeterminate sweep, and takes its payload
+  as `Clipped`. `Chat` is a `role="log"`; `Message` mirrors role, state, and `Record`
+  into `data-fc-*`, renders `<time datetime>` from a `Timestamp`, and with `clipped`
+  declares truncation on the message and keeps the full text on the body.
 - `name!("…")` builds an `AccessibleName` from a literal, rejecting a blank one at
   compile time.
 - `Timestamp::iso8601` accepts validated UTC instants alongside epoch milliseconds, and

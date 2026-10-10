@@ -54,11 +54,14 @@ impl fmt::Display for Percent {
 pub(crate) enum CustomProperty {
     /// Progress ring fill, 0 to 100.
     ProgressValue,
+    /// A tool call's determinate progress, as a percentage length.
+    ToolProgress,
 }
 impl CustomProperty {
     const fn name(self) -> &'static str {
         match self {
             Self::ProgressValue => "--fc-progress-value",
+            Self::ToolProgress => "--fc-tool-progress",
         }
     }
 }
