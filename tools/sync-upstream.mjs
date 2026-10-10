@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { stripTypeScriptTypes } from "node:module";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
@@ -12,6 +13,8 @@ function pinValue(key) {
   return value;
 }
 export const pin = { repo: pinValue("repo"), rev: pinValue("rev"), version: pinValue("css-version") };
+/** Upstream bindings shipped as JavaScript: the editor and the modules it imports. */
+export const bindings = ["editor", "selection", "urls", "toolbar"];
 export const models = ["fc-core", "fc-model", "fc-rich-text", "fc-select", "fc-context-menu", "fc-grid", "fc-diff", "fc-git"];
 if (!/^[0-9a-f]{40}$/.test(pin.rev) || pin.repo !== "https://github.com/rexlunae/future-css") {
   throw new Error("upstream must use the canonical repository and a full commit SHA");
@@ -96,8 +99,15 @@ export function sync(check = false) {
   for (const path of files(join(cache, "dist")).filter(p => p.endsWith(".css"))) {
     expected.set(`crates/fc-dioxus/assets/${relative(join(cache, "dist"), path)}`, readFileSync(path));
   }
-  for (const [source, dest] of [["dist/tokens.json", "tokens.json"], ["demo/fixtures.html", "fixtures.html"], ["LICENSE", "LICENSE"]]) {
+  for (const [source, dest] of [["dist/tokens.json", "tokens.json"], ["demo/fixtures.html", "fixtures.html"], ["src/js/theme-presets.ts", "theme-presets.ts"], ["src/js/webview.ts", "webview.ts"], ["LICENSE", "LICENSE"]]) {
     expected.set(`upstream/${dest}`, readFileSync(join(cache, source)));
+  }
+  // Bindings whose work is DOM interaction upstream keeps out of its Rust models,
+  // shipped as upstream wrote them: types stripped, sibling imports pointed at .js.
+  for (const name of bindings) {
+    const source = readFileSync(join(cache, "src/js", `${name}.ts`), "utf8");
+    const code = stripTypeScriptTypes(source, { mode: "strip" }).replace(/(from\s+"\.\/[a-z-]+)\.ts"/g, '$1.js"');
+    expected.set(`crates/fc-dioxus/assets/js/${name}.js`, Buffer.from(code));
   }
   const tokenCode = generateTokens(JSON.parse(expected.get("upstream/tokens.json")));
   const formattedTokens = execFileSync("rustfmt", ["--edition", "2021", "--emit", "stdout"], { input: tokenCode });
@@ -109,6 +119,7 @@ export function sync(check = false) {
     const name = assetPath.replace("/assets/", "").replace(/\.css$/, "").replace(/[^a-zA-Z0-9]/g, "_").toUpperCase() + "_CSS";
     assets += `/// Upstream's ${assetPath.replace("/assets/", "")} stylesheet.\npub const ${name}: Asset = asset!(${JSON.stringify(assetPath)});\n`;
   }
+  assets += `/// Upstream's DOM bindings, as one folder so their relative imports resolve.\npub const BINDINGS_JS: Asset = asset!("/assets/js", AssetOptions::folder());\n`;
   assets += `/// Upstream's declared CSS version.\npub const CSS_VERSION: &str = ${JSON.stringify(pin.version)};\n`;
   expected.set("crates/fc-dioxus/src/core/assets.rs", execFileSync("rustfmt", ["--edition", "2021", "--emit", "stdout"], { input: assets }));
   const manifest = { upstream: pin, files: Object.fromEntries([...expected].map(([p, b]) => [p, hash(b)])) };

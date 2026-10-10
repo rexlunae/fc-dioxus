@@ -13,6 +13,12 @@ impl Id {
     pub fn as_str(&self) -> &str {
         &self.0
     }
+    /// A related identifier, such as a field's hint. The suffix is a literal without
+    /// whitespace, so the result is valid whenever `self` is.
+    #[must_use]
+    pub(crate) fn suffixed(&self, suffix: &'static str) -> Self {
+        Self(format!("{}-{suffix}", self.0))
+    }
 }
 impl TryFrom<&str> for Id {
     type Error = InvalidId;

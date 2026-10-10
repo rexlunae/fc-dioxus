@@ -19,8 +19,8 @@ native = ["dioxus/native"]
 ssr = ["dep:dioxus-ssr"]
 
 [dependencies]
-dioxus = { workspace = true, features = ["launch"] }
-fc-dioxus.workspace = true
+dioxus = { workspace = true, features = ["launch", "router"] }
+fc-dioxus = { workspace = true, features = ["router"] }
 dioxus-ssr = { workspace = true, optional = true }
 
 [dev-dependencies]

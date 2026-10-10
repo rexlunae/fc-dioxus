@@ -6,6 +6,8 @@ pub mod attrs;
 pub mod class;
 pub mod controlled;
 pub mod id;
+pub(crate) mod link;
+pub mod measure;
 pub mod platform;
 pub mod state;
 pub mod text;

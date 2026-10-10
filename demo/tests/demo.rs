@@ -2,7 +2,7 @@
 #![forbid(unsafe_code)]
 
 use fc_a11y::{Audit, Document};
-use fc_demo::{Demo, DemoOptions, COMPONENTS, DIVIDER_EXAMPLES};
+use fc_demo::{Demo, DemoOptions, COMPONENTS, COMPONENT_EXAMPLES, DIVIDER_EXAMPLES};
 use fc_dioxus::prelude::*;
 
 fn page(fixtures: bool) -> String {
@@ -54,11 +54,12 @@ fn every_public_component_is_registered_and_shown() -> Result<(), Box<dyn std::e
             "missing fixture {section}"
         );
     }
-    for example in DIVIDER_EXAMPLES {
+    for example in DIVIDER_EXAMPLES.iter().chain(COMPONENT_EXAMPLES) {
         assert!(example.source.contains("// example:start"));
         assert!(example.source.contains("#[component]"));
         let rendered = dioxus_ssr::render_element((example.render)());
-        assert!(rendered.contains("fc-divider"));
+        assert!(rendered.contains("fc-"));
+        assert_eq!(Audit.run(&Document::parse(&rendered)).errors(), 0);
     }
     Ok(())
 }
@@ -79,11 +80,35 @@ fn query_inputs_select_only_known_theme_and_direction_values() {
         DemoOptions {
             fixtures: true,
             theme: Theme::Dark,
-            direction: Direction::Rtl
+            direction: Direction::Rtl,
+            design: Design::Helix,
+            palette: None,
         }
     );
+    assert_eq!(
+        DemoOptions::from_query("?design=ocean&palette=rose").palette,
+        Some(Palette::Rose)
+    );
+    assert_eq!(DemoOptions::from_query("?palette=nope").palette, None);
     assert_eq!(
         DemoOptions::from_query("?theme=garbage&dir=sideways&token=secret"),
         DemoOptions::default()
     );
+}
+
+#[test]
+fn stock_preset_values_match_the_entire_upstream_vocabulary() {
+    let css = include_str!("../../crates/fc-dioxus/assets/themes.css");
+    let names: std::collections::BTreeSet<_> = css
+        .split("[data-fc-design=\"")
+        .skip(1)
+        .filter_map(|part| part.split_once('"').map(|(name, _)| name))
+        .collect();
+    let supported: std::collections::BTreeSet<_> =
+        Design::ALL.iter().map(|preset| preset.as_str()).collect();
+    assert_eq!(names, supported);
+    for preset in Design::ALL {
+        let query = format!("?design={}", preset.as_str());
+        assert_eq!(DemoOptions::from_query(&query).design, *preset);
+    }
 }

@@ -528,6 +528,8 @@ Stylesheets::External }` and the components emit no stylesheet links.
 #[component]
 pub fn FutureCss(
     #[props(default)] theme: Theme,           // System, Light, Dark, HighContrastLight, HighContrastDark
+    #[props(default)] design: Option<Design>, // data-fc-design: geometry, depth, surface, type
+    #[props(default)] palette: Option<Palette>, // data-fc-palette; defaults to design.palette()
     #[props(default)] brand: Option<Brand>,   // data-fc-brand, e.g. Brand::Forest
     #[props(default)] direction: Option<Direction>, // Ltr, Rtl, or inherit
     #[props(default)] stylesheets: Stylesheets,
@@ -596,6 +598,12 @@ Every component follows these, so the API is guessable from one example.
    attributes are applied before the component's own ARIA, so a consumer cannot
    accidentally clear `role` or `aria-expanded`; consumer `class` is appended, never
    replaces.
+   Every list a component spreads is a `Spread`, never a `Vec`: Dioxus diffs a spread
+   as a merge of two name-sorted lists but does not sort it, so an unsorted list drops
+   the wrong attribute when its membership changes (an icon button that became enabled
+   lost its `aria-label`). `Spread::into_boxed_slice`, which rsx calls on every spread,
+   sorts; `spread![…]` builds one. `tests/spread.rs` drives the real diff, and the
+   architecture lint rejects `..vec!` in components.
 3. **Native element first.** A component renders the element the CSS fixture uses:
    `<button>`, `<dialog>`, `<details>`, `<input type=range>`, `<table>`. A `div` with a
    role is used only where the CSS library itself does (the select listbox, the grid).

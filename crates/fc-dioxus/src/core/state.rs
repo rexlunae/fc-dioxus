@@ -63,6 +63,25 @@ pub enum Lifecycle {
     Error,
 }
 impl Lifecycle {
+    /// Every state, in lifecycle order.
+    pub const ALL: &'static [Self] = &[
+        Self::Pending,
+        Self::Queued,
+        Self::Streaming,
+        Self::Running,
+        Self::Complete,
+        Self::Aborted,
+        Self::Denied,
+        Self::Error,
+    ];
+    /// Whether the work has finished, one way or another.
+    #[must_use]
+    pub const fn is_settled(self) -> bool {
+        matches!(
+            self,
+            Self::Complete | Self::Aborted | Self::Denied | Self::Error
+        )
+    }
     /// The upstream attribute value.
     #[must_use]
     pub const fn as_str(self) -> &'static str {
@@ -103,4 +122,23 @@ impl MessageRole {
             Self::Tool => "tool",
         }
     }
+}
+
+/// A semantic HTML heading rank.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum HeadingLevel {
+    /// Level 1 heading.
+    H1,
+    /// Level 2 heading.
+    H2,
+    /// Level 3 heading.
+    #[default]
+    H3,
+    /// Level 4 heading.
+    H4,
+    /// Level 5 heading.
+    H5,
+    /// Level 6 heading.
+    H6,
 }

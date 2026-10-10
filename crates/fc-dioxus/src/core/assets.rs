@@ -145,5 +145,7 @@ pub const TYPE_CSS: Asset = asset!("/assets/type.css");
 pub const UTILITIES_CSS: Asset = asset!("/assets/utilities.css");
 /// Upstream's wide-gamut.css stylesheet.
 pub const WIDE_GAMUT_CSS: Asset = asset!("/assets/wide-gamut.css");
+/// Upstream's DOM bindings, as one folder so their relative imports resolve.
+pub const BINDINGS_JS: Asset = asset!("/assets/js", AssetOptions::folder());
 /// Upstream's declared CSS version.
 pub const CSS_VERSION: &str = "0.0.0";

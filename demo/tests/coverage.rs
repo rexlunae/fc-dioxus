@@ -26,6 +26,69 @@ fn css_classes(css: &str) -> BTreeSet<String> {
         .collect()
 }
 
+/// Component stylesheets with a wrapper; everything else is in coverage-pending.toml.
+const IMPLEMENTED: &[&str] = &[
+    "divider.css",
+    "button.css",
+    "card.css",
+    "badge.css",
+    "alert.css",
+    "avatar.css",
+    "spinner.css",
+    "loading.css",
+    "breadcrumb.css",
+    "empty-state.css",
+    "description-list.css",
+    "list.css",
+    "check.css",
+    "field.css",
+    "form-variants.css",
+    "disclosure.css",
+    "button-group.css",
+    "control-group.css",
+    "segmented.css",
+    "split-button.css",
+    "fab.css",
+    "masthead.css",
+    "navbar.css",
+    "pagination.css",
+    "search.css",
+    "dialog.css",
+    "popover.css",
+    "toast.css",
+    "agent-status.css",
+    "metric.css",
+    "transfer.css",
+    "approval.css",
+    "user-prompt.css",
+    "device-auth.css",
+    "reasoning.css",
+    "citation.css",
+    "suggestion.css",
+    "tool-call.css",
+    "chat.css",
+    "tabs.css",
+    "toolbar.css",
+    "slider.css",
+    "carousel.css",
+    "table.css",
+    "nav.css",
+    "multiselect.css",
+    "splitter.css",
+    "datepicker.css",
+    "select.css",
+    "menu.css",
+    "context-strip.css",
+    "composer.css",
+    "code.css",
+    "diff.css",
+    "git.css",
+    "grid.css",
+    "terminal.css",
+    "webview.css",
+    "editor.css",
+];
+
 #[test]
 fn inventory_and_rendered_classes_cannot_silently_drift() -> Result<(), Box<dyn std::error::Error>>
 {
@@ -50,14 +113,18 @@ fn inventory_and_rendered_classes_cannot_silently_drift() -> Result<(), Box<dyn 
         "unknown classes: {:?}",
         emitted.difference(&all).collect::<Vec<_>>()
     );
-    let implemented = css_classes(&fs::read_to_string(
-        root.join("crates/fc-dioxus/assets/components/divider.css"),
-    )?);
-    assert!(
-        implemented.is_subset(&emitted),
-        "unexercised Divider classes: {:?}",
-        implemented.difference(&emitted).collect::<Vec<_>>()
-    );
+    let implemented_files = IMPLEMENTED;
+    for filename in implemented_files {
+        let implemented = css_classes(&fs::read_to_string(
+            root.join("crates/fc-dioxus/assets/components")
+                .join(filename),
+        )?);
+        assert!(
+            implemented.is_subset(&emitted),
+            "unexercised {filename} classes: {:?}",
+            implemented.difference(&emitted).collect::<Vec<_>>()
+        );
+    }
     let states: BTreeSet<_> = doc
         .nodes
         .iter()
@@ -80,10 +147,12 @@ fn inventory_and_rendered_classes_cannot_silently_drift() -> Result<(), Box<dyn 
         .map(str::to_owned)
         .collect();
     let mut expected = pending;
-    assert!(
-        expected.insert("divider.css".to_owned()),
-        "Divider must be removed from pending"
-    );
+    for filename in implemented_files {
+        assert!(
+            expected.insert((*filename).to_owned()),
+            "{filename} must be removed from pending"
+        );
+    }
     let actual: BTreeSet<_> = fs::read_dir(root.join("crates/fc-dioxus/assets/components"))?
         .map(|entry| entry.map(|e| e.file_name().to_string_lossy().into_owned()))
         .collect::<Result<_, _>>()?;
