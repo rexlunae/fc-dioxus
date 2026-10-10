@@ -17,7 +17,8 @@ where Dioxus forces a change, this file changes in the same commit.
 `ToastList`, `Toaster` (with `use_toasts`), `AgentStatus`, `Metric`, `Transfer`,
 `Approval`, `UserPrompt`, `DeviceAuth`, `Reasoning`, `Cite`, `Sources`, `Source`,
 `Suggestions`, `Suggestion`, `ToolCall`, `Chat`, `ChatGroup`, `Message`, `MessageAction`,
-and `MessagePart`, plus the
+`MessagePart`, `Tabs`, `Tab`, `TabPanel`, `Toolbar`, `ToolbarItem`, `ToolbarDivider`,
+and `ToolbarLabel`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -157,6 +158,18 @@ Current action/surface APIs refine the proposals below:
   as `Clipped`. `Chat` is a `role="log"`; `Message` mirrors role, state, and `Record`
   into `data-fc-*`, renders `<time datetime>` from a `Timestamp`, and with `clipped`
   declares truncation on the message and keeps the full text on the body.
+- `behavior::roving` ports the arrow handling of upstream's `tabs.ts` and `toolbar.ts`:
+  `intent` maps a key to a move from orientation and reading direction (Left moves
+  forward in RTL), and `target` finds the next reachable index, wrapping. Members join a
+  roster in render order and focus moves through their `MountedData`, so it works on
+  every renderer with a DOM. `use_direction()` reads the nearest `FutureCss` direction.
+- `Tabs` takes its `Tab`s in `tabs` and `TabPanel`s as children, paired by value; only
+  the selected panel renders. `Activation::Manual` moves focus without selecting. Give
+  `default_value` for server rendering; otherwise the first enabled tab is chosen once
+  the tabs have rendered. Unavailable tabs are skipped by the arrows.
+- `Toolbar` is one tab stop. `ToolbarItem`s rove with the arrows; natively disabled
+  items are skipped and `aria-disabled` ones stay reachable, per the APG. `surface`
+  is `Plain`, `Floating`, or `Docked`.
 - `name!("…")` builds an `AccessibleName` from a literal, rejecting a blank one at
   compile time.
 - `Timestamp::iso8601` accepts validated UTC instants alongside epoch milliseconds, and

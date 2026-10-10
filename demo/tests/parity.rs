@@ -107,6 +107,12 @@ fn tree_within(document: &Document, index: usize, hidden: bool) -> Option<Tree> 
         attrs.remove("aria-hidden");
     }
     let hidden = hidden || node.attr("aria-hidden") == Some("true");
+    // Upstream's fixtures are the markup before its bindings run; these are what the
+    // bindings add (tabs.ts pairs tabs and panels), so the static reference lacks them.
+    attrs.remove("aria-controls");
+    if attrs.get("role").map(String::as_str) == Some("tabpanel") {
+        attrs.remove("aria-labelledby");
+    }
     // Accessible names and the runtime record (id, order, time) are content, not
     // structure: compare that they are present, not what they say.
     for name in ["aria-label", "data-fc-id", "data-fc-seq", "data-fc-ts"] {
@@ -356,6 +362,16 @@ const CASES: &[Case] = &[
         "chat",
         &["fc-chat"],
         || rsx! { fc_demo::examples::chat::States {} },
+    ),
+    (
+        "tabs",
+        &["fc-tabs"],
+        || rsx! { fc_demo::examples::tabs::States {} },
+    ),
+    (
+        "toolbar",
+        &["fc-toolbar"],
+        || rsx! { fc_demo::examples::toolbar::States {} },
     ),
 ];
 

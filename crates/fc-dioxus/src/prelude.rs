@@ -43,10 +43,12 @@ pub use crate::{
     },
     components::split_button::SplitButton,
     components::suggestion::{Suggestion, Suggestions},
+    components::tabs::{Activation, Tab, TabPanel, Tabs},
     components::toast::{
         use_toasts, Toast, ToastAction, ToastList, ToastOptions, ToastTone, Toaster, Toasts,
     },
     components::tool_call::{ToolCall, ToolProgress},
+    components::toolbar::{Toolbar, ToolbarDivider, ToolbarItem, ToolbarLabel, ToolbarSurface},
     core::{
         attrs::{FcData, InvalidTimestamp, Kind, Timestamp},
         class::{Bem, ClassList, Modifier},
@@ -56,7 +58,10 @@ pub use crate::{
         state::{Availability, HeadingLevel, Lifecycle, MessageRole, Orientation},
         text::{AccessibleName, Alt, ClipMode, Clipped},
     },
-    theme::{Brand, Design, Direction, FutureCss, FutureCssProps, Palette, Stylesheets, Theme},
+    theme::{
+        use_direction, Brand, Design, Direction, FutureCss, FutureCssProps, Palette, Stylesheets,
+        Theme,
+    },
 };
 pub use crate::{fc_modifier, name};
 pub use dioxus::prelude::*;

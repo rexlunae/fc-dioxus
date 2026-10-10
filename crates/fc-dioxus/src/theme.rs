@@ -358,6 +358,18 @@ pub enum Stylesheets {
     External,
 }
 
+/// The reading direction in effect, from the nearest [`FutureCss`] that set one.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct DirectionContext(Direction);
+
+/// The reading direction components should use for arrow keys. Left-to-right unless a
+/// [`FutureCss`] root above sets `direction`.
+#[must_use]
+pub fn use_direction() -> Direction {
+    try_consume_context::<Signal<DirectionContext>>()
+        .map_or(Direction::Ltr, |direction| direction.read().0)
+}
+
 pub(crate) fn use_stylesheets() -> bool {
     try_consume_context::<ReadSignal<Stylesheets>>()
         .is_none_or(|policy| *policy.read() == Stylesheets::Automatic)
@@ -393,6 +405,13 @@ pub struct FutureCssProps {
 #[component]
 pub fn FutureCss(props: FutureCssProps) -> Element {
     use_context_provider(IdAllocator::new);
+    // A root without a direction inherits the one around it.
+    let inherited = use_direction();
+    let effective = DirectionContext(props.direction.unwrap_or(inherited));
+    let mut direction = use_context_provider(|| Signal::new(effective));
+    if *direction.peek() != effective {
+        direction.set(effective);
+    }
     let mut policy = use_signal(|| props.stylesheets);
     if *policy.peek() != props.stylesheets {
         policy.set(props.stylesheets);

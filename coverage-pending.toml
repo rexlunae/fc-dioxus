@@ -17,9 +17,7 @@ pending = [
 "slider.css",
 "splitter.css",
 "table.css",
-"tabs.css",
 "terminal.css",
 "theme-picker.css",
-"toolbar.css",
 "webview.css",
 ]

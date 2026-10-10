@@ -280,6 +280,43 @@ test("dialogs open modally and close on Escape, tooltips dismiss, toasts route a
   await until("!document.querySelector('.fc-toaster [aria-live=assertive] .fc-toast')");
 });
 
+async function press(key, code = key, keyCode = 0) {
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key, code, windowsVirtualKeyCode: keyCode });
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key, code, windowsVirtualKeyCode: keyCode });
+}
+
+for (const dir of ["ltr", "rtl"]) test(`tabs and toolbars rove with arrows in ${dir}`, async () => {
+  await load(`fixtures=false&theme=light&dir=${dir}`, 1200);
+  const forward = dir === "rtl" ? ["ArrowLeft", 37] : ["ArrowRight", 39];
+  const tabs = "[...document.querySelectorAll('#tabs .fc-tabs')[0].querySelectorAll('[role=tab]')]";
+  await evaluate(`${tabs}[0].focus()`);
+  await press(forward[0], forward[0], forward[1]);
+  await until(`document.activeElement === ${tabs}[1] && ${tabs}[1].getAttribute('aria-selected') === 'true'`);
+  assert.ok(await evaluate("document.querySelector('#tabs .fc-tabs [role=tabpanel]').textContent.startsWith('Two problems')"), "automatic activation shows the panel");
+  await press(forward[0], forward[0], forward[1]);
+  await until(`document.activeElement === ${tabs}[0]`);
+  assert.equal(await evaluate(`${tabs}.filter(t => t.tabIndex === 0).length`), 1, "one tab stop");
+  await press("End", "End", 35);
+  await until(`document.activeElement === ${tabs}[1]`);
+
+  const manual = "[...document.querySelectorAll('#tabs .fc-tabs')[3].querySelectorAll('[role=tab]')]";
+  await evaluate(`${manual}[0].focus()`);
+  await press(forward[0], forward[0], forward[1]);
+  await until(`document.activeElement === ${manual}[1]`);
+  assert.equal(await evaluate(`${manual}[1].getAttribute('aria-selected')`), "false", "manual activation only moves focus");
+  await press("Enter", "Enter", 13);
+  await until(`${manual}[1].getAttribute('aria-selected') === 'true'`);
+
+  const items = "[...document.querySelector('#toolbar [role=toolbar]').querySelectorAll('button')]";
+  assert.equal(await evaluate(`${items}.filter(b => b.tabIndex === 0).length`), 1, "one toolbar stop");
+  await evaluate(`${items}[0].focus()`);
+  await press("End", "End", 35);
+  await until(`document.activeElement === ${items}[3]`);
+  assert.equal(await evaluate("document.activeElement.getAttribute('aria-disabled')"), "true", "aria-disabled items stay reachable; natively disabled ones are skipped");
+  await press(forward[0], forward[0], forward[1]);
+  await until(`document.activeElement === ${items}[0]`);
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

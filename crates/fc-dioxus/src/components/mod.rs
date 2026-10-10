@@ -31,8 +31,10 @@ pub mod semantic;
 pub mod spinner;
 pub mod split_button;
 pub mod suggestion;
+pub mod tabs;
 pub mod toast;
 pub mod tool_call;
+pub mod toolbar;
 
 use crate::core::state::HeadingLevel;
 use dioxus::prelude::*;

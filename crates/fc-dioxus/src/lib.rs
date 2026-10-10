@@ -8,6 +8,7 @@
 //! ```
 #![forbid(unsafe_code)]
 
+pub mod behavior;
 pub mod components;
 pub mod core;
 pub mod models;

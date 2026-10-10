@@ -123,6 +123,13 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Message", "chat"),
     ("MessageAction", "chat"),
     ("MessagePart", "chat"),
+    ("Tabs", "tabs"),
+    ("Tab", "tabs"),
+    ("TabPanel", "tabs"),
+    ("Toolbar", "toolbar"),
+    ("ToolbarItem", "toolbar"),
+    ("ToolbarDivider", "toolbar"),
+    ("ToolbarLabel", "toolbar"),
 ];
 
 /// The examples that render every Divider state.
@@ -370,6 +377,18 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Chat",
         render: || rsx! { examples::chat::States {} },
         source: include_str!("examples/chat/states.rs"),
+    },
+    Example {
+        id: "tabs",
+        title: "Tabs",
+        render: || rsx! { examples::tabs::States {} },
+        source: include_str!("examples/tabs/states.rs"),
+    },
+    Example {
+        id: "toolbar",
+        title: "Toolbars",
+        render: || rsx! { examples::toolbar::States {} },
+        source: include_str!("examples/toolbar/states.rs"),
     },
 ];
 

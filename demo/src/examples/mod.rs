@@ -35,8 +35,10 @@ pub mod segmented;
 pub mod spinner;
 pub mod split_button;
 pub mod suggestion;
+pub mod tabs;
 pub mod toast;
 pub mod tool_call;
+pub mod toolbar;
 pub mod transfer;
 pub mod user_prompt;
 
