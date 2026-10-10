@@ -1315,7 +1315,8 @@ upstream keeps it out of its Rust models on purpose. So the markup is Rust and t
 behaviour is upstream's own `editor.ts`, with `selection.ts`, `urls.ts`, and `toolbar.ts`:
 `cargo xtask sync-upstream` strips their types into `assets/js/` (a folder asset, so their
 relative imports resolve), and `DomBridge::bind_editor` imports and attaches them on
-mount, streaming `EditorEvent::Change` and `EditorEvent::Marks` back. The document is
+mount, streaming `EditorEvent::Change` and `EditorEvent::Marks` back; unmounting drops
+the session, which calls the binding's `destroy()` so no listener outlives the editor. The document is
 rendered once and then belongs to the browser; re-rendering `innerHTML` would discard the
 caret. The binding owns the toolbar's `aria-pressed` (marks across the whole selection, so
 a half-bold selection reads as not bold) and its roving tabindex; neither is rendered
@@ -1619,10 +1620,6 @@ pub enum ResizeUnit { Percent, Px }   // % of the split; CSS px for edge handles
   `fc-terminal__text--danger`; two table headers marked sorted at once; busy-button label
   spans in some fixtures and not others; markup from before and after a binding mixed
   in the carousel, splitter, menu, and select fixtures.
-- **Editor binding bugs** found in review (lost block text, unremovable marks,
-  cross-editor commands, leaked listeners) are fixed upstream in
-  [future-css#51](https://github.com/rexlunae/future-css/pull/51); the crate picks them
-  up, and calls the new `destroy()` on unmount, with the next pin bump.
 
 Components and prerequisites this library needs from future-css, each filed as an issue
 upstream under [DESIGN.md, Upstream first](DESIGN.md#upstream-first). Nothing listed here

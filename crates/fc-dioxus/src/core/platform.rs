@@ -348,8 +348,9 @@ pub enum EditorEvent {
     Marks(Vec<crate::models::rich_text::Mark>),
 }
 
-/// Upstream's editor binding attached to one `.fc-editor`. Events arrive in order;
-/// dropping the session stops listening but leaves the binding on its element.
+/// Upstream's editor binding attached to one `.fc-editor`. Events arrive in order.
+/// Dropping the session, as unmounting the editor does when its task ends, calls the
+/// binding's `destroy()`, so no listener outlives the component.
 pub struct EditorSession(document::Eval);
 impl EditorSession {
     /// The next event, or `None` once the host stops sending.
@@ -367,7 +368,12 @@ impl EditorSession {
     /// Replace the document. The HTML must come from the application's own state,
     /// never from untrusted input: like upstream's `value` setter, this is `innerHTML`.
     pub fn set_value(&self, html: &str) {
-        let _ = self.0.send(html);
+        let _ = self.0.send(("set", html));
+    }
+}
+impl Drop for EditorSession {
+    fn drop(&mut self) {
+        let _ = self.0.send(("destroy", ""));
     }
 }
 
@@ -390,7 +396,11 @@ const editor = new FutureCssEditor({
   onSelectionChange: active => dioxus.send(["marks", "", Object.keys(active).filter(mark => active[mark])]),
 });
 dioxus.send(["ready", "", []]);
-while (true) editor.value = await dioxus.recv();"#,
+while (true) {
+  const [op, html] = await dioxus.recv();
+  if (op === "destroy") { editor.destroy(); return; }
+  editor.value = html;
+}"#,
         );
         eval.send((id.as_str(), super::assets::BINDINGS_JS.to_string()))
             .map_err(|_| DomError::Unsupported)?;
