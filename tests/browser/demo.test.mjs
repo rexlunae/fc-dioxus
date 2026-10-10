@@ -317,6 +317,25 @@ for (const dir of ["ltr", "rtl"]) test(`tabs and toolbars rove with arrows in ${
   await until(`document.activeElement === ${items}[0]`);
 });
 
+test("sliders fill to their value and carousels page between their ends", async () => {
+  await load("fixtures=false&theme=light", 320);
+  const slider = "document.querySelector('#slider input[type=range]')";
+  assert.equal(await evaluate(`${slider}.style.getPropertyValue('--fc-slider-pct')`), "35%");
+  await evaluate(`${slider}.focus()`);
+  await press("ArrowRight", "ArrowRight", 39);
+  await until(`${slider}.style.getPropertyValue('--fc-slider-pct') === '40%' && document.querySelector('#slider output').textContent === '0.8'`);
+
+  const carousel = "document.querySelector('#carousel .fc-carousel')";
+  const prev = `${carousel}.querySelector('[data-fc-carousel=prev]')`;
+  const next = `${carousel}.querySelector('[data-fc-carousel=next]')`;
+  await evaluate(`${carousel}.scrollIntoView()`);
+  await until(`${next}.getAttribute('aria-disabled') === 'false'`);
+  assert.equal(await evaluate(`${prev}.getAttribute('aria-disabled')`), "true", "previous is disabled at the start");
+  await evaluate(`${next}.click()`);
+  await until(`Math.abs(${carousel}.querySelector('.fc-carousel__track').scrollLeft) > 0`);
+  await until(`!${prev}.hasAttribute('aria-disabled')`);
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

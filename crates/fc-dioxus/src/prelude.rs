@@ -8,6 +8,7 @@ pub use crate::{
     components::button::{Button, ButtonProps, ButtonSize, ButtonType, ButtonVariant},
     components::button_group::{ButtonGroup, ControlGroup, ControlLabel, ControlLayout, GroupName},
     components::card::*,
+    components::carousel::{Carousel, CarouselLayout, Slide},
     components::chat::{Chat, ChatGroup, Message, MessageAction, MessagePart, SentAt},
     components::check::{
         CheckGroup, CheckState, Checkbox, ControlName, Radio, RadioChoice, RadioScope, Switch,
@@ -38,6 +39,7 @@ pub use crate::{
     components::semantic::{
         AgentStatus, Approval, DeviceAuth, Metric, Record, Transfer, UserPrompt,
     },
+    components::slider::Slider,
     components::spinner::{
         ShimmerText, Spinner, SpinnerKind, SpinnerLabel, SpinnerSize, SpinnerTone,
     },

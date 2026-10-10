@@ -130,6 +130,9 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("ToolbarItem", "toolbar"),
     ("ToolbarDivider", "toolbar"),
     ("ToolbarLabel", "toolbar"),
+    ("Slider", "slider"),
+    ("Carousel", "carousel"),
+    ("Slide", "carousel"),
 ];
 
 /// The examples that render every Divider state.
@@ -389,6 +392,18 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Toolbars",
         render: || rsx! { examples::toolbar::States {} },
         source: include_str!("examples/toolbar/states.rs"),
+    },
+    Example {
+        id: "slider",
+        title: "Sliders",
+        render: || rsx! { examples::slider::States {} },
+        source: include_str!("examples/slider/states.rs"),
+    },
+    Example {
+        id: "carousel",
+        title: "Carousels",
+        render: || rsx! { examples::carousel::States {} },
+        source: include_str!("examples/carousel/states.rs"),
     },
 ];
 

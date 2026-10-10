@@ -108,6 +108,31 @@ impl DomBridge {
         )
         .await
     }
+    /// Whether a scroll container is at its inline start and end, read from the host the
+    /// way upstream's `carousel.ts` does, RTL included.
+    /// # Errors
+    /// Returns a host error when the target or API is unavailable.
+    pub async fn scroll_edges(self, id: &Id) -> Result<(bool, bool), DomError> {
+        let eval = document::eval(include_str!("platform.js"));
+        eval.send(("edges", id.as_str(), ""))
+            .map_err(|_| DomError::Unsupported)?;
+        let answer = eval
+            .join::<String>()
+            .await
+            .map_err(|_| DomError::Unsupported)?;
+        match answer.split_once(' ') {
+            Some((start, end)) => Ok((start == "true", end == "true")),
+            None if answer == "missing" => Err(DomError::MissingTarget),
+            None => Err(DomError::Unsupported),
+        }
+    }
+    /// Scroll a container by most of its visible width, forwards in the reading direction
+    /// or back.
+    /// # Errors
+    /// Returns a host error when the target or API is unavailable.
+    pub async fn page(self, id: &Id, forward: bool) -> Result<(), DomError> {
+        Self::send("page", id.as_str(), if forward { "next" } else { "prev" }).await
+    }
     /// Show a checkbox as mixed, which only a DOM property can express. Without a host
     /// the checkbox renders unchecked.
     /// # Errors

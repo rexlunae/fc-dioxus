@@ -296,3 +296,13 @@ pub(crate) fn dismissed_attribute(dismissed: bool) -> Vec<Attribute> {
         Vec::new()
     }
 }
+
+/// Which way a carousel control pages (`data-fc-carousel`).
+pub(crate) fn carousel_control_attribute(next: bool) -> Attribute {
+    Attribute::new(
+        "data-fc-carousel",
+        if next { "next" } else { "prev" },
+        None,
+        false,
+    )
+}

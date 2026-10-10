@@ -56,12 +56,15 @@ pub(crate) enum CustomProperty {
     ProgressValue,
     /// A tool call's determinate progress, as a percentage length.
     ToolProgress,
+    /// The filled part of a slider's track, as a percentage length.
+    SliderPct,
 }
 impl CustomProperty {
     const fn name(self) -> &'static str {
         match self {
             Self::ProgressValue => "--fc-progress-value",
             Self::ToolProgress => "--fc-tool-progress",
+            Self::SliderPct => "--fc-slider-pct",
         }
     }
 }

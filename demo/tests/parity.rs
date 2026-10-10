@@ -373,6 +373,16 @@ const CASES: &[Case] = &[
         &["fc-toolbar"],
         || rsx! { fc_demo::examples::toolbar::States {} },
     ),
+    (
+        "slider",
+        &["fc-slider"],
+        || rsx! { fc_demo::examples::slider::States {} },
+    ),
+    (
+        "carousel",
+        &["fc-carousel__track"],
+        || rsx! { fc_demo::examples::carousel::States {} },
+    ),
 ];
 
 #[test]

@@ -18,7 +18,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `Approval`, `UserPrompt`, `DeviceAuth`, `Reasoning`, `Cite`, `Sources`, `Source`,
 `Suggestions`, `Suggestion`, `ToolCall`, `Chat`, `ChatGroup`, `Message`, `MessageAction`,
 `MessagePart`, `Tabs`, `Tab`, `TabPanel`, `Toolbar`, `ToolbarItem`, `ToolbarDivider`,
-and `ToolbarLabel`, plus the
+`ToolbarLabel`, `Slider`, `Carousel`, and `Slide`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -170,6 +170,14 @@ Current action/surface APIs refine the proposals below:
 - `Toolbar` is one tab stop. `ToolbarItem`s rove with the arrows; natively disabled
   items are skipped and `aria-disabled` ones stay reachable, per the APG. `surface`
   is `Plain`, `Floating`, or `Docked`.
+- `Slider` is a native range input; `slider_percent` ports upstream's fill
+  computation into `--fc-slider-pct`, and the visible `<output for>` is not a live
+  region, so a step is announced once.
+- `Carousel` scrolls natively; its previous and next buttons page by `PAGE` (85%) of the
+  visible width through `DomBridge::page` and report `aria-disabled` at each end from
+  `DomBridge::scroll_edges`, re-measured on mount, scroll, and resize. `edges` is the
+  pure version for tests. Upstream's carousel fixtures mix markup from before and after
+  its binding runs, so only the track and slides are compared structurally.
 - `name!("…")` builds an `AccessibleName` from a literal, rejecting a blank one at
   compile time.
 - `Timestamp::iso8601` accepts validated UTC instants alongside epoch milliseconds, and

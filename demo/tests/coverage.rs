@@ -69,6 +69,8 @@ const IMPLEMENTED: &[&str] = &[
     "chat.css",
     "tabs.css",
     "toolbar.css",
+    "slider.css",
+    "carousel.css",
 ];
 
 #[test]
