@@ -1622,7 +1622,12 @@ pub enum ResizeUnit { Percent, Px }   // % of the split; CSS px for edge handles
 - **grid.css's unscoped `[role="row"] { display: contents }`**
   ([future-css#48](https://github.com/rexlunae/future-css/issues/48)) collapses git rows
   when it loads after git.css. `GitSurface` requests grid.css before git.css to pin the
-  bundle's order until upstream scopes the rule.
+  bundle's order until upstream scopes the rule
+  ([future-css#52](https://github.com/rexlunae/future-css/pull/52)).
+- **Editor binding bugs** found in review (lost block text, unremovable marks,
+  cross-editor commands, leaked listeners) are fixed upstream in
+  [future-css#51](https://github.com/rexlunae/future-css/pull/51); the crate picks them
+  up, and calls the new `destroy()` on unmount, with the next pin bump.
 
 Components and prerequisites this library needs from future-css, each filed as an issue
 upstream under [DESIGN.md, Upstream first](DESIGN.md#upstream-first). Nothing listed here
@@ -1635,8 +1640,8 @@ its issue link, and gets an API entry above only once upstream has shipped its C
 | `fc-calendar`: date and time values, month grid, `add_months`, first day of week, parity with `datepicker.ts` | New model crate | `DatePicker`, `TimePicker` | To be filed |
 | `fc-highlight`: Rust port of `highlight.ts`, parity-tested | New model crate | Highlighting in `CodeBlock` | To be filed |
 | `fc-markdown`: Rust port of `markdown.ts`, with a plain-text output for announcements | New model crate | `StreamingText { markdown: true }`, Markdown in `Message` | To be filed |
-| `fc-ansi`: ANSI SGR parsing into terminal runs, with a TypeScript twin for upstream's demo | New model crate | Raw ANSI input to `Terminal` | To be filed |
-| `fc-theme`: custom theme validation (schema, SemVer, contrast pairs), TOML parse and serialize, design overrides, as in `theme-picker.ts` and `theme-toml.ts` | New model crate | The `ThemePicker` custom-theme editor | To be filed |
+| `fc-ansi`: ANSI SGR parsing into terminal runs, with a TypeScript twin for upstream's demo | New model crate | Raw ANSI input to `Terminal` | [future-css#53](https://github.com/rexlunae/future-css/issues/53) |
+| `fc-theme`: custom theme validation (schema, SemVer, contrast pairs), TOML parse and serialize, design overrides, as in `theme-picker.ts` and `theme-toml.ts` | New model crate | The `ThemePicker` custom-theme editor | [future-css#54](https://github.com/rexlunae/future-css/issues/54) |
 
 Issues are filed when the phase that needs them starts (see [PLAN.md](PLAN.md)), so each
 one carries a concrete API rather than a wish.
