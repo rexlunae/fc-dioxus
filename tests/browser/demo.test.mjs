@@ -336,6 +336,19 @@ test("sliders fill to their value and carousels page between their ends", async 
   await until(`!${prev}.hasAttribute('aria-disabled')`);
 });
 
+test("tables sort by one column at a time and keep row state", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const table = "document.querySelector('#table table')";
+  const firstColumn = `[...${table}.tBodies[0].rows].map(r => r.cells[0].textContent)`;
+  assert.deepEqual(await evaluate(firstColumn), ["Index docs", "Refactor parser", "Triage issues"]);
+  await evaluate(`[...${table}.querySelectorAll('.fc-table__sort')].find(b => b.textContent === 'Tokens').click()`);
+  await until(`${table}.querySelectorAll('[aria-sort]').length === 1 && ${table}.querySelector('[aria-sort]').textContent === 'Tokens'`);
+  assert.deepEqual(await evaluate(firstColumn), ["Triage issues", "Index docs", "Refactor parser"], "numbers sort as numbers");
+  await evaluate(`[...${table}.querySelectorAll('.fc-table__sort')].find(b => b.textContent === 'Tokens').click()`);
+  await until(`${table}.querySelector('[aria-sort]').getAttribute('aria-sort') === 'descending'`);
+  assert.equal(await evaluate(`${table}.querySelector('tr[aria-selected=true]').cells[0].textContent`), "Refactor parser", "selection follows its row");
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

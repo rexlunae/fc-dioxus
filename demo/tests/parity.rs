@@ -383,6 +383,11 @@ const CASES: &[Case] = &[
         &["fc-carousel__track"],
         || rsx! { fc_demo::examples::carousel::States {} },
     ),
+    (
+        "table",
+        &["fc-table__empty"],
+        || rsx! { fc_demo::examples::table::States {} },
+    ),
 ];
 
 #[test]

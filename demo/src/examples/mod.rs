@@ -37,6 +37,7 @@ pub mod slider;
 pub mod spinner;
 pub mod split_button;
 pub mod suggestion;
+pub mod table;
 pub mod tabs;
 pub mod toast;
 pub mod tool_call;

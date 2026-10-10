@@ -1,5 +1,6 @@
 //! The supported API for applications using `use fc_dioxus::prelude::*`.
 
+pub use crate::behavior::sort::SortDirection;
 pub use crate::{
     components::alert::{Alert, AlertIcon, AlertTone, Dismiss, Urgency},
     components::avatar::{Avatar, AvatarGroup, AvatarSize},
@@ -45,6 +46,7 @@ pub use crate::{
     },
     components::split_button::SplitButton,
     components::suggestion::{Suggestion, Suggestions},
+    components::table::{SortMode, Table, TableCell, TableColumn, TableRow},
     components::tabs::{Activation, Tab, TabPanel, Tabs},
     components::toast::{
         use_toasts, Toast, ToastAction, ToastList, ToastOptions, ToastTone, Toaster, Toasts,

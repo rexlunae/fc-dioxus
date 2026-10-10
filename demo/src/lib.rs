@@ -133,6 +133,7 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Slider", "slider"),
     ("Carousel", "carousel"),
     ("Slide", "carousel"),
+    ("Table", "table"),
 ];
 
 /// The examples that render every Divider state.
@@ -404,6 +405,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Carousels",
         render: || rsx! { examples::carousel::States {} },
         source: include_str!("examples/carousel/states.rs"),
+    },
+    Example {
+        id: "table",
+        title: "Tables",
+        render: || rsx! { examples::table::States {} },
+        source: include_str!("examples/table/states.rs"),
     },
 ];
 

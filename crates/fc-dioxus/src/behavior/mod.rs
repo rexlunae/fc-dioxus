@@ -2,3 +2,4 @@
 //! functions with unit tests; the hooks around them only read and write signals.
 
 pub mod roving;
+pub mod sort;

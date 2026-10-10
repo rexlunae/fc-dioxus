@@ -18,7 +18,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `Approval`, `UserPrompt`, `DeviceAuth`, `Reasoning`, `Cite`, `Sources`, `Source`,
 `Suggestions`, `Suggestion`, `ToolCall`, `Chat`, `ChatGroup`, `Message`, `MessageAction`,
 `MessagePart`, `Tabs`, `Tab`, `TabPanel`, `Toolbar`, `ToolbarItem`, `ToolbarDivider`,
-`ToolbarLabel`, `Slider`, `Carousel`, and `Slide`, plus the
+`ToolbarLabel`, `Slider`, `Carousel`, `Slide`, and `Table`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -178,6 +178,15 @@ Current action/surface APIs refine the proposals below:
   `DomBridge::scroll_edges`, re-measured on mount, scroll, and resize. `edges` is the
   pure version for tests. Upstream's carousel fixtures mix markup from before and after
   its binding runs, so only the track and slides are compared structurally.
+- `Table` takes `columns: Vec<TableColumn>` and `rows: Vec<TableRow>` of `TableCell`s,
+  each with a `sort_key` and optional rich content, in a focusable scroll region named
+  by the caption. Sorting (`behavior::sort`) ports `table.ts`: numbers compare as
+  numbers after removing grouping, sorting is stable, a press flips only an ascending
+  column, and only the sorted header carries `aria-sort`. Text compares naturally and
+  without case but with no locale tailoring, unlike upstream's `Intl.Collator`; give
+  locale-sensitive columns explicit keys. `SortMode::Manual` only reports the request.
+  Upstream's table fixture marks two headers sorted at once, contradicting its own
+  binding, so only the empty-state rows are compared structurally.
 - `name!("…")` builds an `AccessibleName` from a literal, rejecting a blank one at
   compile time.
 - `Timestamp::iso8601` accepts validated UTC instants alongside epoch milliseconds, and
