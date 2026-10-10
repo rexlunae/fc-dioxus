@@ -1,6 +1,10 @@
 //! The supported API for applications using `use fc_dioxus::prelude::*`.
 
-pub use crate::behavior::{date::Date, sort::SortDirection};
+pub use crate::behavior::{
+    context::{ContextState, Effort, ModelChoice, ProviderChoice},
+    date::Date,
+    sort::SortDirection,
+};
 pub use crate::{
     components::alert::{Alert, AlertIcon, AlertTone, Dismiss, Urgency},
     components::avatar::{Avatar, AvatarGroup, AvatarSize},
@@ -16,6 +20,7 @@ pub use crate::{
         SwitchRow, SwitchSize,
     },
     components::citation::{Cite, Source, Sources},
+    components::context_strip::ContextStrip,
     components::datepicker::{DateNames, DatePicker, Time, TimePicker},
     components::description_list::{DescriptionItem, DescriptionList, DlLayout},
     components::dialog::{Dialog, DialogPlacement, DialogSize},

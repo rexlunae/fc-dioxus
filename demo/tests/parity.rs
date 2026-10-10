@@ -424,6 +424,11 @@ const CASES: &[Case] = &[
         ],
         || rsx! { fc_demo::examples::menu::States {} },
     ),
+    (
+        "context-strip",
+        &["fc-context-strip__label"],
+        || rsx! { fc_demo::examples::context_strip::States {} },
+    ),
 ];
 
 #[test]

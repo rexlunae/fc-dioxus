@@ -384,3 +384,29 @@ pub(crate) fn placeholder_attribute(placeholder: bool) -> Vec<Attribute> {
         Vec::new()
     }
 }
+
+/// The context strip's resolved state on its root (`data-fc-provider`, `-model`,
+/// `-effort`), and whether a field applies (`data-fc-applicable`). Ids, not user text.
+pub(crate) fn context_attributes(
+    provider: &str,
+    model: &str,
+    effort: Option<&str>,
+) -> Vec<Attribute> {
+    let mut attrs = vec![
+        Attribute::new("data-fc-provider", provider.to_owned(), None, false),
+        Attribute::new("data-fc-model", model.to_owned(), None, false),
+    ];
+    // Absent rather than empty: empty would claim effort is set to nothing.
+    if let Some(effort) = effort {
+        attrs.push(Attribute::new(
+            "data-fc-effort",
+            effort.to_owned(),
+            None,
+            false,
+        ));
+    }
+    attrs
+}
+pub(crate) fn applicable_attribute(applicable: bool) -> Attribute {
+    Attribute::new("data-fc-applicable", applicable.to_string(), None, false)
+}

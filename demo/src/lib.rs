@@ -151,6 +151,7 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Menu", "menu"),
     ("MenuButton", "menu"),
     ("ContextMenuArea", "menu"),
+    ("ContextStrip", "context-strip"),
 ];
 
 /// The examples that render every Divider state.
@@ -470,6 +471,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Menus",
         render: || rsx! { examples::menu::States {} },
         source: include_str!("examples/menu/states.rs"),
+    },
+    Example {
+        id: "context-strip",
+        title: "Context strip",
+        render: || rsx! { examples::context_strip::States {} },
+        source: include_str!("examples/context_strip/states.rs"),
     },
 ];
 

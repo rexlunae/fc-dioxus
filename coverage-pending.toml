@@ -3,7 +3,6 @@
 pending = [
 "code.css",
 "composer.css",
-"context-strip.css",
 "diff.css",
 "editor.css",
 "git.css",

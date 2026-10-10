@@ -510,6 +510,29 @@ test("menus move focus in, skip what cannot be used, search by typing, and retur
   await until(`document.activeElement === ${area}`);
 });
 
+test("the context strip resolves models by provider and dims effort instead of dropping it", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const strip = "document.querySelector('#context-strip .fc-context-strip')";
+  const combo = label => `[...${strip}.querySelectorAll('[role=combobox]')].find(b => b.getAttribute('aria-label') === '${label}')`;
+  const choose = async (label, value) => {
+    await evaluate(`${combo(label)}.click()`);
+    await until(`document.getElementById(${combo(label)}.id + '-listbox').matches(':popover-open')`);
+    await evaluate(`document.getElementById(${combo(label)}.id + '-listbox').querySelector('[data-fc-value="${value}"]').click()`);
+    await until(`${combo(label)}.getAttribute('aria-expanded') === 'false'`);
+  };
+  assert.equal(await evaluate(`${strip}.dataset.fcModel`), "opus");
+  assert.equal(await evaluate(`${strip}.dataset.fcEffort`), "medium");
+  await choose("Model", "sonnet");
+  await until(`${strip}.dataset.fcModel === 'sonnet'`);
+  await choose("Provider", "local");
+  await until(`${strip}.dataset.fcModel === 'llama' && !('fcEffort' in ${strip}.dataset)`);
+  assert.equal(await evaluate(`${combo("Effort")}.getAttribute('aria-disabled')`), "true");
+  assert.equal(await evaluate(`${strip}.querySelector('[data-fc-applicable]').dataset.fcApplicable`), "false");
+  assert.ok(await evaluate(`${strip}.querySelector('.fc-context-strip__notice').textContent.length > 0`));
+  await choose("Provider", "anthropic");
+  await until(`${strip}.dataset.fcModel === 'sonnet' && ${strip}.dataset.fcEffort === 'medium'`);
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

@@ -78,6 +78,7 @@ const IMPLEMENTED: &[&str] = &[
     "datepicker.css",
     "select.css",
     "menu.css",
+    "context-strip.css",
 ];
 
 #[test]

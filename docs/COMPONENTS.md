@@ -21,7 +21,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
 `NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
 `Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, `Select`, `Menu`, `MenuButton`,
-and `ContextMenuArea`, plus the
+`ContextMenuArea`, and `ContextStrip`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -240,6 +240,12 @@ Current action/surface APIs refine the proposals below:
   report their id so the app can open the next menu), groups, and separators.
   Upstream's fixture draws an open menu with active and expanded markers its binding
   never writes, so only groups, separators, and shortcuts are compared structurally.
+- `ContextStrip` composes three `Select`s over `behavior::context::ContextModel`, a
+  port of `context-strip.ts`: changing provider restores the model that provider had
+  last, else keeps a model both offer, else takes the first; effort applies only to
+  reasoning models, defaults to medium, is dimmed (`data-fc-applicable="false"`) with a
+  status note rather than removed, and is kept when a model ignores it. The resolved
+  state is mirrored as `data-fc-provider`, `-model`, and `-effort`.
 - **Routing.** With the `router` feature, every component that renders a link
   (`LinkButton`, `NavLink`, `Crumb`, `ListAction::Link`, `MastheadLink`, `NavbarItem`,
   pagination links, `Source`) resolves its `href` against the nearest `dioxus-router`
