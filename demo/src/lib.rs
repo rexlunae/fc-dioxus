@@ -39,6 +39,7 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("FutureCss", "future-css"),
     ("Divider", "divider"),
     ("Button", "button"),
+    ("LinkButton", "routing"),
     ("Badge", "badge"),
     ("Tag", "badge"),
     ("Kbd", "badge"),
@@ -447,6 +448,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Date and time pickers",
         render: || rsx! { examples::datepicker::States {} },
         source: include_str!("examples/datepicker/states.rs"),
+    },
+    Example {
+        id: "routing",
+        title: "Routing",
+        render: || rsx! { examples::routing::States {} },
+        source: include_str!("examples/routing/states.rs"),
     },
 ];
 

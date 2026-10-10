@@ -93,10 +93,15 @@ pub fn ListItem(
     };
     let button_state = availability_attributes(&availability);
     let headline = match action.clone() {
-        ListAction::Link(href) => rsx! {
-            a { class: headline_class, href: (!blocked).then_some(href),
-                aria_current: current.then_some("page"), ..link_state, {headline} }
-        },
+        ListAction::Link(href) => {
+            let link = crate::core::link::use_link((!blocked).then_some(href));
+            let current = current || link.current;
+            let href = link.href.clone();
+            rsx! {
+                a { class: headline_class, href, aria_current: current.then_some("page"),
+                    onclick: move |event| { link.follow(&event); }, ..link_state, {headline} }
+            }
+        }
         ListAction::Button(onclick) => rsx! {
             button { class: headline_class, r#type: "button", aria_current: current.then_some("true"),
                 onclick: move |_| if !blocked { onclick.call(()); }, ..button_state, {headline} }

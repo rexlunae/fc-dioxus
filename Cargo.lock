@@ -1822,6 +1822,7 @@ dependencies = [
  "dioxus-html",
  "dioxus-liveview",
  "dioxus-native",
+ "dioxus-router",
  "dioxus-server",
  "dioxus-signals",
  "dioxus-ssr",

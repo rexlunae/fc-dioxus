@@ -49,7 +49,8 @@ Current action/surface APIs refine the proposals below:
   Option<AccessibleName>` selects icon-only mode, so that mode always has a name.
   Native button type, size, full width, pressed, busy, disabled, and focusable
   unavailable states are supported. Busy and unavailable buttons suppress activation
-  and form submission. `LinkButton` remains planned.
+  and form submission. `LinkButton` is a link drawn as a button, for actions that go
+  somewhere; unavailable, it drops its `href` and carries `aria-disabled`.
 - `Card` is a composable native container (`CardTag` includes `Label` for selectable
   cards). `CardVariant::Feature` exposes upstream's themed feature surface. All
   documented parts are available; `CardTitle` uses `Option<HeadingLevel>` (`None`
@@ -218,6 +219,16 @@ Current action/surface APIs refine the proposals below:
   library reads no clock, so `today` is passed in. Offer `Input { r#type:
   InputType::Date }` beside it for people who know the date. `TimePicker` is hour and
   minute fields with an optional AM/PM `Segmented`.
+- **Routing.** With the `router` feature, every component that renders a link
+  (`LinkButton`, `NavLink`, `Crumb`, `ListAction::Link`, `MastheadLink`, `NavbarItem`,
+  pagination links, `Source`) resolves its `href` against the nearest `dioxus-router`
+  `Router`: an internal href gets the history's prefix, a plain left click pushes the
+  route instead of reloading, and the link to the route being shown is marked
+  `aria-current="page"` without the app saying so. Modified clicks, external URLs, and
+  same-page `#fragments` are left to the browser, as the router's own `Link` does.
+  Outside a `Router`, or without the feature, hrefs are used as written. Pass a typed
+  route with `Route::Variant { .. }.to_string()`. The demo's routing section uses an
+  in-memory history so it does not change the page address.
 - `name!("…")` builds an `AccessibleName` from a literal, rejecting a blank one at
   compile time.
 - `Timestamp::iso8601` accepts validated UTC instants alongside epoch milliseconds, and

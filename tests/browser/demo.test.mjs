@@ -430,6 +430,24 @@ test("the date grid moves by day, week, and month, skips nothing, and refuses un
   assert.equal(await evaluate(`${delivery}.dataset.fcValue`), undefined, "a weekend cannot be chosen");
 });
 
+test("links and link buttons navigate in-app inside a router and track the current route", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const section = "document.querySelector('#routing')";
+  const heading = `${section}.querySelector('h3').textContent`;
+  const before = await evaluate("location.href");
+  assert.equal(await evaluate(heading), "Inbox");
+  assert.equal(await evaluate(`${section}.querySelector('.fc-nav__link[aria-current=page]').textContent`), "Inbox");
+  await evaluate(`[...${section}.querySelectorAll('.fc-nav__link')].find(a => a.textContent === 'Projects').click()`);
+  await until(`${heading} === 'Projects' && ${section}.querySelector('.fc-nav__link[aria-current=page]').textContent === 'Projects'`);
+  await evaluate(`${section}.querySelector('.fc-list__action').click()`);
+  await until(`${heading} === 'Project 1' && ${section}.querySelector('.fc-breadcrumb [aria-current=page]')`);
+  await evaluate(`[...${section}.querySelectorAll('.fc-pagination__link')].find(a => a.textContent === '3').click()`);
+  await until(`${heading} === 'Project 3'`);
+  await evaluate(`${section}.querySelector('a.fc-btn').click()`);
+  await until(`${heading} === 'Inbox'`);
+  assert.equal(await evaluate("location.href"), before, "no navigation left the page");
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

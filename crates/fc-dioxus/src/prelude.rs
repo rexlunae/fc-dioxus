@@ -6,7 +6,7 @@ pub use crate::{
     components::avatar::{Avatar, AvatarGroup, AvatarSize},
     components::badge::{Badge, BadgeTone, Kbd, Tag, TagRemove},
     components::breadcrumb::{Breadcrumb, Crumb},
-    components::button::{Button, ButtonProps, ButtonSize, ButtonType, ButtonVariant},
+    components::button::{Button, ButtonProps, ButtonSize, ButtonType, ButtonVariant, LinkButton},
     components::button_group::{ButtonGroup, ControlGroup, ControlLabel, ControlLayout, GroupName},
     components::card::*,
     components::carousel::{Carousel, CarouselLayout, Slide},

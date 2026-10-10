@@ -53,9 +53,10 @@ pub fn Source(
     #[props(default)]
     icon: Option<Element>,
 ) -> Element {
+    let link = crate::core::link::use_link(Some(href));
     rsx! {
         li { class: SOURCE.block(), id: "{id}",
-            a { class: SOURCE.element("link"), href,
+            a { class: SOURCE.element("link"), href: link.href.clone(), onclick: move |event| { link.follow(&event); },
                 if let Some(icon) = icon { span { class: SOURCE.element("icon"), aria_hidden: "true", {icon} } }
                 span { class: SOURCE.element("index"), "{index}" }
                 span { class: SOURCE.element("title"), {title} }

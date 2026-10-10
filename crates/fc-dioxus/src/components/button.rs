@@ -193,3 +193,84 @@ pub fn Button(props: ButtonProps) -> Element {
         }
     }
 }
+
+/// A link drawn as a button, for actions that go somewhere: "View report", "Back to
+/// projects". Inside a `dioxus-router` `Router` (feature `router`), an internal `href`
+/// navigates in-app and is marked current when it is the route being shown.
+///
+/// It stays a link, so it opens in a new tab with a modified click and is announced as
+/// a link. An unavailable link drops its `href` and carries `aria-disabled`, since `<a>`
+/// has no disabled state.
+#[component]
+pub fn LinkButton(
+    href: String,
+    #[props(default)] variant: ButtonVariant,
+    #[props(default)] size: ButtonSize,
+    #[props(default)] block: bool,
+    /// Select icon-only layout with a required accessible name.
+    #[props(default)]
+    icon_label: Option<AccessibleName>,
+    #[props(default)] availability: Availability,
+    /// Called as well as navigating, e.g. to close a menu.
+    #[props(default)]
+    onclick: Option<EventHandler<MouseEvent>>,
+    #[props(default)] class: Option<String>,
+    #[props(extends = GlobalAttributes, extends = a)] attributes: Vec<Attribute>,
+    children: Element,
+) -> Element {
+    let blocked = availability != Availability::Enabled;
+    let link = crate::core::link::use_link((!blocked).then_some(href));
+    let classes = ClassList::new(BEM.block())
+        .with_modifier(BEM, variant)
+        .with_modifier(BEM, size)
+        .with_modifier(
+            BEM,
+            if block {
+                ButtonWidth::Block
+            } else {
+                ButtonWidth::Auto
+            },
+        )
+        .with_modifier(
+            BEM,
+            if icon_label.is_some() {
+                ButtonShape::Icon
+            } else {
+                ButtonShape::Text
+            },
+        )
+        .extend(super::group_item_class().as_deref())
+        .extend(class.as_deref());
+    let mut attributes = component_attributes(
+        attributes,
+        classes,
+        &["href", "aria-disabled", "aria-current", "onclick"],
+    );
+    match &availability {
+        Availability::Enabled => {}
+        Availability::Disabled => {
+            attributes.push(Attribute::new("aria-disabled", "true", None, false));
+        }
+        other => attributes.extend(availability_attributes(other)),
+    }
+    if let Some(label) = &icon_label {
+        attributes.retain(|attr| !matches!(attr.name, "aria-label" | "aria-labelledby"));
+        attributes.push(Attribute::new("aria-label", label.to_string(), None, false));
+    }
+    let href = link.href.clone();
+    let current = link.current;
+    rsx! {
+        if use_stylesheets() { document::Stylesheet { href: assets::COMPONENTS_BUTTON_CSS } }
+        a { href, aria_current: current.then_some("page"),
+            onclick: move |event: MouseEvent| {
+                if blocked {
+                    event.prevent_default();
+                    return;
+                }
+                link.follow(&event);
+                if let Some(onclick) = onclick { onclick.call(event); }
+            },
+            ..attributes, {children}
+        }
+    }
+}

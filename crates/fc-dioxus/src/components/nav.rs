@@ -122,14 +122,19 @@ pub fn NavLink(
         Availability::Disabled => vec![Attribute::new("aria-disabled", "true", None, false)],
         other => availability_attributes(other),
     };
+    let link = crate::core::link::use_link(href.filter(|_| !blocked));
+    let href = link.href.clone();
     let current = match current {
+        // Inside a router, the link to the route being shown is current on its own.
+        NavCurrent::No if link.current => Some("page"),
         NavCurrent::No => None,
         NavCurrent::Page => Some("page"),
         NavCurrent::Section => Some("true"),
     };
     rsx! {
         li {
-            a { class: BEM.element("link"), href: href.filter(|_| !blocked), aria_current: current,
+            a { class: BEM.element("link"), href, aria_current: current,
+                onclick: move |event| { link.follow(&event); },
                 // In the rail the label is hidden visually, so the title names the icon.
                 title: rail.then(|| label.clone()),
                 ..state,

@@ -39,6 +39,8 @@ pub fn Crumb(
     children: Element,
 ) -> Element {
     let current = href.is_none();
+    let link = crate::core::link::use_link(href);
+    let href = link.href.clone();
     let attributes = component_attributes(
         attributes,
         ClassList::new(&BEM.element("link")).extend(class.as_deref()),
@@ -46,7 +48,7 @@ pub fn Crumb(
     );
     rsx! {
         li { class: BEM.element("item"),
-            a { href, aria_current: current.then_some("page"), ..attributes, {children} }
+            a { href, aria_current: current.then_some("page"), onclick: move |event| { link.follow(&event); }, ..attributes, {children} }
         }
     }
 }

@@ -9,6 +9,8 @@ license.workspace = true
 [features]
 default = []
 web = ["dep:web-sys"]
+# Links navigate through the nearest dioxus-router Router instead of reloading the page.
+router = ["dioxus/router"]
 testing = ["dep:dioxus-ssr", "dep:fc-a11y"]
 
 [dependencies]

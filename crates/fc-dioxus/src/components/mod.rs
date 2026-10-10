@@ -132,9 +132,19 @@ pub(crate) fn nav_target(
         Availability::Disabled => vec![Attribute::new("aria-disabled", "true", None, false)],
         other => availability_attributes(other),
     };
+    let link = crate::core::link::use_link(href.filter(|_| !blocked));
+    let current = current || link.current;
+    let href = link.href.clone();
     rsx! {
-        a { class, href: href.filter(|_| !blocked), aria_current: current.then_some("page"),
-            onclick: move |event| if blocked { event.prevent_default(); } else if let Some(onclick) = onclick { onclick.call(event); },
+        a { class, href, aria_current: current.then_some("page"),
+            onclick: move |event| {
+                if blocked {
+                    event.prevent_default();
+                    return;
+                }
+                link.follow(&event);
+                if let Some(onclick) = onclick { onclick.call(event); }
+            },
             ..state, ..extra, {children}
         }
     }

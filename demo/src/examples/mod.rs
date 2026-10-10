@@ -34,6 +34,7 @@ pub mod navbar;
 pub mod pagination;
 pub mod popover;
 pub mod reasoning;
+pub mod routing;
 pub mod search;
 pub mod segmented;
 pub mod slider;
