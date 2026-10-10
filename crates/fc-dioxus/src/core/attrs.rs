@@ -441,3 +441,44 @@ pub(crate) fn lang_attribute(lang: &str) -> Attribute {
 pub(crate) fn diff_attribute(kind: &'static str) -> Attribute {
     Attribute::new("data-fc-diff", kind, None, false)
 }
+
+/// The git surface's machine-readable state. Paths and branch names are repository
+/// data the application already shows; nothing here is secret.
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum GitData {
+    Branch,
+    BranchState,
+    Staged,
+    Unstaged,
+    Conflicted,
+    Untracked,
+    Empty,
+    Path,
+    Selected,
+    Stage,
+    State,
+    Glyph,
+    StagePath,
+}
+impl GitData {
+    const fn name(self) -> &'static str {
+        match self {
+            Self::Branch => "data-fc-branch",
+            Self::BranchState => "data-fc-branch-state",
+            Self::Staged => "data-fc-staged",
+            Self::Unstaged => "data-fc-unstaged",
+            Self::Conflicted => "data-fc-conflicted",
+            Self::Untracked => "data-fc-untracked",
+            Self::Empty => "data-fc-empty",
+            Self::Path => "data-fc-path",
+            Self::Selected => "data-fc-selected",
+            Self::Stage => "data-fc-stage",
+            Self::State => "data-fc-state",
+            Self::Glyph => "data-fc-glyph",
+            Self::StagePath => "data-fc-stage-path",
+        }
+    }
+    pub(crate) fn attribute(self, value: &(impl ToString + ?Sized)) -> Attribute {
+        Attribute::new(self.name(), value.to_string(), None, false)
+    }
+}

@@ -21,7 +21,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
 `NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
 `Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, `Select`, `Menu`, `MenuButton`,
-`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, and `DiffView`, plus the
+`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, `DiffView`, and `GitSurface`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -1215,14 +1215,27 @@ line at a time; the polite region still announces chunks.
 ### Git surface (`git.css`)
 
 ```rust
-#[component] fn GitSurface(branch: Option<String>, entries: ReadSignal<Vec<StatusEntry>>,
-    #[props(default)] selected: Option<String>, onselect: Option<EventHandler<String>>,
-    onstage: Option<EventHandler<String>>, #[props(default)] empty: Option<Element>) -> Element;
-pub use fc_git::{Entry as StatusEntry, State as IndexState};
+#[component] fn GitSurface(branch: Option<String>,   // None: no commits yet, "Initial commit"
+    entries: Vec<GitEntry>,
+    #[props(default)] label: Option<AccessibleName>,    // the file grid; "Changed files"
+    #[props(default)] onselect: Option<EventHandler<String>>,   // path
+    #[props(default)] onstage: Option<EventHandler<String>>) -> Element;   // path
+pub struct GitEntry { pub path: String, pub index: Option<FileState>,
+    pub worktree: Option<FileState>, pub before: Option<String>, pub after: Option<String> }
+pub enum FileState { Added, Modified, Deleted, Renamed, Untracked, Conflicted }
+pub fn summary(&[GitEntry]) -> String;      // "1 conflicted · 2 staged · …" or "Working tree clean"
+pub fn ordered(&[GitEntry]) -> Vec<GitEntry>;
 ```
 
-Counts, ordering, and per-file line stats are `fc_git::summarize_status`, `order_entries`,
-and `diff_counts`. `branch: None` renders the no-commits state.
+It runs no Git: it is a view over status the application already has. Counts, ordering,
+and line stats are `fc_git::summarize_status`, `order_entries`, and `diff_counts`; the
+crate sorts by path first because `order_entries` only breaks ties by input order.
+Conflicts come first, then files changed on both sides. The file list is a grid with one
+tab stop; Up, Down, Home, and End move the selection and focus, and the first file starts
+selected. Each badge carries `data-fc-stage`, `data-fc-state`, and a forced-colors
+`data-fc-glyph`, and its title names the side, since "modified" alone does not say
+whether it is staged. A file with nothing staged gets a Stage button whose keys stay on
+the button. The root mirrors the branch and every count into `data-fc-*`.
 
 ### Rich text editor (`editor.css`)
 

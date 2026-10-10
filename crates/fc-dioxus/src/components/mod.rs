@@ -24,6 +24,7 @@ pub mod disclosure;
 pub mod empty_state;
 pub mod fab;
 pub mod field;
+pub mod git;
 pub mod list;
 pub mod loading;
 pub mod masthead;

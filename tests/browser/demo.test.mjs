@@ -579,3 +579,26 @@ test("native keyboard activation, unavailable guards, toggle tags, and dismiss c
   await until("document.querySelector('#alert [role=status]').textContent.includes('Warning acknowledged')");
   assert.deepEqual(exceptions, []);
 });
+
+test("the git surface sorts conflicts first, roves with arrows, and stages without selecting", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const surface = "document.querySelector('#git .fc-git')";
+  const rows = `[...${surface}.querySelectorAll('[role=row]')]`;
+  assert.equal(await evaluate(`${rows}[0].dataset.fcPath`), "src/js/merge.ts", "the conflict is first");
+  assert.equal(await evaluate(`${rows}[0].getAttribute('aria-selected')`), "true", "the first file starts selected");
+  assert.equal(await evaluate(`${rows}.filter(r => r.tabIndex === 0).length`), 1, "one tab stop");
+  assert.equal(await evaluate(`${surface}.dataset.fcConflicted`), "1");
+  await evaluate(`${rows}[0].focus()`);
+  await press("ArrowDown", "ArrowDown", 40);
+  await until(`${rows}[1].getAttribute('aria-selected') === 'true' && document.activeElement === ${rows}[1]`);
+  await press("End", "End", 35);
+  await until(`document.activeElement === ${rows}.at(-1)`);
+  await until(`document.querySelector('#git [role=status]').textContent === 'Selected ' + ${rows}.at(-1).dataset.fcPath`);
+  const stage = `${surface}.querySelector('.fc-git__stage-button')`;
+  await evaluate(`${stage}.focus()`);
+  await press("Enter", "Enter", 13);
+  await until(`document.querySelector('#git [role=status]').textContent === 'Stage requested for ' + ${stage}.closest('[role=row]').dataset.fcPath`);
+  assert.equal(await evaluate(`${rows}.at(-1).getAttribute('aria-selected')`), "true", "staging does not move the selection");
+  assert.equal(await evaluate("document.querySelectorAll('#git .fc-git')[1].querySelector('.fc-git__empty').textContent"), "No changes");
+  assert.equal(await evaluate("document.querySelectorAll('#git .fc-git')[2].dataset.fcBranchState"), "unborn");
+});

@@ -35,6 +35,7 @@ pub use crate::{
         Choice, ErrorSummary, Field, FieldError, Input, InputAddon, InputGroup, InputSize,
         InputType, InputVariant, NativeSelect, Necessity, Textarea,
     },
+    components::git::{FileState, GitEntry, GitSurface},
     components::list::{List, ListAction, ListItem},
     components::loading::{
         Loading, Progress, ProgressRing, ProgressValue, RingSize, Skeleton, SkeletonShape,

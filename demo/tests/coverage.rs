@@ -82,6 +82,7 @@ const IMPLEMENTED: &[&str] = &[
     "composer.css",
     "code.css",
     "diff.css",
+    "git.css",
 ];
 
 #[test]
