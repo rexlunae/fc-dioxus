@@ -106,7 +106,7 @@ impl Date {
     /// The date `days` since 1970-01-01, or `None` outside years 1–9999.
     #[must_use]
     pub fn from_days(days: i64) -> Option<Self> {
-        let z = days + 719_468;
+        let z = days.checked_add(719_468)?;
         let era = z.div_euclid(146_097);
         let doe = z - era * 146_097;
         let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
@@ -125,7 +125,7 @@ impl Date {
     /// The date `delta` days away, or `None` past the representable range.
     #[must_use]
     pub fn add_days(self, delta: i64) -> Option<Self> {
-        Self::from_days(self.to_days() + delta)
+        Self::from_days(self.to_days().checked_add(delta)?)
     }
     /// Day of the week, 0 = Sunday … 6 = Saturday.
     #[must_use]
@@ -144,7 +144,11 @@ impl Date {
     /// ```
     #[must_use]
     pub fn add_months(self, delta: i32) -> Option<Self> {
-        let index = self.year * 12 + i32::from(self.month) - 1 + delta;
+        let index = self
+            .year
+            .checked_mul(12)?
+            .checked_add(i32::from(self.month) - 1)?
+            .checked_add(delta)?;
         let year = index.div_euclid(12);
         let month = u8::try_from(index.rem_euclid(12) + 1).ok()?;
         let day = self.day.min(days_in_month(year, month));

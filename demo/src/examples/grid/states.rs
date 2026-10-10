@@ -60,7 +60,7 @@ pub fn States() -> Element {
             DataGrid {
                 label: name!("Model costs"),
                 columns: columns.clone(),
-                rows: sheet(),
+                rows: sheet,
                 onedit: move |edit: GridEdit| {
                     if let Some(cell) = sheet.write().get_mut(edit.cell.row).and_then(|row| row.get_mut(edit.cell.col)) {
                         cell.value.clone_from(&edit.value);

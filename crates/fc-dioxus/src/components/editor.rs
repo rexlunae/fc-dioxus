@@ -24,7 +24,29 @@ const PROSE: Bem = Bem::new("fc-prose");
 const TOOLBAR: Bem = Bem::new("fc-toolbar");
 const HIDDEN: Bem = Bem::new("fc-u-visually-hidden");
 
+/// HTML the application vouches for, the only kind an [`Editor`] will render.
+///
+/// The document becomes `innerHTML`, so an event handler or script in it runs for the
+/// reader. Constructing one is an explicit claim that the markup came from the
+/// application's own state or went through its sanitizer, never straight from storage
+/// or another user.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct TrustedHtml(String);
+impl TrustedHtml {
+    /// Wrap markup the caller has already made safe.
+    #[must_use]
+    pub fn assume_trusted(html: impl Into<String>) -> Self {
+        Self(html.into())
+    }
+    /// The markup.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
 /// Whether the document is being saved.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum EditorState {
     /// Editing.
@@ -37,6 +59,7 @@ pub enum EditorState {
 }
 
 /// A block a toolbar button toggles on the paragraph holding the selection.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BlockTag {
     /// A top-level heading.
@@ -99,10 +122,9 @@ pub const DEFAULT_MARKS: [Mark; 5] = [
 pub fn Editor(
     /// Names the document.
     label: AccessibleName,
-    /// The starting document, read once. It becomes `innerHTML`, so it must come from
-    /// the application's own state, never from untrusted input.
+    /// The starting document, read once.
     #[props(default)]
-    initial: String,
+    initial: TrustedHtml,
     /// Shown while the document is empty.
     #[props(default)]
     placeholder: Option<String>,
@@ -124,7 +146,7 @@ pub fn Editor(
     let id = use_id();
     // Read once: after mount the document belongs to the browser and the binding, and
     // re-rendering `innerHTML` would throw away the caret and the user's typing.
-    let initial = use_hook(|| initial.clone());
+    let initial = use_hook(|| initial.as_str().to_owned());
     let mut attributes = component_attributes(
         attributes,
         ClassList::new(BEM.block()).extend(class.as_deref()),

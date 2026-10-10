@@ -64,6 +64,10 @@ pub fn Toast(
     #[props(default)]
     fc_id: Option<Id>,
     #[props(default)] leaving: bool,
+    /// Called with `true` when focus enters the toast and `false` when it leaves, so a
+    /// queue can keep the toast someone is using.
+    #[props(default)]
+    onfocuschange: Option<EventHandler<bool>>,
 ) -> Element {
     let class = ClassList::new(TOAST.block())
         .with_modifier(TOAST, tone)
@@ -82,6 +86,8 @@ pub fn Toast(
         .unwrap_or_else(|| "notification".to_owned());
     rsx! {
         li { class,
+            onfocusin: move |_| if let Some(on) = onfocuschange { on.call(true) },
+            onfocusout: move |_| if let Some(on) = onfocuschange { on.call(false) },
             onkeydown: move |event| if event.key() == Key::Escape { event.prevent_default(); ondismiss.call(()); },
             ..data,
             span { class: TOAST.element("icon"), aria_hidden: "true", "{tone.glyph()}" }
@@ -154,6 +160,8 @@ pub fn default_timeout(tone: ToastTone, has_action: bool, base: u32) -> u32 {
 #[must_use]
 pub fn overflow(keys: &[u64], max: usize, focused: Option<u64>) -> Vec<u64> {
     let excess = keys.len().saturating_sub(max);
+    // As upstream's toast.ts: the oldest past the cap go, skipping a focused one rather
+    // than evicting another in its place.
     keys.iter()
         .take(excess)
         .copied()
@@ -316,7 +324,12 @@ pub fn Toaster(
                 Toast { key: "{toast.key}", tone: toast.options.tone, title: toast.options.title.clone(),
                     body: toast.options.body.clone(), action: toast.options.action.clone(), leaving: toast.leaving,
                     fc_id: Id::try_from(format!("toast-{}", toast.key)).ok(),
-                    ondismiss: move |()| toasts.dismiss(toast.key) }
+                    ondismiss: move |()| toasts.dismiss(toast.key),
+                    // The queue's cap skips this key while it holds focus.
+                    onfocuschange: move |inside: bool| {
+                        if inside { focused.set(Some(toast.key)); }
+                        else if *focused.peek() == Some(toast.key) { focused.set(None); }
+                    } }
             }
         }
     };
@@ -326,7 +339,7 @@ pub fn Toaster(
         section { aria_label: label,
             onpointerenter: move |_| paused.set(true),
             onpointerleave: move |_| if focused.peek().is_none() { paused.set(false); },
-            onfocusin: move |_| { paused.set(true); focused.set(Some(u64::MAX)); },
+            onfocusin: move |_| paused.set(true),
             onfocusout: move |_| { focused.set(None); paused.set(false); },
             ..attributes,
             // Both regions exist, empty, before any message: a live region created with

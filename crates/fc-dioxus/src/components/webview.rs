@@ -12,6 +12,7 @@ use crate::{
     core::{
         assets,
         attrs::{component_attributes, named_state_attribute},
+        platform::DomBridge,
         state::Orientation,
     },
     prelude::*,
@@ -22,6 +23,7 @@ const BEM: Bem = Bem::new("fc-webview");
 const VISUALLY_HIDDEN: Bem = Bem::new("fc-u-visually-hidden");
 
 /// Where the frame is in loading its page.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum WebviewState {
     /// Nothing requested yet.
@@ -86,6 +88,36 @@ pub fn Webview(
     let mut draft = use_signal(|| first.clone().unwrap_or_else(|_| src.clone()));
     let mut seen = use_signal(|| src.clone());
     let mut tab_nodes = use_signal(Vec::<(usize, Rc<MountedData>)>::new);
+    let frame_id = use_id();
+    // The selected tab is the parent's when it handles `ontab`, and the control's own
+    // otherwise, so arrows always leave the focused tab as the tab stop.
+    let mut chosen = use_signal(|| selected_tab);
+    let mut seen_tab = use_signal(|| selected_tab);
+    if *seen_tab.peek() != selected_tab {
+        seen_tab.set(selected_tab);
+        chosen.set(selected_tab);
+    }
+    // Same page again: rendering an unchanged `src` would not navigate, so the frame is
+    // told to reload, as upstream's binding reassigns `src`.
+    let mut reload = {
+        let frame_id = frame_id.clone();
+        move || {
+            let frame_id = frame_id.clone();
+            state.set(WebviewState::Loading);
+            if let Some(onstate) = onstate {
+                onstate.call(WebviewState::Loading);
+            }
+            spawn(async move {
+                let _ = DomBridge.reload_frame(&frame_id).await;
+            });
+        }
+    };
+    let mut choose_tab = move |index: usize| {
+        chosen.set(index);
+        if let Some(ontab) = ontab {
+            ontab.call(index);
+        }
+    };
     let direction = use_direction();
 
     let mut set_state = move |next: WebviewState| {
@@ -161,20 +193,20 @@ pub fn Webview(
                 div { class: BEM.element("tabs"), role: "tablist", aria_label: "Pages",
                     for (index, tab) in tabs.iter().enumerate() {
                         button { key: "{index}", r#type: "button", class: BEM.element("tab"), role: "tab",
-                            aria_selected: (index == selected_tab).to_string(),
-                            tabindex: if index == selected_tab { "0" } else { "-1" },
+                            aria_selected: (index == chosen()).to_string(),
+                            tabindex: if index == chosen() { "0" } else { "-1" },
                             onmounted: move |event: MountedEvent| {
                                 let mut nodes = tab_nodes.write();
                                 nodes.retain(|(i, _)| *i != index);
                                 nodes.push((index, event.data()));
                             },
-                            onclick: move |_| if let Some(ontab) = ontab { ontab.call(index) },
+                            onclick: move |_| choose_tab(index),
                             onkeydown: move |event: KeyboardEvent| {
                                 let Some(step) = roving::intent(&event.key(), Orientation::Horizontal, direction) else { return };
                                 let Some(next) = roving::target(tab_count, index, step, |_| true) else { return };
                                 event.prevent_default();
                                 // Automatic activation: the page follows the focused tab.
-                                if let Some(ontab) = ontab { ontab.call(next); }
+                                choose_tab(next);
                                 let node = tab_nodes.peek().iter().find(|(i, _)| *i == next).map(|(_, n)| n.clone());
                                 if let Some(node) = node {
                                     spawn(async move { let _ = node.set_focus(true).await; });
@@ -195,7 +227,7 @@ pub fn Webview(
                     onclick: move |_| step(true), "\u{2192}" }
                 Button { variant: ButtonVariant::Ghost, size: ButtonSize::Sm, icon_label: name!("Reload"), class: nav_class,
                     availability: if current.is_empty() { Availability::Disabled } else { Availability::Enabled },
-                    onclick: { let current = current.clone(); move |_| go(current.clone(), false) }, "\u{21bb}" }
+                    onclick: { let mut reload = reload.clone(); move |_| reload() }, "\u{21bb}" }
                 // A real form, so Enter submits and mobile keyboards offer "Go".
                 form { class: BEM.element("address"), role: "search",
                     onsubmit: move |event: FormEvent| {
@@ -223,7 +255,10 @@ pub fn Webview(
                         oninput: move |event| draft.set(event.value()) }
                 }
             }
-            iframe { class: BEM.element("frame"), title: "{title}", src: "{current}", "sandbox": "{sandbox}",
+            // An empty src would load the host page itself into the frame; nothing loaded
+            // yet, or a refused first address, is about:blank.
+            iframe { id: "{frame_id}", class: BEM.element("frame"), title: "{title}",
+                src: if current.is_empty() { "about:blank".to_owned() } else { current.clone() }, "sandbox": "{sandbox}",
                 // The host's URL is not the embedded page's business.
                 referrerpolicy: "strict-origin-when-cross-origin",
                 // No camera, microphone, or location unless the host grants them.
@@ -234,10 +269,7 @@ pub fn Webview(
                 if failed {
                     p { class: BEM.element("error"), {error.clone().unwrap_or_else(|| "This page could not be loaded.".to_owned())} }
                     Button { variant: ButtonVariant::Secondary, size: ButtonSize::Sm,
-                        onclick: move |_| {
-                            let url = history.peek().get(at()).cloned();
-                            if let Some(url) = url { go(url, false); }
-                        },
+                        onclick: move |_| if !history.peek().is_empty() { reload() },
                         "Retry"
                     }
                 }

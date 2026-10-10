@@ -40,6 +40,21 @@ impl MediaPreference {
     }
 }
 
+/// A user preference as it changes, from [`DomBridge::watch`].
+pub struct PreferenceWatch {
+    eval: document::Eval,
+    started: bool,
+}
+impl PreferenceWatch {
+    /// The next value, or `None` when the host cannot report it.
+    pub async fn next(&mut self) -> Option<bool> {
+        if !self.started {
+            return None;
+        }
+        self.eval.recv::<bool>().await.ok()
+    }
+}
+
 /// A host operation could not be performed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
@@ -271,6 +286,12 @@ impl DomBridge {
             Err(_) => Err(DomError::Unsupported),
         }
     }
+    /// Reload a frame in place. Re-rendering the same `src` would not navigate.
+    /// # Errors
+    /// Returns a host error when the target is missing or not a frame.
+    pub async fn reload_frame(self, id: &Id) -> Result<(), DomError> {
+        Self::send("reload", id.as_str(), "").await
+    }
     /// Whether a user preference is on, or `None` on hosts without media queries, where
     /// callers keep their light, standard-contrast default.
     pub async fn prefers(self, preference: MediaPreference) -> Option<bool> {
@@ -279,6 +300,16 @@ impl DomBridge {
         );
         eval.send(preference.query()).ok()?;
         eval.join::<Option<bool>>().await.ok().flatten()
+    }
+    /// Follow a user preference: the current value, then each change. Hosts without
+    /// media queries end the stream at once.
+    #[must_use]
+    pub fn watch(self, preference: MediaPreference) -> PreferenceWatch {
+        let eval = document::eval(
+            "const query = await dioxus.recv(); if (typeof matchMedia !== 'function') return; const media = matchMedia(query); dioxus.send(media.matches); media.addEventListener('change', event => dioxus.send(event.matches)); await new Promise(() => {});",
+        );
+        let started = eval.send(preference.query()).is_ok();
+        PreferenceWatch { eval, started }
     }
     /// Detect available host APIs after mounting; SSR and native return defaults.
     pub async fn capabilities(self) -> Capabilities {

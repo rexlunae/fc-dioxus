@@ -21,6 +21,7 @@ const CHECK: Bem = Bem::new("fc-check");
 const INPUT: Bem = Bem::new("fc-input");
 
 /// Light, dark, or the user's preference.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub enum Scheme {
     /// Follow the system.
@@ -53,6 +54,7 @@ impl Scheme {
 }
 
 /// Standard contrast following the system, or high contrast.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub enum Contrast {
     /// Follow the system.
@@ -114,7 +116,7 @@ impl ThemeChoice {
     /// ```
     /// use fc_dioxus::prelude::*;
     /// let mut choice = ThemeChoice::default();
-    /// assert_eq!(choice.theme(true), Theme::System);
+    /// assert_eq!(choice.theme(true), Theme::FollowSystem);
     /// choice.contrast = Contrast::High;
     /// assert_eq!(choice.theme(true), Theme::HighContrastDark);
     /// choice.scheme = Scheme::Light;
@@ -130,7 +132,8 @@ impl ThemeChoice {
         match (self.contrast, self.scheme, dark) {
             (Contrast::High, _, true) => Theme::HighContrastDark,
             (Contrast::High, _, false) => Theme::HighContrastLight,
-            (Contrast::System, Scheme::System, _) => Theme::System,
+            // Explicit, so a picker inside a themed root follows the OS, not the root.
+            (Contrast::System, Scheme::System, _) => Theme::FollowSystem,
             (Contrast::System, _, true) => Theme::Dark,
             (Contrast::System, _, false) => Theme::Light,
         }
@@ -151,30 +154,23 @@ pub fn ThemePicker(
     let group = use_id();
     // Upstream resolves "follow system" with media queries; so do the previews, which
     // must show high contrast in the scheme the page will actually use.
-    let mut dark = use_signal(|| false);
-    let mut forced = use_signal(|| false);
-    let mut more = use_signal(|| false);
+    let dark = use_signal(|| false);
+    let forced = use_signal(|| false);
+    let more = use_signal(|| false);
+    // Followed, not read once: the CSS tracks the OS live, and so must the previews.
     use_hook(move || {
-        spawn(async move {
-            dark.set(
-                DomBridge
-                    .prefers(MediaPreference::DarkScheme)
-                    .await
-                    .unwrap_or(false),
-            );
-            more.set(
-                DomBridge
-                    .prefers(MediaPreference::MoreContrast)
-                    .await
-                    .unwrap_or(false),
-            );
-            forced.set(
-                DomBridge
-                    .prefers(MediaPreference::ForcedColors)
-                    .await
-                    .unwrap_or(false),
-            );
-        });
+        for (preference, mut target) in [
+            (MediaPreference::DarkScheme, dark),
+            (MediaPreference::MoreContrast, more),
+            (MediaPreference::ForcedColors, forced),
+        ] {
+            spawn(async move {
+                let mut watch = DomBridge.watch(preference);
+                while let Some(on) = watch.next().await {
+                    target.set(on);
+                }
+            });
+        }
     });
     let choice = state.get();
     let high = choice.contrast == Contrast::High || more() || forced();

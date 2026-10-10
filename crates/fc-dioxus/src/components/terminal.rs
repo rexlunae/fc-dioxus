@@ -17,6 +17,7 @@ use std::rc::Rc;
 const BEM: Bem = Bem::new("fc-terminal");
 
 /// The sixteen ANSI colours, drawn from themed tokens rather than fixed values.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[allow(missing_docs)]
 pub enum AnsiColor {
@@ -82,6 +83,7 @@ impl AnsiColor {
 }
 
 /// A text attribute a run can carry, by its SGR code.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Sgr {
     /// SGR 1.
@@ -218,6 +220,7 @@ impl From<Vec<TermRun>> for TermLine {
 }
 
 /// Whether the session behind the terminal is live.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum TermState {
     /// Accepting input.
@@ -228,6 +231,7 @@ pub enum TermState {
 }
 
 /// How the cursor is drawn at the end of the output.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum CursorStyle {
     /// No cursor.
@@ -304,7 +308,9 @@ pub fn Terminal(
     } else {
         "connected"
     }));
-    let lines = output.read().clone();
+    // Borrowed, not cloned: a long session would otherwise copy its whole transcript on
+    // every appended line.
+    let lines = output.read();
     let last = lines.len().saturating_sub(1);
     let show_cursor = cursor != CursorStyle::None && !disconnected;
     let cursor_class = ClassList::new(&BEM.element("cursor"))
@@ -322,9 +328,9 @@ pub fn Terminal(
                     // A pixel of slack: fractional scroll positions never quite reach the end.
                     pinned.set(event.scroll_top() >= end - 1.0);
                 },
-                for (index, line) in lines.into_iter().enumerate() {
+                for (index, line) in lines.iter().enumerate() {
                     div { key: "{index}", class: BEM.element("line"),
-                        for run in line.0 {
+                        for run in line.0.iter() {
                             if run.styled() {
                                 span { class: run.classes(), "{run.text}" }
                             } else {
@@ -336,6 +342,12 @@ pub fn Terminal(
                         }
                     }
                 }
+                // A cleared session still shows where typing will appear.
+                if show_cursor && lines.is_empty() {
+                    div { class: BEM.element("line"),
+                        span { class: "{cursor_class}", aria_hidden: "true", "\u{a0}" }
+                    }
+                }
             }
             if let Some(onsubmit) = onsubmit {
                 div { class: BEM.element("input-row"),
@@ -345,7 +357,8 @@ pub fn Terminal(
                         oninput: move |event| { draft.set(event.value()); recall.set(None); },
                         onkeydown: move |event: KeyboardEvent| {
                             let key = event.key();
-                            if key == Key::Enter {
+                            // Enter that confirms an IME candidate is composition, not a command.
+                            if key == Key::Enter && !event.is_composing() {
                                 event.prevent_default();
                                 let command = draft();
                                 if !command.trim().is_empty() {
@@ -355,6 +368,14 @@ pub fn Terminal(
                                 recall.set(None);
                                 pinned.set(true);
                                 onsubmit.call(command);
+                                // Back to the end now, even if the command prints nothing yet.
+                                if let Some(node) = node.peek().clone() {
+                                    spawn(async move {
+                                        if let Ok(size) = node.get_scroll_size().await {
+                                            let _ = node.scroll(PixelsVector2D::new(0.0, size.height), ScrollBehavior::Instant).await;
+                                        }
+                                    });
+                                }
                             } else if key == Key::ArrowUp || key == Key::ArrowDown {
                                 let past = history.peek().len();
                                 if past == 0 { return; }

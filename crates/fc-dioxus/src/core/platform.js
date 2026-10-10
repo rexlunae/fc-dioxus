@@ -78,6 +78,13 @@ try {
     node.indeterminate = option === "on";
     return "ok";
   }
+  if (operation === "reload") {
+    // Reassigning src reloads any frame, cross-origin included, where
+    // contentWindow.location.reload() is out of reach. Upstream's webview.ts does the same.
+    if (!(node instanceof HTMLIFrameElement)) return "unsupported";
+    node.src = node.src;
+    return "ok";
+  }
   const method = {
     modal: "showModal", close: "close", focus: "focus", scroll: "scrollIntoView",
     popover: option === "open" ? "showPopover" : "hidePopover",

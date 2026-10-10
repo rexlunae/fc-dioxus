@@ -133,6 +133,9 @@ struct MenuState {
     expecting_open: Signal<bool>,
     /// Whether the last effect saw it open, so only a real close moves focus back.
     was_open: Signal<bool>,
+    /// Set when Tab closed the menu. The browser has already moved focus to the next
+    /// stop, and returning it to the trigger afterwards would send the user backwards.
+    leaving: Signal<bool>,
 }
 
 /// A menu of actions, shown while `open`. Focus moves to the first item when it opens and
@@ -165,6 +168,7 @@ pub fn Menu(
         typing: Signal::new(0),
         expecting_open: Signal::new(false),
         was_open: Signal::new(false),
+        leaving: Signal::new(false),
     });
     let effect_id = id.clone();
     let effect_anchor = anchor.clone();
@@ -202,15 +206,21 @@ pub fn Menu(
             }
             state.pending_focus.set(true);
         } else if closing {
+            let restore = !*state.leaving.peek();
+            state.leaving.set(false);
             spawn(async move {
                 let _ = DomBridge.toggle_popover(&id, false).await;
-                let _ = DomBridge.focus(&back).await;
+                if restore {
+                    let _ = DomBridge.focus(&back).await;
+                }
             });
         }
     }));
     // The model follows the entries; the highlight survives when the item is still there.
-    if state.model.peek().as_ref().map(|m| m.items().len())
-        != built.as_ref().map(|m| m.items().len())
+    // Compared item by item, not by count: a same-length list with different or newly
+    // disabled items must not keep steering arrows and typeahead by the old one.
+    if state.model.peek().as_ref().map(|m| signature(m.items()))
+        != built.as_ref().map(|m| signature(m.items()))
         || state.model.peek().is_none()
     {
         let active = state
@@ -295,7 +305,7 @@ pub fn Menu(
                     Key::Home => { event.prevent_default(); step(&|m| m.focus_first()); }
                     Key::End => { event.prevent_default(); step(&|m| m.focus_last()); }
                     Key::Escape => { event.prevent_default(); onclose.call(()); }
-                    Key::Tab => onclose.call(()),
+                    Key::Tab => { state.leaving.set(true); onclose.call(()); }
                     Key::Character(text) if !event.modifiers().ctrl() && !event.modifiers().meta() && !event.modifiers().alt() && text != " " => {
                         event.prevent_default();
                         let moved = state.model.write().as_mut().is_some_and(|m| m.typeahead(&text));
@@ -479,4 +489,20 @@ pub fn ContextMenuArea(
             anchor: MenuAnchor::At(at().unwrap_or(MenuPoint { x: 0.0, y: 0.0, flip_y: None, edge: None })),
             return_focus: area.clone(), onclose: move |()| at.set(None), onselect }
     }
+}
+
+/// What navigation depends on in a menu item; `MenuItem` has no `PartialEq` upstream.
+fn signature(items: &[model::MenuItem]) -> Vec<(&str, &str, bool, bool, bool)> {
+    items
+        .iter()
+        .map(|item| {
+            (
+                item.id.as_str(),
+                item.label.as_str(),
+                item.disabled,
+                item.checked,
+                matches!(item.kind, model::ItemKind::Separator),
+            )
+        })
+        .collect()
 }

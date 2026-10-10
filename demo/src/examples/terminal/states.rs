@@ -55,6 +55,8 @@ pub fn States() -> Element {
     const STACK: Bem = Bem::new("fc-stack");
     let mut output = use_signal(transcript);
     let mut exit = use_signal(|| Some(0));
+    // Bumped by `clear`, so a `watch` still running stops instead of refilling the screen.
+    let mut generation = use_signal(|| 0_u32);
     rsx! {
         div { class: STACK.block(),
             Split { label: name!("Editor and terminal"), stacked: true, block_size: "16rem", default_value: 25.0, min: 10.0, max: 80.0,
@@ -83,9 +85,10 @@ pub fn States() -> Element {
                                 "watch" => {
                             // Output that keeps arriving after the command, like a build:
                             // scroll up and it stays where you are.
+                            let started = generation();
                             spawn(async move {
                                 for n in 1..=8 {
-                                    if DomBridge.delay(150).await.is_err() {
+                                    if DomBridge.delay(150).await.is_err() || generation() != started {
                                         break;
                                     }
                                     feed.write().push(vec![TermRun::new("watch").fg(AnsiColor::Cyan), format!(" rebuilt in {}ms", 40 + n * 3).into()].into());
@@ -95,6 +98,7 @@ pub fn States() -> Element {
                         }
                         "clear" => {
                                     lines.clear();
+                                    generation += 1;
                                     exit.set(Some(0));
                                 }
                                 other => {

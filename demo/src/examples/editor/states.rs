@@ -21,16 +21,16 @@ pub fn States() -> Element {
         div { class: STACK.block(),
             Editor {
                 label: name!("Document"),
-                initial: DOCUMENT,
+                initial: TrustedHtml::assume_trusted(DOCUMENT),
                 blocks: vec![BlockTag::H2, BlockTag::Blockquote, BlockTag::Pre],
                 onchange: move |next| html.set(next),
                 onmarks: move |next| marks.set(next),
             }
             p { role: "status", "Marks: {active}" }
             pre { class: PREWRAP.block(), "{html}" }
-            Editor { label: name!("Saving document"), initial: DOCUMENT, state: EditorState::Saving }
-            Editor { label: name!("Unsaved document"), initial: DOCUMENT, state: EditorState::Error }
-            Editor { label: name!("Published document"), initial: DOCUMENT, readonly: true }
+            Editor { label: name!("Saving document"), initial: TrustedHtml::assume_trusted(DOCUMENT), state: EditorState::Saving }
+            Editor { label: name!("Unsaved document"), initial: TrustedHtml::assume_trusted(DOCUMENT), state: EditorState::Error }
+            Editor { label: name!("Published document"), initial: TrustedHtml::assume_trusted(DOCUMENT), readonly: true }
             Editor { label: name!("New document"), placeholder: "Start writing…".to_owned() }
             Prose {
                 h2 { "Rendered prose" }

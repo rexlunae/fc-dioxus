@@ -89,6 +89,13 @@ pub fn MultiSelect(
     // instead of the native state, so Escape can close it too. Toggle events are not
     // used, because the browser also fires one for a details that starts open.
     let mut expanded = use_signal(|| open);
+    // `open` stays the parent's to change after mount; the user's own toggles live in
+    // `expanded` until the parent next says otherwise.
+    let mut seen_open = use_signal(|| open);
+    if *seen_open.peek() != open {
+        seen_open.set(open);
+        expanded.set(open);
+    }
     let mut summary_node = use_signal(|| None::<std::rc::Rc<MountedData>>);
     let chosen = state.get();
     let mut attributes = component_attributes(

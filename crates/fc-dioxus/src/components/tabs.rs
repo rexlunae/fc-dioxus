@@ -114,17 +114,18 @@ pub fn Tabs(
 }
 
 fn tab_id(base: &Id, value: &str) -> String {
-    // Values are author text; keep only id-safe characters so the reference resolves.
-    let safe: String = value
-        .chars()
-        .map(|c| {
-            if c.is_alphanumeric() || c == '-' {
-                c
-            } else {
-                '_'
-            }
-        })
-        .collect();
+    use std::fmt::Write as _;
+    // Values are author text. Letters, digits, and `-` pass through; everything else,
+    // `_` included, becomes `_{hex}_`, so distinct values can never share an id
+    // (`a/b` and `a_b` would both have been `a_b`).
+    let mut safe = String::with_capacity(value.len());
+    for c in value.chars() {
+        if c.is_alphanumeric() || c == '-' {
+            safe.push(c);
+        } else {
+            let _ = write!(safe, "_{:x}_", u32::from(c));
+        }
+    }
     format!("{base}-tab-{safe}")
 }
 

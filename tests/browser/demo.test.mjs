@@ -341,6 +341,19 @@ test("sliders fill to their value and carousels page between their ends", async 
   await until(`!${prev}.hasAttribute('aria-disabled')`);
 });
 
+test("an RTL carousel's Next advances toward the inline end", async () => {
+  await load("fixtures=false&theme=light&dir=rtl", 320);
+  const carousel = "document.querySelector('#carousel .fc-carousel')";
+  const track = `${carousel}.querySelector('.fc-carousel__track')`;
+  const next = `${carousel}.querySelector('[data-fc-carousel=next]')`;
+  await evaluate(`${carousel}.scrollIntoView()`);
+  await until(`${next}.getAttribute('aria-disabled') === 'false'`);
+  await evaluate(`${next}.click()`);
+  // scrollLeft runs negative in RTL; moving forward makes it more negative.
+  await until(`${track}.scrollLeft < 0`);
+  await until(`!${carousel}.querySelector('[data-fc-carousel=prev]').hasAttribute('aria-disabled')`);
+});
+
 test("tables sort by one column at a time and keep row state", async () => {
   await load("fixtures=false&theme=light", 1200);
   const table = "document.querySelector('#table table')";
@@ -634,6 +647,11 @@ test("the data grid lays cells in columns, extends selection with Shift, and edi
   await until(`document.activeElement === ${at(2, 1)} && ${at(2, 1)}.textContent === 'anthropic'`);
   await press("F2", "F2", 113);
   await until(`document.activeElement?.classList.contains('fc-grid__input')`);
+  // Clicking into the editor keeps it open, and it is the grid's only tab stop.
+  await evaluate("document.activeElement.click()");
+  await sleep(150);
+  assert.equal(await evaluate("document.activeElement?.classList.contains('fc-grid__input')"), true, "a click inside the editor does not commit it");
+  assert.equal(await evaluate(`${cells}.filter(c => c.tabIndex === 0).length`), 0, "the editing cell gives up its tab stop");
   await evaluate("(() => { const i = document.activeElement; i.value = 'local'; i.dispatchEvent(new Event('input', { bubbles: true })); })()");
   await press("Enter", "Enter", 13);
   await until(`${at(2, 1)}.textContent === 'local' && ${at(2, 1)}.dataset.fcDirty === 'true' && document.activeElement === ${at(2, 1)}`);
@@ -678,7 +696,7 @@ test("the terminal runs commands, recalls history, follows output, and disables 
   await until(`${lines}.at(-1).textContent.startsWith('watch rebuilt in 64ms')`);
   assert.equal(await evaluate(`${output}.scrollTop`), 0, "new output does not pull a reader back down");
   await run("clear");
-  await until(`${lines}.length === 0`);
+  await until(`${lines}.length === 1 && ${lines}[0].textContent.trim() === '' && ${lines}[0].querySelector('.fc-terminal__cursor')`);
   const dropped = "document.querySelectorAll('#terminal .fc-terminal')[1]";
   assert.equal(await evaluate(`${dropped}.dataset.fcState`), "disconnected");
   assert.equal(await evaluate(`${dropped}.querySelector('.fc-terminal__input').disabled`), true);
@@ -711,10 +729,15 @@ test("the webview sandboxes its frame, keeps its own history, and refuses unsafe
   await until("document.querySelector('#webview [role=status]').textContent === 'Refused or failed to load'");
   await evaluate(`${view}.querySelector('.fc-webview__overlay button').click()`);
   await until(`${view}.dataset.fcState !== 'error' && ${view}.querySelector('.fc-webview__overlay').hidden`);
+  // Reload navigates the frame again, so a load event follows.
+  await until(`${view}.dataset.fcState === 'loaded'`);
+  await evaluate(`${button("Reload")}.click()`);
+  await until(`${view}.dataset.fcState === 'loading'`);
+  await until(`${view}.dataset.fcState === 'loaded'`);
   const plain = "document.querySelectorAll('#webview .fc-webview')[1]";
   assert.equal(await evaluate(`${plain}.querySelector('.fc-webview__secure').dataset.fcState`), "insecure");
   const refused = "document.querySelectorAll('#webview .fc-webview')[2]";
-  assert.equal(await evaluate(`${refused}.querySelector('iframe').getAttribute('src')`), "", "a refused first page loads nothing");
+  assert.equal(await evaluate(`${refused}.querySelector('iframe').getAttribute('src')`), "about:blank", "a refused first page loads nothing, not the host page");
   assert.equal(await evaluate(`${refused}.querySelector('[role=alert]').textContent.startsWith('This page could not be loaded.')`), true);
 });
 

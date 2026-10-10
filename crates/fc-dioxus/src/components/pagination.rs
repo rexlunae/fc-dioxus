@@ -122,7 +122,7 @@ pub fn Pagination(
                         }
                     }
                 }
-                li { {link(page + 1, PageDirection::Next, page < pages, false, next)} }
+                li { {link(page.saturating_add(1), PageDirection::Next, page < pages, false, next)} }
             }
         }
     }

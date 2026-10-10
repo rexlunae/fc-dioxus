@@ -147,6 +147,15 @@ pub fn DatePicker(
     };
     let fallback = today.or(min).or(Date::new(2000, 1, 1).ok());
     let mut focus = use_signal(|| selected.or(fallback).map(clamp));
+    // A selection made outside the calendar (a controlled value, a typed date) shows its
+    // month; the calendar's own navigation leaves `selected` alone, so it is undisturbed.
+    let mut seen = use_signal(|| selected);
+    if *seen.peek() != selected {
+        seen.set(selected);
+        if let Some(date) = selected {
+            focus.set(Some(clamp(date)));
+        }
+    }
     let mut pending = use_signal(|| false);
     let id = use_id();
     let rtl = use_direction() == Direction::Rtl;

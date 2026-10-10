@@ -307,6 +307,9 @@ pub enum Theme {
     HighContrastLight,
     /// High-contrast dark scheme.
     HighContrastDark,
+    /// Follow the user's system preference even inside a root that sets a scheme;
+    /// [`Theme::System`] inherits the surrounding one instead.
+    FollowSystem,
 }
 impl Theme {
     /// The upstream attribute, absent in system mode.
@@ -318,6 +321,7 @@ impl Theme {
             Self::Dark => Some("dark"),
             Self::HighContrastLight => Some("high-contrast-light"),
             Self::HighContrastDark => Some("high-contrast-dark"),
+            Self::FollowSystem => Some("system"),
         }
     }
 }

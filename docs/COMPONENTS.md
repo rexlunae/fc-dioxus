@@ -384,7 +384,8 @@ Shared types (`Availability`, `Lifecycle`, `MessageRole`, `Tone`, `Orientation`,
 ### `FutureCss` and theming
 
 Specified in [DESIGN.md](DESIGN.md#theme). `Theme`: `System`, `Light`, `Dark`,
-`HighContrastLight`, `HighContrastDark`. `Design`: the 21 stock presets, with `name()`,
+`HighContrastLight`, `HighContrastDark`, and `FollowSystem` (`data-fc-theme="system"`: the
+OS preference even inside a root that sets a scheme, where `System` inherits it). `Design`: the 21 stock presets, with `name()`,
 `description()`, and `palette()` from upstream's catalog. `Palette`: `Default`, `Blue`,
 `Violet`, `Forest`, `Ink`, `Teal`, `Ember`, `Rose`, `Amber`, `Helix`. `Brand`: `Forest`
 (the older accent-only override; prefer `Palette::Forest`). `Direction`: `Ltr`, `Rtl`.
@@ -401,6 +402,7 @@ impl ThemeChoice { pub const fn from_design(Design) -> Self; pub const fn theme(
 pub enum Scheme { System, Light, Dark }
 pub enum Contrast { System, High }
 pub async fn DomBridge::prefers(self, MediaPreference) -> Option<bool>;   // DarkScheme, MoreContrast, ForcedColors
+pub fn DomBridge::watch(self, MediaPreference) -> PreferenceWatch;       // the value, then each change
 ```
 
 It chooses and `FutureCss` applies: feed `design`, `palette`, and `theme(prefers_dark)` back
@@ -1177,7 +1179,7 @@ The comparator for `Client` mode is the parity-tested port in `behavior::sort`.
 
 ```rust
 #[component] fn DataGrid(label: AccessibleName, columns: Vec<GridColumn>,
-    rows: Vec<Vec<GridCell>>,                       // controlled: store edits in onedit
+    rows: ReadSignal<Vec<Vec<GridCell>>>,           // controlled: store edits in onedit
     #[props(default = true)] row_headers: bool,
     #[props(default)] total_rows: Option<usize>,    // virtualized: the true row count
     #[props(default)] first_row: usize,             // index of the first rendered row
@@ -1295,7 +1297,7 @@ the button. The root mirrors the branch and every count into `data-fc-*`.
 
 ```rust
 #[component] fn Editor(label: AccessibleName,
-    #[props(default)] initial: String,                 // trusted HTML, read once
+    #[props(default)] initial: TrustedHtml,            // TrustedHtml::assume_trusted(html), read once
     #[props(default)] placeholder: Option<String>,
     #[props(default)] state: EditorState,              // Idle, Saving, Error
     #[props(default)] readonly: bool,

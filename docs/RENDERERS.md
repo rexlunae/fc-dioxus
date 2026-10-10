@@ -19,10 +19,13 @@ demo has the real Chrome suite in `cargo xtask check`; desktop/mobile/liveview/n
 runtime smoke tests, screen-reader passes, and fullstack hydration tests remain
 planned. SSR exports and component structure are exercised by Rust tests.
 
-The current static Divider uses native HTML and upstream border CSS on every host.
-DomBridge reports unsupported host APIs explicitly; native/SSR clipboard actions
-keep selectable source text as their fallback. Modal and popover components do not
-yet ship, so no untested overlay fallback is advertised.
+Without a script host (SSR, native), DomBridge reports each API as unsupported and
+components keep a documented fallback: dialogs render inline and open, popovers and
+menus render in flow, clipboard actions leave the source text selectable, toasts stay
+until dismissed, carousels and terminals do not scroll themselves, a webview's Reload
+does nothing, the theme picker assumes a light, standard-contrast system, and the rich
+text editor is plain editable text with an inert toolbar, since its behaviour is
+upstream's JavaScript binding.
 
 Standalone web supports fixture/theme/direction query inputs. SSR exports accept
 those same inputs explicitly. Fullstack currently starts with the default showcase

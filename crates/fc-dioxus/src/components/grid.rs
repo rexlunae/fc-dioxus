@@ -90,7 +90,8 @@ pub struct GridEdit {
 pub fn DataGrid(
     label: AccessibleName,
     columns: Vec<GridColumn>,
-    rows: Vec<Vec<GridCell>>,
+    /// A signal, so a large sheet is shared rather than copied into each render.
+    rows: ReadSignal<Vec<Vec<GridCell>>>,
     /// Numbers each row in a sticky header column.
     #[props(default = true)]
     row_headers: bool,
@@ -116,16 +117,29 @@ pub fn DataGrid(
     #[props(extends = GlobalAttributes)] attributes: Vec<Attribute>,
 ) -> Element {
     let width = columns.len();
-    let height = rows.len();
+    let height = rows.read().len();
+    // Within the rendered rows, and within the row's own cells: a row shorter than the
+    // header has no cell to hold the tab stop past its end.
     let clamp = move |cell: CellRef| {
-        CellRef::new(
-            cell.row.min(height.saturating_sub(1)),
-            cell.col.min(width.saturating_sub(1)),
-        )
+        let sheet = rows.peek();
+        let row = cell.row.min(sheet.len().saturating_sub(1));
+        let cells = sheet.get(row).map_or(0, Vec::len).min(width);
+        CellRef::new(row, cell.col.min(cells.saturating_sub(1)))
+    };
+    let cell_at = move |cell: CellRef| {
+        rows.peek()
+            .get(cell.row)
+            .and_then(|r| r.get(cell.col))
+            .cloned()
     };
     let mut current = use_signal(|| clamp(active));
     let mut origin = use_signal(|| clamp(anchor.unwrap_or(active)));
-    let mut edit = use_signal(|| editing.map(clamp));
+    // A read-only cell never opens an editor, however the edit was asked for.
+    let mut edit = use_signal(|| {
+        editing
+            .map(clamp)
+            .filter(|at| cell_at(*at).is_some_and(|c| !c.readonly))
+    });
     let mut draft = use_signal(String::new);
     // Only an edit the user starts takes focus; one present on first render must not
     // pull focus from wherever the page put it.
@@ -157,18 +171,6 @@ pub fn DataGrid(
         }
         focus(cell);
     };
-    // The latest cells, readable from handlers without re-rendering anything.
-    let mut cells = use_hook(|| CopyValue::new(rows.clone()));
-    if *cells.peek() != rows {
-        cells.set(rows.clone());
-    }
-    let cell_at = move |cell: CellRef| {
-        cells
-            .peek()
-            .get(cell.row)
-            .and_then(|r| r.get(cell.col))
-            .cloned()
-    };
     let mut begin = move |cell: CellRef| {
         if let Some(found) = cell_at(cell).filter(|c| !c.readonly) {
             draft.set(found.value);
@@ -178,10 +180,17 @@ pub fn DataGrid(
     };
     // A cell that starts in edit mode starts from its value.
     use_hook(|| {
-        if let Some(found) = editing.map(clamp).and_then(cell_at) {
+        if let Some(found) = edit.peek().and_then(cell_at) {
             draft.set(found.value);
         }
     });
+    // A window that moves under an open editor would put it on a different row, and
+    // committing would overwrite that row with the old draft. The edit is dropped.
+    let mut seen_first = use_signal(|| first_row);
+    if *seen_first.peek() != first_row {
+        seen_first.set(first_row);
+        edit.set(None);
+    }
     // `refocus` is false when focus left the editor on its own: it went somewhere the
     // user chose, and taking it back would be theft.
     let mut finish = move |commit: bool, refocus: bool| {
@@ -265,7 +274,7 @@ pub fn DataGrid(
                     }
                 }
             }
-            for (r, row) in rows.iter().enumerate() {
+            for (r, row) in rows.read().iter().enumerate() {
                 div { key: "{first_row + r}", role: "row",
                     aria_rowindex: if virtual_rows { Some((first_row + r + 2).to_string()) } else { None },
                     if row_headers { span { class: BEM.element("row-header"), role: "rowheader", "{first_row + r + 1}" } }
@@ -285,9 +294,9 @@ pub fn DataGrid(
                                 .to_string();
                             rsx! {
                                 span { key: "{c}", class: classes, role: "gridcell",
-                                    // Kept while editing: focus returns here before the editor unmounts, and
-                                    // a span without a tabindex cannot take it.
-                                    tabindex: if is_active { "0" } else { "-1" },
+                                    // -1, not absent, while editing: focus returns here before the editor
+                                    // unmounts, and the input is then the grid's only tab stop.
+                                    tabindex: if is_active && !editing { "0" } else { "-1" },
                                     aria_selected: range.contains(at).to_string(),
                                     aria_invalid: if cell.invalid { Some("true") } else { None },
                                     aria_readonly: if cell.readonly { Some("true") } else { None },
@@ -310,6 +319,10 @@ pub fn DataGrid(
                                                 }
                                             },
                                             oninput: move |event| draft.set(event.value()),
+                                            // The cell's handlers would move focus to the cell and blur
+                                            // (so commit) the editor under the pointer.
+                                            onclick: move |event: MouseEvent| event.stop_propagation(),
+                                            ondoubleclick: move |event: MouseEvent| event.stop_propagation(),
                                             onblur: move |_| finish(true, false),
                                             onkeydown: move |event: KeyboardEvent| {
                                                 // Arrows stay with the text: the grid's keys would
