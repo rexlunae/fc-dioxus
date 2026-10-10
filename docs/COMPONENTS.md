@@ -19,8 +19,8 @@ where Dioxus forces a change, this file changes in the same commit.
 `Suggestions`, `Suggestion`, `ToolCall`, `Chat`, `ChatGroup`, `Message`, `MessageAction`,
 `MessagePart`, `Tabs`, `Tab`, `TabPanel`, `Toolbar`, `ToolbarItem`, `ToolbarDivider`,
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
-`NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`, and
-`Resizable`, plus the
+`NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
+`Resizable`, `DatePicker`, and `TimePicker`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -209,6 +209,15 @@ Current action/surface APIs refine the proposals below:
   the user let go of. Unlike upstream, a `Resizable`'s `max` is required rather than
   measured from its container. Upstream's fixture omits bounds its binding adds, so the
   panes and edge handles are compared and the bars between panes are covered by tests.
+- `DatePicker` ports `datepicker.ts` on `behavior::date::Date`, a validated civil date
+  with exact day arithmetic and ISO text, so no time zone can shift a day. The grid has
+  one tab stop; arrows move by day (swapped in RTL) and week, Home and End to the week's
+  ends, Page Up and Down by month or, with Shift, year. Unavailable days (`min`, `max`,
+  `unavailable`) stay focusable but cannot be chosen. Rust has no locale data, so names
+  come from `DateNames` (English by default) and `first_day_of_week` is a prop; the
+  library reads no clock, so `today` is passed in. Offer `Input { r#type:
+  InputType::Date }` beside it for people who know the date. `TimePicker` is hour and
+  minute fields with an optional AM/PM `Segmented`.
 - `name!("…")` builds an `AccessibleName` from a literal, rejecting a blank one at
   compile time.
 - `Timestamp::iso8601` accepts validated UTC instants alongside epoch milliseconds, and

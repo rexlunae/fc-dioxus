@@ -194,6 +194,10 @@ pub enum InputType {
     Tel,
     /// A number.
     Number,
+    /// A calendar date; the native picker is the fastest way to type a known date.
+    Date,
+    /// A time of day.
+    Time,
 }
 impl InputType {
     const fn attribute(self) -> Option<&'static str> {
@@ -205,6 +209,8 @@ impl InputType {
             Self::Url => Some("url"),
             Self::Tel => Some("tel"),
             Self::Number => Some("number"),
+            Self::Date => Some("date"),
+            Self::Time => Some("time"),
         }
     }
 }

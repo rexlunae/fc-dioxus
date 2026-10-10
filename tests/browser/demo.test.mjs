@@ -281,7 +281,9 @@ test("dialogs open modally and close on Escape, tooltips dismiss, toasts route a
 });
 
 async function press(key, code = key, keyCode = 0) {
-  await send("Input.dispatchKeyEvent", { type: "keyDown", key, code, windowsVirtualKeyCode: keyCode });
+  // Enter activates a focused button only when the key event carries its text.
+  const text = key === "Enter" ? "\r" : undefined;
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key, code, windowsVirtualKeyCode: keyCode, text });
   await send("Input.dispatchKeyEvent", { type: "keyUp", key, code, windowsVirtualKeyCode: keyCode });
 }
 
@@ -405,6 +407,27 @@ test("splitters move by key and pointer, collapse with Enter, and settle once", 
   await evaluate(`${fixed}.focus()`);
   await press("ArrowRight", "ArrowRight", 39);
   assert.equal(await evaluate(`${fixed}.getAttribute('aria-valuenow')`), "50", "a disabled bar does not move");
+});
+
+test("the date grid moves by day, week, and month, skips nothing, and refuses unavailable days", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const picker = "document.querySelector('#datepicker .fc-datepicker')";
+  const focused = "document.activeElement.dataset.fcDate";
+  assert.equal(await evaluate(`${picker}.dataset.fcValue`), "2026-10-21");
+  assert.equal(await evaluate(`${picker}.querySelector('[aria-current=date]').dataset.fcDate`), "2026-10-10");
+  await evaluate(`${picker}.querySelector('.fc-datepicker__day[tabindex="0"]').focus()`);
+  await press("ArrowRight", "ArrowRight", 39);
+  await until(`${focused} === '2026-10-22'`);
+  await press("ArrowDown", "ArrowDown", 40);
+  await until(`${focused} === '2026-10-29'`);
+  await press("PageDown", "PageDown", 34);
+  await until(`${focused} === '2026-11-29' && ${picker}.querySelector('h2').textContent === 'November 2026'`);
+  await press("Enter", "Enter", 13);
+  await until(`${picker}.dataset.fcValue === '2026-11-29'`);
+  const delivery = "document.querySelectorAll('#datepicker .fc-datepicker')[1]";
+  assert.equal(await evaluate(`${delivery}.querySelector('[data-fc-datepicker=prev]').getAttribute('aria-disabled')`), "true", "no earlier month to page to");
+  await evaluate(`${delivery}.querySelector('[data-fc-date="2026-10-17"]').click()`);
+  assert.equal(await evaluate(`${delivery}.dataset.fcValue`), undefined, "a weekend cannot be chosen");
 });
 
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {

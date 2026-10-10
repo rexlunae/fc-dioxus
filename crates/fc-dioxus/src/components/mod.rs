@@ -13,6 +13,7 @@ pub mod carousel;
 pub mod chat;
 pub mod check;
 pub mod citation;
+pub mod datepicker;
 pub mod description_list;
 pub mod dialog;
 pub mod disclosure;

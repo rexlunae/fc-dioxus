@@ -14,6 +14,7 @@ pub mod chat;
 pub mod check;
 pub mod citation;
 pub mod control_group;
+pub mod datepicker;
 pub mod description_list;
 pub mod device_auth;
 pub mod dialog;

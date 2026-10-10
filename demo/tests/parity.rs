@@ -405,6 +405,11 @@ const CASES: &[Case] = &[
         &["fc-split__pane", "fc-resizable"],
         || rsx! { fc_demo::examples::splitter::States {} },
     ),
+    (
+        "datepicker",
+        &["fc-timepicker", "fc-field"],
+        || rsx! { fc_demo::examples::datepicker::States {} },
+    ),
 ];
 
 #[test]

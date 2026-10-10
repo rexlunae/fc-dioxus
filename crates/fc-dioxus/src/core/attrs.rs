@@ -343,3 +343,23 @@ pub(crate) fn selected_attribute(selected: bool) -> Attribute {
 pub(crate) fn count_attribute(count: usize) -> Attribute {
     Attribute::new("data-fc-count", count.to_string(), None, false)
 }
+
+/// A date picker's parts: the day a button stands for (`data-fc-date`), which way a month
+/// button pages (`data-fc-datepicker`), and the selection mirrored on the root
+/// (`data-fc-value`). Dates are ISO strings, never free text.
+pub(crate) fn date_attribute(iso: &str) -> Attribute {
+    Attribute::new("data-fc-date", iso.to_owned(), None, false)
+}
+pub(crate) fn datepicker_nav_attribute(next: bool) -> Attribute {
+    Attribute::new(
+        "data-fc-datepicker",
+        if next { "next" } else { "prev" },
+        None,
+        false,
+    )
+}
+pub(crate) fn date_value_attribute(iso: Option<String>) -> Vec<Attribute> {
+    iso.map(|iso| Attribute::new("data-fc-value", iso, None, false))
+        .into_iter()
+        .collect()
+}

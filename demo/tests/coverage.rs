@@ -75,6 +75,7 @@ const IMPLEMENTED: &[&str] = &[
     "nav.css",
     "multiselect.css",
     "splitter.css",
+    "datepicker.css",
 ];
 
 #[test]
