@@ -482,3 +482,29 @@ impl GitData {
         Attribute::new(self.name(), value.to_string(), None, false)
     }
 }
+
+/// The data grid's machine-readable state.
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum GridData {
+    /// The cell typing goes to.
+    Active,
+    /// Edited and not yet saved.
+    Dirty,
+    /// The true row count, which a virtualized grid renders only part of.
+    RowCount,
+    /// The true column count.
+    ColCount,
+}
+impl GridData {
+    const fn name(self) -> &'static str {
+        match self {
+            Self::Active => "data-fc-active",
+            Self::Dirty => "data-fc-dirty",
+            Self::RowCount => "data-fc-rowcount",
+            Self::ColCount => "data-fc-colcount",
+        }
+    }
+    pub(crate) fn attribute(self, value: &(impl ToString + ?Sized)) -> Attribute {
+        Attribute::new(self.name(), value.to_string(), None, false)
+    }
+}

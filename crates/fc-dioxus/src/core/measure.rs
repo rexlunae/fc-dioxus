@@ -84,3 +84,21 @@ pub(crate) fn custom_property(property: CustomProperty, value: impl fmt::Display
         false,
     )
 }
+
+/// The data grid's column template: an `auto` track for row headers when present, then
+/// `columns` equal tracks.
+///
+/// The one inline style that is not a custom property. `grid.css` sizes implicit tracks
+/// with `grid-auto-columns`, and rows are `display: contents`, so nothing creates the
+/// tracks and every cell stacks in one column. Upstream's binding and its fixture both
+/// write this declaration inline for that reason; it is layout the markup's shape
+/// decides, not a colour or a theme value.
+pub(crate) fn grid_columns(row_headers: bool, columns: usize) -> Attribute {
+    let lead = if row_headers { "auto " } else { "" };
+    Attribute::new(
+        "style",
+        format!("grid-template-columns: {lead}repeat({columns}, minmax(0, 1fr))"),
+        None,
+        false,
+    )
+}

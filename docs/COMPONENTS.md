@@ -21,7 +21,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
 `NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
 `Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, `Select`, `Menu`, `MenuButton`,
-`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, `DiffView`, and `GitSurface`, plus the
+`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, `DiffView`, `GitSurface`, and `DataGrid`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -1149,20 +1149,40 @@ The comparator for `Client` mode is the parity-tested port in `behavior::sort`.
 ### Data grid (`grid.css`)
 
 ```rust
-#[component] fn DataGrid(label: AccessibleName, model: Signal<GridModel>,
-    columns: Vec<GridColumn>, #[props(default)] row_headers: bool,
-    #[props(default)] readonly: bool,
-    onactivecellchange: Option<EventHandler<CellRef>>,
-    onselectionchange: Option<EventHandler<CellRange>>,
-    oncelledit: Option<EventHandler<(CellRef, String)>>,
-    #[props(default)] validate: Option<Callback<(CellRef, String), Result<(), String>>>) -> Element;
-pub struct GridColumn { pub header: String, pub numeric: bool }
+#[component] fn DataGrid(label: AccessibleName, columns: Vec<GridColumn>,
+    rows: Vec<Vec<GridCell>>,                       // controlled: store edits in onedit
+    #[props(default = true)] row_headers: bool,
+    #[props(default)] total_rows: Option<usize>,    // virtualized: the true row count
+    #[props(default)] first_row: usize,             // index of the first rendered row
+    #[props(default = CellRef::new(0, 0))] active: CellRef,
+    #[props(default)] anchor: Option<CellRef>,      // first render's selection start
+    #[props(default)] editing: Option<CellRef>,     // a cell that starts in edit mode
+    #[props(default)] onedit: Option<EventHandler<GridEdit>>,
+    #[props(default)] onselect: Option<EventHandler<CellRange>>) -> Element;
+pub struct GridColumn { pub label: String, pub numeric: bool }   // ::text, ::numeric
+pub struct GridCell { pub value: String, pub dirty: bool, pub invalid: bool, pub readonly: bool }
+pub struct GridEdit { pub cell: CellRef, pub value: String }
 ```
 
-`GridModel` wraps `fc_grid::Grid`, `CellRange`, and `Viewport`, so range selection, fill
-down, and the render window are the crate's. Cells render `aria-selected`,
-`data-fc-active`, `data-fc-dirty`, `aria-invalid`, and `aria-readonly`; the editing cell
-gets `__cell--editing` and `__input`. The render window is virtualized from `Viewport`.
+Selection is `fc_grid::CellRange` from the anchor to the active cell. One cell is a tab
+stop. Arrows move (Left and Right follow the writing direction, which upstream's binding
+does not yet do), Shift extends, Home and End go to the row ends and with Ctrl to the
+corners, Page Up and Page Down move ten rows, Ctrl+Space selects the row, Shift- or
+Ctrl-click extends, and Enter, F2, or a double click edits. In the editor, Enter commits,
+Escape discards, and leaving commits; every key stays with the input. The editing cell
+keeps its tabindex, since focus returns to it before the input unmounts. Cells render
+`aria-selected`, `data-fc-active`, `data-fc-dirty`, `aria-invalid`, and `aria-readonly`,
+and the root declares `aria-multiselectable`, `data-fc-rowcount`, and `data-fc-colcount`.
+When `total_rows` exceeds the rendered rows, the grid adds `aria-rowcount` (counting the
+header row) and `aria-rowindex` on every row, so a screen reader is told the real size.
+
+The column template is the one inline style that is not a custom property:
+`grid-template-columns`, written through `core::measure::grid_columns`. Rows are
+`display: contents` and the CSS sizes only implicit tracks, so without it every cell
+stacks in one column; upstream's binding and fixture write it inline for the same reason.
+The fixture is static markup with an active cell outside its own selection, which the
+range model cannot express, so the grid is checked by coverage and the browser suite
+rather than by parity.
 
 ### Code block (`code.css`)
 
@@ -1534,6 +1554,10 @@ pub enum ResizeUnit { Percent, Px }   // % of the split; CSS px for edge handles
   `fc-diff__body` are written but not defined; two table headers marked sorted at once; busy-button label
   spans in some fixtures and not others; markup from before and after a binding mixed
   in the carousel, splitter, menu, and select fixtures.
+- **grid.css's unscoped `[role="row"] { display: contents }`**
+  ([future-css#48](https://github.com/rexlunae/future-css/issues/48)) collapses git rows
+  when it loads after git.css. `GitSurface` requests grid.css before git.css to pin the
+  bundle's order until upstream scopes the rule.
 
 Components and prerequisites this library needs from future-css, each filed as an issue
 upstream under [DESIGN.md, Upstream first](DESIGN.md#upstream-first). Nothing listed here

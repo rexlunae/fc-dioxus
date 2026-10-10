@@ -83,6 +83,7 @@ const IMPLEMENTED: &[&str] = &[
     "code.css",
     "diff.css",
     "git.css",
+    "grid.css",
 ];
 
 #[test]

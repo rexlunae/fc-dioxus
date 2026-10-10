@@ -29,6 +29,7 @@ pub mod fab;
 pub mod field;
 pub mod future_css;
 pub mod git;
+pub mod grid;
 pub mod list;
 pub mod loading;
 pub mod masthead;

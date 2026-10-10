@@ -36,6 +36,7 @@ pub use crate::{
         InputType, InputVariant, NativeSelect, Necessity, Textarea,
     },
     components::git::{FileState, GitEntry, GitSurface},
+    components::grid::{DataGrid, GridCell, GridColumn, GridEdit},
     components::list::{List, ListAction, ListItem},
     components::loading::{
         Loading, Progress, ProgressRing, ProgressValue, RingSize, Skeleton, SkeletonShape,

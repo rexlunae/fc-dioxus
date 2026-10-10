@@ -48,6 +48,9 @@ async function load(query, width = 320) {
   await send("Page.navigate", { url: `${server.origin}/?${query}` });
   await until("document.querySelectorAll('.fc-divider').length === 6 && ['tokens','themes','button','card','badge','alert','divider'].every(name => [...document.styleSheets].some(s => s.href?.includes('/'+name+'-'))) ");
   await evaluate("document.fonts.ready.then(() => true)");
+  // The fields example's error summary takes focus when it mounts. Wait for that, or
+  // it lands after a test has put focus somewhere and silently moves it.
+  await until("!document.querySelector('.fc-error-summary') || document.activeElement?.matches('.fc-error-summary')");
   await settle();
   await evaluate(axe);
 }
@@ -588,6 +591,8 @@ test("the git surface sorts conflicts first, roves with arrows, and stages witho
   assert.equal(await evaluate(`${rows}[0].getAttribute('aria-selected')`), "true", "the first file starts selected");
   assert.equal(await evaluate(`${rows}.filter(r => r.tabIndex === 0).length`), 1, "one tab stop");
   assert.equal(await evaluate(`${surface}.dataset.fcConflicted`), "1");
+  // grid.css's unscoped row rule must not collapse git rows, whatever loaded first.
+  assert.equal(await evaluate(`getComputedStyle(${rows}[0]).display`), "flex");
   await evaluate(`${rows}[0].focus()`);
   await press("ArrowDown", "ArrowDown", 40);
   await until(`${rows}[1].getAttribute('aria-selected') === 'true' && document.activeElement === ${rows}[1]`);
@@ -601,4 +606,39 @@ test("the git surface sorts conflicts first, roves with arrows, and stages witho
   assert.equal(await evaluate(`${rows}.at(-1).getAttribute('aria-selected')`), "true", "staging does not move the selection");
   assert.equal(await evaluate("document.querySelectorAll('#git .fc-git')[1].querySelector('.fc-git__empty').textContent"), "No changes");
   assert.equal(await evaluate("document.querySelectorAll('#git .fc-git')[2].dataset.fcBranchState"), "unborn");
+});
+
+test("the data grid lays cells in columns, extends selection with Shift, and edits in place", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const grid = "document.querySelector('#grid .fc-grid')";
+  const cells = `[...${grid}.querySelectorAll('[role=gridcell]')]`;
+  const at = (r, c) => `${cells}[${r} * 3 + ${c}]`;
+  // Rows are display: contents, so without a template every cell stacks in one column.
+  assert.equal(await evaluate(`new Set(${cells}.slice(0, 3).map(c => Math.round(c.getBoundingClientRect().top))).size`), 1, "a row's cells share a line");
+  assert.equal(await evaluate(`${cells}.filter(c => c.tabIndex === 0).length`), 1, "one tab stop");
+  await evaluate(`${at(0, 0)}.focus()`);
+  await press("ArrowRight", "ArrowRight", 39);
+  await until(`document.activeElement === ${at(0, 1)} && ${at(0, 1)}.dataset.fcActive === 'true'`);
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key: "ArrowDown", code: "ArrowDown", windowsVirtualKeyCode: 40, modifiers: 8 });
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key: "ArrowDown", code: "ArrowDown", windowsVirtualKeyCode: 40, modifiers: 8 });
+  await until(`document.activeElement === ${at(1, 1)}`);
+  assert.deepEqual(await evaluate(`${cells}.map(c => c.getAttribute('aria-selected'))`),
+    ["false", "true", "false", "false", "true", "false", "false", "false", "false"], "Shift extends from the anchor");
+  await press("ArrowDown", "ArrowDown", 40);
+  await until(`document.activeElement === ${at(2, 1)} && ${cells}.filter(c => c.getAttribute('aria-selected') === 'true').length === 1`);
+  await press("Enter", "Enter", 13);
+  await until(`document.activeElement?.classList.contains('fc-grid__input')`);
+  assert.equal(await evaluate("document.activeElement.value"), "anthropic");
+  await evaluate("(() => { const i = document.activeElement; i.value = 'other'; i.dispatchEvent(new Event('input', { bubbles: true })); })()");
+  await press("Escape", "Escape", 27);
+  await until(`document.activeElement === ${at(2, 1)} && ${at(2, 1)}.textContent === 'anthropic'`);
+  await press("F2", "F2", 113);
+  await until(`document.activeElement?.classList.contains('fc-grid__input')`);
+  await evaluate("(() => { const i = document.activeElement; i.value = 'local'; i.dispatchEvent(new Event('input', { bubbles: true })); })()");
+  await press("Enter", "Enter", 13);
+  await until(`${at(2, 1)}.textContent === 'local' && ${at(2, 1)}.dataset.fcDirty === 'true' && document.activeElement === ${at(2, 1)}`);
+  await until("document.querySelector('#grid [role=status]').textContent === 'Edited row 3 to local'");
+  const windowed = "document.querySelectorAll('#grid .fc-grid')[2]";
+  assert.equal(await evaluate(`${windowed}.getAttribute('aria-rowcount')`), "1001", "the true size counts the header row");
+  assert.equal(await evaluate(`${windowed}.querySelectorAll('[role=row]')[1].getAttribute('aria-rowindex')`), "501");
 });

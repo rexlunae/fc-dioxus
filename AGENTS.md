@@ -63,7 +63,9 @@ and raise it.
    in `assets/` (rule 8), which the crate must carry to publish and which is never
    edited. The only inline styles allowed are the custom properties the CSS reads from
    markup (`--fc-slider-pct`, `--fc-progress-value`, `--fc-split-size`,
-   `--fc-split-block-size`, `--fc-tool-progress`), set through a typed helper.
+   `--fc-split-block-size`, `--fc-tool-progress`), set through a typed helper, plus the
+   data grid's `grid-template-columns` (`core::measure::grid_columns`), which upstream's
+   own binding and fixture write inline because nothing in the CSS creates the tracks.
 8. **`crates/fc-dioxus/assets/` and `upstream/` are generated.** Never edit them by hand;
    run `cargo xtask sync-upstream`. A test fails when they differ from what the pinned
    revision produces. Changing what is in them is an upstream change plus a pin bump.
