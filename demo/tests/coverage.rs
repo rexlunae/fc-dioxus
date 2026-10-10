@@ -81,6 +81,7 @@ const IMPLEMENTED: &[&str] = &[
     "context-strip.css",
     "composer.css",
     "code.css",
+    "diff.css",
 ];
 
 #[test]

@@ -154,6 +154,7 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("ContextStrip", "context-strip"),
     ("Composer", "composer"),
     ("CodeBlock", "code"),
+    ("DiffView", "diff"),
 ];
 
 /// The examples that render every Divider state.
@@ -491,6 +492,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Code blocks",
         render: || rsx! { examples::code::States {} },
         source: include_str!("examples/code/states.rs"),
+    },
+    Example {
+        id: "diff",
+        title: "Diffs",
+        render: || rsx! { examples::diff::States {} },
+        source: include_str!("examples/diff/states.rs"),
     },
 ];
 

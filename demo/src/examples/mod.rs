@@ -21,6 +21,7 @@ pub mod datepicker;
 pub mod description_list;
 pub mod device_auth;
 pub mod dialog;
+pub mod diff;
 pub mod disclosure;
 pub mod divider;
 pub mod empty_state;

@@ -26,6 +26,7 @@ pub use crate::{
     components::datepicker::{DateNames, DatePicker, Time, TimePicker},
     components::description_list::{DescriptionItem, DescriptionList, DlLayout},
     components::dialog::{Dialog, DialogPlacement, DialogSize},
+    components::diff::DiffView,
     components::disclosure::Disclosure,
     components::divider::{Divider, DividerInset, DividerProps},
     components::empty_state::EmptyState,

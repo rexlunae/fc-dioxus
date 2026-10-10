@@ -21,7 +21,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
 `NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
 `Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, `Select`, `Menu`, `MenuButton`,
-`ContextMenuArea`, `ContextStrip`, `Composer`, and `CodeBlock`, plus the
+`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, and `DiffView`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -264,6 +264,11 @@ Current action/surface APIs refine the proposals below:
   waiting on upstream and any highlighter's spans can be passed in meanwhile. Upstream's
   renderer also writes a bare `fc-code__tok` class that code.css does not define; only
   the role classes are emitted here.
+- `DiffView` diffs two texts with upstream's `fc_diff` (Myers' O(ND)) and shows the
+  counts, each line's +/− glyph, both line numbers, an "Added:"/"Removed:" label, and
+  `data-fc-diff`, so colour is never the only cue. `context` folds long unchanged
+  stretches into a gap button; folded lines stay in the DOM, hidden. `scroll` makes it
+  a named, focusable region that keeps lines whole.
 - **Routing.** With the `router` feature, every component that renders a link
   (`LinkButton`, `NavLink`, `Crumb`, `ListAction::Link`, `MastheadLink`, `NavbarItem`,
   pagination links, `Source`) resolves its `href` against the nearest `dioxus-router`
@@ -1512,8 +1517,8 @@ pub enum ResizeUnit { Percent, Px }   // % of the split; CSS px for edge handles
 - **A Rust highlighter crate.** `CodeBlock` takes spans until upstream ships
   `highlight.ts`'s tokenizer as a model crate, as it did for diff and select.
 - **Fixture and binding fixes** found while wrapping, listed with each component above:
-  `fc-select__option-label` and `fc-composer__attachment-size` and `fc-code__tok` are
-  written but not defined; two table headers marked sorted at once; busy-button label
+  `fc-select__option-label`, `fc-composer__attachment-size`, `fc-code__tok`, and
+  `fc-diff__body` are written but not defined; two table headers marked sorted at once; busy-button label
   spans in some fixtures and not others; markup from before and after a binding mixed
   in the carousel, splitter, menu, and select fixtures.
 

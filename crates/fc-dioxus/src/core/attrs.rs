@@ -436,3 +436,8 @@ pub(crate) fn error_state_attribute(error: bool) -> Vec<Attribute> {
 pub(crate) fn lang_attribute(lang: &str) -> Attribute {
     Attribute::new("data-fc-lang", lang.to_owned(), None, false)
 }
+
+/// A diff line's kind (`data-fc-diff` of `add` or `remove`); unchanged lines carry none.
+pub(crate) fn diff_attribute(kind: &'static str) -> Attribute {
+    Attribute::new("data-fc-diff", kind, None, false)
+}

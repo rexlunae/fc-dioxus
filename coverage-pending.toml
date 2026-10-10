@@ -1,7 +1,6 @@
 # Pending wrappers, not coverage exclusions. Remove an entry only when its component,
 # every state, parity checks, and showcase are implemented. New files fail inventory.
 pending = [
-"diff.css",
 "editor.css",
 "git.css",
 "grid.css",
