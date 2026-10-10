@@ -508,3 +508,10 @@ impl GridData {
         Attribute::new(self.name(), value.to_string(), None, false)
     }
 }
+
+/// The terminal's connection state and its last command's outcome. Terminal states are
+/// upstream's own vocabulary (`connected`, `disconnected`) on the root and the shared
+/// lifecycle (`complete`, `error`) on the exit badge.
+pub(crate) fn terminal_state_attribute(value: &'static str) -> Attribute {
+    Attribute::new("data-fc-state", value, None, false)
+}

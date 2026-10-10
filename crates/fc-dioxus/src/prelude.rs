@@ -66,6 +66,9 @@ pub use crate::{
     components::suggestion::{Suggestion, Suggestions},
     components::table::{SortMode, Table, TableCell, TableColumn, TableRow},
     components::tabs::{Activation, Tab, TabPanel, Tabs},
+    components::terminal::{
+        AnsiColor, CursorStyle, Sgr, SgrSet, TermLine, TermRun, TermState, Terminal,
+    },
     components::toast::{
         use_toasts, Toast, ToastAction, ToastList, ToastOptions, ToastTone, Toaster, Toasts,
     },

@@ -84,6 +84,7 @@ const IMPLEMENTED: &[&str] = &[
     "diff.css",
     "git.css",
     "grid.css",
+    "terminal.css",
 ];
 
 #[test]

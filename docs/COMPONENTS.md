@@ -21,7 +21,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
 `NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
 `Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, `Select`, `Menu`, `MenuButton`,
-`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, `DiffView`, `GitSurface`, and `DataGrid`, plus the
+`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, `DiffView`, `GitSurface`, `DataGrid`, and `Terminal`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -1214,23 +1214,30 @@ cue.
 ### Terminal (`terminal.css`)
 
 ```rust
-#[component] fn Terminal(label: AccessibleName, output: ReadSignal<Vec<TermLine>>,
-    #[props(default)] state: TermState,        // Running (default), Complete { exit: i32 }, Disconnected, Error
-    #[props(default)] input: Option<TermInput>,  // prompt, value, onsubmit
-    #[props(default)] cursor: CursorStyle) -> Element;   // None, Steady, Blink
+#[component] fn Terminal(output: ReadSignal<Vec<TermLine>>,
+    #[props(default)] label: Option<AccessibleName>,   // "Terminal output"
+    #[props(default)] state: TermState,                // Connected, Disconnected
+    #[props(default = "$")] prompt: String,
+    #[props(default)] session: Option<String>,         // status bar start, e.g. "bash"
+    #[props(default)] exit: Option<i32>,               // "exit n"; 0 is complete, else error
+    #[props(default)] cursor: CursorStyle,             // None, Steady, Blink
+    #[props(default)] onsubmit: Option<EventHandler<String>>) -> Element;   // adds the input row
+pub struct TermLine(pub Vec<TermRun>);                 // ::plain(text)
+pub struct TermRun { pub text: String, pub fg: Option<AnsiColor>, pub attributes: SgrSet }
+// TermRun::new("pass").fg(AnsiColor::Green).with(Sgr::Bold)
+pub enum Sgr { Bold, Dim, Italic, Underline, Inverse, Strike }
+pub enum AnsiColor { Black, Red, …, BrightWhite }       // the sixteen fc-term-ansi-* classes
 ```
 
-ANSI SGR parsing (`fc-ansi`, a small pure crate requested upstream, since no upstream
-binding parses ANSI yet) turns raw output into runs with
-`__bold`, `__dim`, `__italic`, `__underline`, `__strike`, `__inverse`, and the sixteen
-`fc-term-ansi-*` colours. Colours are classes, never inline styles, so they stay themed
-and contrast-checked. The output region is `role="log"` with `aria-live="polite"`, exactly as
-the CSS doc's terminal markup, and never assertive, so a fast command does not flood the
-screen reader. The `Terminal` component owns the batching, not the producer: it keeps a
-count of lines already rendered and commits the newly appended tail of `output` at most
-once per animation frame (`behavior::batch`, a frame-throttled view over any growing
-signal, a `ReadSignal<Vec<_>>` here and a `ReadSignal<String>` in `StreamingText`). A producer may push one
-line at a time; the polite region still announces chunks.
+Output arrives as styled runs. Parsing raw ANSI into runs waits on `fc-ansi` upstream (see
+below), as highlighting does for `CodeBlock`. Colours are classes, never inline styles,
+so they stay themed and contrast-checked. The output is `role="log"` with
+`aria-live="polite"` and is always left-to-right. It follows new lines while the reader is
+at the end, stays put once they scroll up, and snaps back when they submit a command. The
+input row recalls history with Up and Down; a disconnected terminal disables it and draws
+no cursor. The terminal fills its container's height (upstream: "the consumer sets it"),
+so give it one; the demo hosts it in a stacked `Split`. Lines render as they arrive; a
+producer that emits faster than a frame should batch before writing the signal.
 
 ### Git surface (`git.css`)
 
@@ -1551,7 +1558,8 @@ pub enum ResizeUnit { Percent, Px }   // % of the split; CSS px for edge handles
   `highlight.ts`'s tokenizer as a model crate, as it did for diff and select.
 - **Fixture and binding fixes** found while wrapping, listed with each component above:
   `fc-select__option-label`, `fc-composer__attachment-size`, `fc-code__tok`, and
-  `fc-diff__body` are written but not defined; two table headers marked sorted at once; busy-button label
+  `fc-diff__body` are written but not defined, as is the terminal fixture's
+  `fc-terminal__text--danger`; two table headers marked sorted at once; busy-button label
   spans in some fixtures and not others; markup from before and after a binding mixed
   in the carousel, splitter, menu, and select fixtures.
 - **grid.css's unscoped `[role="row"] { display: contents }`**

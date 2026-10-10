@@ -157,6 +157,7 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("DiffView", "diff"),
     ("GitSurface", "git"),
     ("DataGrid", "grid"),
+    ("Terminal", "terminal"),
 ];
 
 /// The examples that render every Divider state.
@@ -512,6 +513,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Data grid",
         render: || rsx! { examples::grid::States {} },
         source: include_str!("examples/grid/states.rs"),
+    },
+    Example {
+        id: "terminal",
+        title: "Terminal",
+        render: || rsx! { examples::terminal::States {} },
+        source: include_str!("examples/terminal/states.rs"),
     },
 ];
 

@@ -642,3 +642,45 @@ test("the data grid lays cells in columns, extends selection with Shift, and edi
   assert.equal(await evaluate(`${windowed}.getAttribute('aria-rowcount')`), "1001", "the true size counts the header row");
   assert.equal(await evaluate(`${windowed}.querySelectorAll('[role=row]')[1].getAttribute('aria-rowindex')`), "501");
 });
+
+test("the terminal runs commands, recalls history, follows output, and disables a dropped session", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const term = "document.querySelector('#terminal .fc-terminal')";
+  const input = `${term}.querySelector('.fc-terminal__input')`;
+  const output = `${term}.querySelector('[role=log]')`;
+  const lines = `[...${output}.querySelectorAll('.fc-terminal__line')]`;
+  assert.equal(await evaluate(`${output}.getAttribute('aria-live')`), "polite");
+  assert.equal(await evaluate(`${term}.dir`), "ltr", "output is left-to-right in every locale");
+  const run = async command => {
+    await evaluate(`(() => { const i = ${input}; i.focus(); i.value = ${JSON.stringify(command)}; i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+    await until(`${input}.value === ${JSON.stringify(command)}`);
+    await press("Enter", "Enter", 13);
+  };
+  await run("help");
+  await until(`${lines}.at(-1).textContent.startsWith('commands:') && ${input}.value === ''`);
+  await run("nope");
+  await until(`${term}.querySelector('.fc-terminal__exit').textContent === 'exit 127' && ${term}.querySelector('.fc-terminal__exit').dataset.fcState === 'error'`);
+  await press("ArrowUp", "ArrowUp", 38);
+  await until(`${input}.value === 'nope'`);
+  await press("ArrowUp", "ArrowUp", 38);
+  await until(`${input}.value === 'help'`);
+  await press("ArrowDown", "ArrowDown", 40);
+  await until(`${input}.value === 'nope'`);
+  await press("ArrowDown", "ArrowDown", 40);
+  await until(`${input}.value === ''`);
+  for (let i = 0; i < 12; i++) await run("colors");
+  await until(`${output}.scrollHeight > ${output}.clientHeight && ${output}.scrollTop + ${output}.clientHeight >= ${output}.scrollHeight - 2`);
+  assert.equal(await evaluate(`${lines}.at(-1).querySelectorAll('.fc-terminal__cursor--blink').length`), 1, "the cursor follows the last line");
+  // Scrolled up to read, the reader stays put while output keeps arriving.
+  await run("watch");
+  await until(`${output}.scrollTop + ${output}.clientHeight >= ${output}.scrollHeight - 2`);
+  await evaluate(`${output}.scrollTop = 0`);
+  await until(`${lines}.at(-1).textContent.startsWith('watch rebuilt in 64ms')`);
+  assert.equal(await evaluate(`${output}.scrollTop`), 0, "new output does not pull a reader back down");
+  await run("clear");
+  await until(`${lines}.length === 0`);
+  const dropped = "document.querySelectorAll('#terminal .fc-terminal')[1]";
+  assert.equal(await evaluate(`${dropped}.dataset.fcState`), "disconnected");
+  assert.equal(await evaluate(`${dropped}.querySelector('.fc-terminal__input').disabled`), true);
+  assert.equal(await evaluate(`${dropped}.querySelectorAll('.fc-terminal__cursor').length`), 0, "no cursor in a dropped session");
+});
