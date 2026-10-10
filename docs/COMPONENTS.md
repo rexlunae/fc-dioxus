@@ -13,7 +13,8 @@ where Dioxus forces a change, this file changes in the same commit.
 `InputGroup`, `InputAddon`, `ErrorSummary`, `Choice`, `Disclosure`, `ButtonGroup`,
 `ControlGroup`, `ControlLabel`, `Segmented`, `Segment`, `SplitButton`, `Fab`, `FabMenu`,
 `FabMenuItem`, `Masthead`, `MastheadLink`, `Navbar`, `NavbarItem`, `Pagination`,
-`Search`, and `SearchView`, plus the
+`Search`, `SearchView`, `Dialog`, `RadioScope`, `Popover`, `Tooltip`, `Toast`,
+`ToastList`, and `Toaster` (with `use_toasts`), plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -120,6 +121,25 @@ Current action/surface APIs refine the proposals below:
   landmark. `SearchView { open }` writes `data-fc-open` to hold the view open or closed;
   `busy` marks a stale list. `own_clear` hides the browser's clear button when
   `trailing` supplies a named one.
+- `Dialog` is controlled by `open` and `onclose`. Modal by default, it opens with
+  `showModal()` after mount through `DomBridge`, so the platform supplies the top layer,
+  inert background, and focus; Escape (`cancel`) and the close button call `onclose`.
+  Hosts without `showModal` render it open in place. `DialogSize` (`Sm`, `Lg`,
+  `Fullscreen`) and `DialogPlacement` (`Sheet`, `Bottom`) are separate; `handle` draws a
+  bottom sheet's grip; `fc_id` adds `data-fc-kind="dialog"` and `data-fc-id`.
+- `Popover` is a native popover opened by any button with `popovertarget`. `Tooltip`
+  wraps a `Button`, which it describes automatically; Escape sets `data-fc-dismissed`
+  until the pointer or focus leaves, as upstream's binding does.
+- `Toaster` provides `use_toasts()` to its children and renders both live regions up
+  front. `Toasts::show` returns a key for `dismiss`. The policy follows upstream's
+  `toast.ts`: danger never expires and goes to the assertive region, an action earns
+  half as long again (`default_timeout`), timers pause on hover and focus, and past
+  `max` the oldest unfocused toast goes (`overflow`). Timers run through
+  `DomBridge::delay`, so hosts without a script runtime keep toasts until dismissed.
+  Returning focus to where the user came from after dismissing a focused toast is not
+  yet implemented. `Toast` and `ToastList` draw static toasts.
+- `Timestamp::iso8601` accepts validated UTC instants alongside epoch milliseconds, and
+  `Kind` now covers every upstream kind.
 - `Clipped` (in `core::text`) holds the full value of any shortened text;
   `Clipped::chars` shortens by character, `Clipped::lines` declares a CSS clamp.
 - `AlertTone` mirrors exactly the neutral/info/success/warning/danger CSS vocabulary.

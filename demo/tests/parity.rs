@@ -80,6 +80,20 @@ struct Tree {
     children: Vec<Self>,
 }
 
+fn referent(document: &Document, id: &str) -> String {
+    document
+        .nodes
+        .iter()
+        .find(|node| node.attr("id") == Some(id))
+        .map_or_else(
+            || "missing".to_owned(),
+            |node| {
+                let (tag, attrs) = signature(node);
+                format!("{tag}.{}", attrs.get("class").map_or("", String::as_str))
+            },
+        )
+}
+
 fn tree(document: &Document, index: usize) -> Option<Tree> {
     tree_within(document, index, false)
 }
@@ -93,6 +107,22 @@ fn tree_within(document: &Document, index: usize, hidden: bool) -> Option<Tree> 
         attrs.remove("aria-hidden");
     }
     let hidden = hidden || node.attr("aria-hidden") == Some("true");
+    // Generated ids differ from the fixture's, so a reference is compared by what it
+    // points at: the referenced element's tag and classes.
+    for name in [
+        "aria-labelledby",
+        "aria-controls",
+        "aria-owns",
+        "aria-activedescendant",
+    ] {
+        if let Some(value) = attrs.get_mut(name) {
+            *value = value
+                .split_whitespace()
+                .map(|id| referent(document, id))
+                .collect::<Vec<_>>()
+                .join(" ");
+        }
+    }
     // An input without a type is a text input; upstream writes it in some fixtures only.
     if tag == "input" && node.attr("type").is_none() {
         attrs.insert("type".to_owned(), "text".to_owned());
@@ -249,6 +279,21 @@ const CASES: &[Case] = &[
         "search",
         &["fc-search"],
         || rsx! { fc_demo::examples::search::States {} },
+    ),
+    (
+        "dialog",
+        &["fc-dialog"],
+        || rsx! { fc_demo::examples::dialog::States {} },
+    ),
+    (
+        "popover",
+        &["fc-popover", "fc-tooltip"],
+        || rsx! { fc_demo::examples::popover::States {} },
+    ),
+    (
+        "toast",
+        &["fc-toaster__list"],
+        || rsx! { fc_demo::examples::toast::States {} },
     ),
 ];
 

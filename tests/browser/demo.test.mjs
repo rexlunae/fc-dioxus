@@ -252,6 +252,34 @@ test("pagination pages in place and search submits without navigating", async ()
   assert.equal(await evaluate("location.pathname + location.search"), before, "submitting does not navigate");
 });
 
+test("dialogs open modally and close on Escape, tooltips dismiss, toasts route and expire", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const open = "document.querySelector('#dialog dialog[open]')";
+  await evaluate("[...document.querySelectorAll('#dialog button')].find(b => b.textContent.startsWith('Delete chat')).click()");
+  await until(`${open}?.matches(':modal')`);
+  assert.ok(await evaluate(`${open}.contains(document.activeElement)`), "focus moves into the modal");
+  const violations = await evaluate("axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>v.id))");
+  assert.deepEqual(violations, [], "an open modal passes axe");
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+  await until(`!${open}`);
+
+  const tip = "document.querySelector('#popover .fc-tooltip')";
+  await evaluate(`${tip}.querySelector('button').focus()`);
+  assert.ok(await evaluate(`${tip}.querySelector('button').getAttribute('aria-describedby').split(' ').some(id => document.getElementById(id)?.role === 'tooltip')`), "the button is described by its bubble");
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+  await until(`${tip}.dataset.fcDismissed === 'true'`);
+  assert.ok(await evaluate(`${tip}.contains(document.activeElement)`), "Escape leaves focus where it was");
+
+  const button = text => `[...document.querySelectorAll('#toast button')].find(b => b.textContent === ${JSON.stringify(text)})`;
+  await evaluate(`${button("Show an error toast")}.click()`);
+  await until("document.querySelector('.fc-toaster [aria-live=assertive] .fc-toast--danger')");
+  await evaluate(`${button("Show a success toast")}.click()`);
+  await until("document.querySelector('.fc-toaster [aria-live=polite] .fc-toast--success')");
+  await evaluate("document.querySelector('.fc-toaster [aria-live=assertive] .fc-toast__close').click()");
+  await until("!document.querySelector('.fc-toaster [aria-live=assertive] .fc-toast')");
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

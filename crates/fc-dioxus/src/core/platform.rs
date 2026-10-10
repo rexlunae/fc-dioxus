@@ -126,6 +126,21 @@ impl DomBridge {
     pub async fn copy_text(self, text: &str) -> Result<(), DomError> {
         Self::send("copy", text, "").await
     }
+    /// Wait `ms` milliseconds on the host's clock, for timed behaviour such as toast
+    /// expiry. Hosts without a script runtime return `Unsupported` at once, and callers
+    /// keep their untimed fallback (a toast then stays until dismissed).
+    /// # Errors
+    /// Returns `Unsupported` when the host cannot run timers.
+    pub async fn delay(self, ms: u32) -> Result<(), DomError> {
+        let eval = document::eval(
+            "const ms = await dioxus.recv(); await new Promise(r => setTimeout(r, ms)); return 'ok';",
+        );
+        eval.send(ms).map_err(|_| DomError::Unsupported)?;
+        match eval.join::<String>().await {
+            Ok(_) => Ok(()),
+            Err(_) => Err(DomError::Unsupported),
+        }
+    }
     /// Detect available host APIs after mounting; SSR and native return defaults.
     pub async fn capabilities(self) -> Capabilities {
         let eval = document::eval("return [typeof HTMLDialogElement !== 'undefined' && 'showModal' in HTMLDialogElement.prototype, 'showPopover' in HTMLElement.prototype, !!navigator.clipboard?.writeText];");

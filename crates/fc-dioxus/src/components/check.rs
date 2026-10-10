@@ -152,6 +152,19 @@ pub fn CheckGroup(
     }
 }
 
+/// Shares radio state with the [`Radio`]s and [`Choice`]s inside, without drawing a
+/// group, for layouts that bring their own fieldset.
+///
+/// [`Choice`]: super::field::Choice
+#[component]
+pub fn RadioScope(radios: RadioChoice, children: Element) -> Element {
+    let mut context = use_context_provider(|| Signal::new(Some(radios.clone())));
+    if context.peek().as_ref() != Some(&radios) {
+        context.set(Some(radios));
+    }
+    rsx! { {children} }
+}
+
 /// One choice in a [`CheckGroup`] given `radios`.
 #[component]
 pub fn Radio(

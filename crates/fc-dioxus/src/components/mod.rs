@@ -11,6 +11,7 @@ pub mod button_group;
 pub mod card;
 pub mod check;
 pub mod description_list;
+pub mod dialog;
 pub mod disclosure;
 pub mod empty_state;
 pub mod fab;
@@ -20,10 +21,12 @@ pub mod loading;
 pub mod masthead;
 pub mod navbar;
 pub mod pagination;
+pub mod popover;
 pub mod search;
 pub mod segmented;
 pub mod spinner;
 pub mod split_button;
+pub mod toast;
 
 use crate::core::state::HeadingLevel;
 use dioxus::prelude::*;
@@ -53,6 +56,24 @@ pub(crate) fn group_control_class() -> Option<String> {
         Some(control) => format!("{} {control}", group.item),
         None => group.item,
     })
+}
+
+/// A heading with an id, for components whose container is labelled by it.
+pub(crate) fn heading_with_id(
+    level: HeadingLevel,
+    class: String,
+    id: &crate::core::id::Id,
+    children: Element,
+) -> Element {
+    let id = id.to_string();
+    match level {
+        HeadingLevel::H1 => rsx! { h1 { class, id, {children} } },
+        HeadingLevel::H2 => rsx! { h2 { class, id, {children} } },
+        HeadingLevel::H3 => rsx! { h3 { class, id, {children} } },
+        HeadingLevel::H4 => rsx! { h4 { class, id, {children} } },
+        HeadingLevel::H5 => rsx! { h5 { class, id, {children} } },
+        HeadingLevel::H6 => rsx! { h6 { class, id, {children} } },
+    }
 }
 
 /// A heading at a caller-chosen level, so components never hard-code document outline.

@@ -76,6 +76,9 @@ fn inventory_and_rendered_classes_cannot_silently_drift() -> Result<(), Box<dyn 
         "navbar.css",
         "pagination.css",
         "search.css",
+        "dialog.css",
+        "popover.css",
+        "toast.css",
     ];
     for filename in implemented_files {
         let implemented = css_classes(&fs::read_to_string(

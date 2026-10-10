@@ -6,16 +6,95 @@ use super::{
 };
 use dioxus::prelude::*;
 
-/// An epoch-millisecond timestamp; arbitrary strings cannot enter the DOM contract.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Timestamp(u64);
+/// A timestamp for `data-fc-ts`: epoch milliseconds, or a validated ISO-8601 UTC instant.
+/// Arbitrary strings cannot enter the DOM contract.
+///
+/// ```
+/// use fc_dioxus::prelude::Timestamp;
+/// assert!(Timestamp::iso8601("2026-10-09T12:00:00Z").is_ok());
+/// assert!(Timestamp::iso8601("2026-10-09T12:00:00.250Z").is_ok());
+/// assert!(Timestamp::iso8601("yesterday").is_err());
+/// assert!(Timestamp::iso8601("2026-13-09T12:00:00Z").is_err());
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Timestamp(TimestampRepr);
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+enum TimestampRepr {
+    Millis(u64),
+    Iso(String),
+}
 impl Timestamp {
     /// Construct an epoch-millisecond timestamp.
     #[must_use]
     pub const fn from_epoch_millis(value: u64) -> Self {
-        Self(value)
+        Self(TimestampRepr::Millis(value))
+    }
+    /// Accept `YYYY-MM-DDTHH:MM:SS[.fraction]Z` with in-range fields.
+    ///
+    /// # Errors
+    /// Returns `InvalidTimestamp` for anything else, including offsets other than `Z`.
+    pub fn iso8601(value: &str) -> Result<Self, InvalidTimestamp> {
+        let bytes = value.as_bytes();
+        let digits = |range: std::ops::Range<usize>| -> Option<u32> {
+            let part = value.get(range)?;
+            if part.bytes().all(|b| b.is_ascii_digit()) {
+                part.parse().ok()
+            } else {
+                None
+            }
+        };
+        let separators = [(4, b'-'), (7, b'-'), (10, b'T'), (13, b':'), (16, b':')];
+        let shape = bytes.len() >= 20
+            && bytes.last() == Some(&b'Z')
+            && separators
+                .iter()
+                .all(|(index, byte)| bytes.get(*index) == Some(byte));
+        let fraction = value.get(19..value.len().saturating_sub(1)).unwrap_or("");
+        let fraction_ok = fraction.is_empty()
+            || (fraction.len() > 1
+                && fraction.starts_with('.')
+                && fraction.bytes().skip(1).all(|b| b.is_ascii_digit()));
+        let fields = (
+            digits(0..4),
+            digits(5..7),
+            digits(8..10),
+            digits(11..13),
+            digits(14..16),
+            digits(17..19),
+        );
+        match fields {
+            (Some(_), Some(month), Some(day), Some(hour), Some(minute), Some(second))
+                if shape
+                    && fraction_ok
+                    && (1..=12).contains(&month)
+                    && (1..=31).contains(&day)
+                    && hour < 24
+                    && minute < 60
+                    && second < 61 =>
+            {
+                Ok(Self(TimestampRepr::Iso(value.to_owned())))
+            }
+            _ => Err(InvalidTimestamp),
+        }
     }
 }
+impl std::fmt::Display for Timestamp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.0 {
+            TimestampRepr::Millis(value) => write!(f, "{value}"),
+            TimestampRepr::Iso(value) => f.write_str(value),
+        }
+    }
+}
+/// The text is not an ISO-8601 UTC instant.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct InvalidTimestamp;
+impl std::fmt::Display for InvalidTimestamp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("expected an ISO-8601 UTC timestamp such as 2026-10-09T12:00:00Z")
+    }
+}
+impl std::error::Error for InvalidTimestamp {}
 
 /// Only component kinds defined upstream can be emitted.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -29,6 +108,22 @@ pub enum Kind {
     ToolCall,
     /// A reasoning trace.
     Reasoning,
+    /// An agent's live status row.
+    AgentStatus,
+    /// A request for the user's approval.
+    Approval,
+    /// A device authorization code.
+    DeviceAuth,
+    /// A dialog.
+    Dialog,
+    /// A metric.
+    Metric,
+    /// A toast notification.
+    Toast,
+    /// A file transfer.
+    Transfer,
+    /// A question put to the user.
+    UserPrompt,
 }
 impl Kind {
     const fn as_str(self) -> &'static str {
@@ -37,6 +132,14 @@ impl Kind {
             Self::Message => "message",
             Self::ToolCall => "tool-call",
             Self::Reasoning => "reasoning",
+            Self::AgentStatus => "agent-status",
+            Self::Approval => "approval",
+            Self::DeviceAuth => "device-auth",
+            Self::Dialog => "dialog",
+            Self::Metric => "metric",
+            Self::Toast => "toast",
+            Self::Transfer => "transfer",
+            Self::UserPrompt => "user-prompt",
         }
     }
 }
@@ -68,7 +171,7 @@ impl FcData {
             ("data-fc-seq", self.seq.map(|v| v.to_string())),
             ("data-fc-role", self.role.map(|v| v.as_str().to_owned())),
             ("data-fc-state", self.state.map(|v| v.as_str().to_owned())),
-            ("data-fc-ts", self.ts.map(|v| v.0.to_string())),
+            ("data-fc-ts", self.ts.as_ref().map(ToString::to_string)),
         ] {
             if let Some(value) = value {
                 attrs.push(Attribute::new(name, value, None, false));
@@ -156,4 +259,22 @@ pub(crate) fn open_attribute(open: Option<bool>) -> Vec<Attribute> {
     open.map(|open| Attribute::new("data-fc-open", open.to_string(), None, false))
         .into_iter()
         .collect()
+}
+
+/// Mark an element that is animating out before removal (`data-fc-leaving`).
+pub(crate) fn leaving_attribute(leaving: bool) -> Vec<Attribute> {
+    if leaving {
+        vec![Attribute::new("data-fc-leaving", "true", None, false)]
+    } else {
+        Vec::new()
+    }
+}
+
+/// A tooltip dismissed with Escape until the pointer or focus leaves (`data-fc-dismissed`).
+pub(crate) fn dismissed_attribute(dismissed: bool) -> Vec<Attribute> {
+    if dismissed {
+        vec![Attribute::new("data-fc-dismissed", "true", None, false)]
+    } else {
+        Vec::new()
+    }
 }

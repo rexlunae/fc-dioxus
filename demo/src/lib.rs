@@ -98,6 +98,13 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Pagination", "pagination"),
     ("Search", "search"),
     ("SearchView", "search"),
+    ("Dialog", "dialog"),
+    ("RadioScope", "dialog"),
+    ("Popover", "popover"),
+    ("Tooltip", "popover"),
+    ("Toast", "toast"),
+    ("ToastList", "toast"),
+    ("Toaster", "toast"),
 ];
 
 /// The examples that render every Divider state.
@@ -261,6 +268,24 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Search",
         render: || rsx! { examples::search::States {} },
         source: include_str!("examples/search/states.rs"),
+    },
+    Example {
+        id: "dialog",
+        title: "Dialogs & sheets",
+        render: || rsx! { examples::dialog::States {} },
+        source: include_str!("examples/dialog/states.rs"),
+    },
+    Example {
+        id: "popover",
+        title: "Popovers & tooltips",
+        render: || rsx! { examples::popover::States {} },
+        source: include_str!("examples/popover/states.rs"),
+    },
+    Example {
+        id: "toast",
+        title: "Toasts",
+        render: || rsx! { examples::toast::States {} },
+        source: include_str!("examples/toast/states.rs"),
     },
 ];
 

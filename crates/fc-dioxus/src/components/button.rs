@@ -144,6 +144,25 @@ pub fn Button(props: ButtonProps) -> Element {
         ],
     );
     attributes.extend(availability_attributes(&props.availability));
+    // Inside a Tooltip, the bubble describes the button too.
+    if let Some(super::popover::DescribedBy(tip)) = try_consume_context() {
+        match attributes
+            .iter_mut()
+            .find(|attr| attr.name == "aria-describedby")
+        {
+            Some(attr) => {
+                if let dioxus::core::AttributeValue::Text(ids) = &attr.value {
+                    attr.value = dioxus::core::AttributeValue::Text(format!("{ids} {tip}"));
+                }
+            }
+            None => attributes.push(Attribute::new(
+                "aria-describedby",
+                tip.to_string(),
+                None,
+                false,
+            )),
+        }
+    }
     if let Some(label) = &props.icon_label {
         attributes.retain(|attr| !matches!(attr.name, "aria-label" | "aria-labelledby"));
         attributes.push(Attribute::new("aria-label", label.to_string(), None, false));
