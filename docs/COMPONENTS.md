@@ -21,7 +21,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
 `NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
 `Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, `Select`, `Menu`, `MenuButton`,
-`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, `DiffView`, `GitSurface`, `DataGrid`, `Terminal`, and `Webview`, plus the
+`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, `DiffView`, `GitSurface`, `DataGrid`, `Terminal`, `Webview`, and `ThemePicker` (without its custom-theme editor), plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -365,6 +365,7 @@ Shared types (`Availability`, `Lifecycle`, `MessageRole`, `Tone`, `Orientation`,
 | `git.css` | `git` | `GitSurface` |
 | `editor.css` | `editor` | `Editor`, `Prose` |
 | `webview.css` | `webview` | `Webview` |
+| `theme-picker.css` | `theme_picker` | `ThemePicker` (custom-theme editor pending) |
 | `chat.css` | `chat` | `Chat`, `MessageGroup`, `Message`, `MessagePart`, `StreamingText`, `MessageActions`, `MessageAction` |
 | `composer.css` | `composer` | `Composer` |
 | `context-strip.css` | `context_strip` | `ContextStrip` |
@@ -388,6 +389,32 @@ Specified in [DESIGN.md](DESIGN.md#theme). `Theme`: `System`, `Light`, `Dark`,
 `Violet`, `Forest`, `Ink`, `Teal`, `Ember`, `Rose`, `Amber`, `Helix`. `Brand`: `Forest`
 (the older accent-only override; prefer `Palette::Forest`). `Direction`: `Ltr`, `Rtl`.
 Both catalogs are checked against `upstream/theme-presets.ts` by `tests/themes.rs`.
+
+### Theme picker (`theme-picker.css`)
+
+```rust
+#[component] fn ThemePicker(#[props(default)] value: Option<ReadSignal<ThemeChoice>>,
+    #[props(default)] default_value: ThemeChoice,
+    #[props(default)] onchange: Option<EventHandler<ThemeChoice>>) -> Element;
+pub struct ThemeChoice { pub design: Design, pub palette: Palette, pub scheme: Scheme, pub contrast: Contrast }
+impl ThemeChoice { pub const fn from_design(Design) -> Self; pub const fn theme(self, prefers_dark: bool) -> Theme }
+pub enum Scheme { System, Light, Dark }
+pub enum Contrast { System, High }
+pub async fn DomBridge::prefers(self, MediaPreference) -> Option<bool>;   // DarkScheme, MoreContrast, ForcedColors
+```
+
+It chooses and `FutureCss` applies: feed `design`, `palette`, and `theme(prefers_dark)` back
+into a root, so the picker never writes to the document behind the tree. Every design is a
+radio card whose preview wears that design and its paired palette (`data-fc-design`,
+`data-fc-palette`, `data-fc-theme` on the card), in the scheme and contrast the page will
+use. Picking a design picks its paired palette, as upstream's binding does; the palette
+select can override it. High contrast has only light and dark variants, so with "Follow
+system" the scheme comes from `prefers-color-scheme` through `DomBridge::prefers`
+(light where the host has no media queries). The status line reads like upstream's,
+"Helix · dark · high contrast", and the root mirrors each selection into
+`data-fc-*-selection`. The custom-theme editor (`__editor`: custom parameters, colour
+roles, TOML import and export, contrast validation) waits on a Rust theme model upstream,
+so `theme-picker.css` stays in `coverage-pending.toml` until it lands.
 
 ### Layout (`layout.css`)
 
@@ -1592,7 +1619,8 @@ its issue link, and gets an API entry above only once upstream has shipped its C
 | `fc-calendar`: date and time values, month grid, `add_months`, first day of week, parity with `datepicker.ts` | New model crate | `DatePicker`, `TimePicker` | To be filed |
 | `fc-highlight`: Rust port of `highlight.ts`, parity-tested | New model crate | Highlighting in `CodeBlock` | To be filed |
 | `fc-markdown`: Rust port of `markdown.ts`, with a plain-text output for announcements | New model crate | `StreamingText { markdown: true }`, Markdown in `Message` | To be filed |
-| `fc-ansi`: ANSI SGR parsing into terminal runs, with a TypeScript twin for upstream's demo | New model crate | `Terminal` | To be filed |
+| `fc-ansi`: ANSI SGR parsing into terminal runs, with a TypeScript twin for upstream's demo | New model crate | Raw ANSI input to `Terminal` | To be filed |
+| `fc-theme`: custom theme validation (schema, SemVer, contrast pairs), TOML parse and serialize, design overrides, as in `theme-picker.ts` and `theme-toml.ts` | New model crate | The `ThemePicker` custom-theme editor | To be filed |
 
 Issues are filed when the phase that needs them starts (see [PLAN.md](PLAN.md)), so each
 one carries a concrete API rather than a wish.

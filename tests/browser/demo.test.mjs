@@ -717,3 +717,28 @@ test("the webview sandboxes its frame, keeps its own history, and refuses unsafe
   assert.equal(await evaluate(`${refused}.querySelector('iframe').getAttribute('src')`), "", "a refused first page loads nothing");
   assert.equal(await evaluate(`${refused}.querySelector('[role=alert]').textContent.startsWith('This page could not be loaded.')`), true);
 });
+
+test("the theme picker previews each design and drives a nested FutureCss", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const picker = "document.querySelector('#theme-picker .fc-theme-picker')";
+  const sample = "document.querySelector('#theme-picker .fc-card').closest('[data-fc-design]')";
+  const options = `[...${picker}.querySelectorAll('.fc-theme-picker__option')]`;
+  assert.equal(await evaluate(`${options}.every(o => o.dataset.fcDesign && o.dataset.fcPalette)`), true, "every card wears its own design");
+  assert.equal(await evaluate(`${sample}.dataset.fcDesign`), "helix");
+  const target = await evaluate(`${options}.find(o => !o.querySelector('input').checked).dataset.fcDesign`);
+  await evaluate(`${options}.find(o => o.dataset.fcDesign === ${JSON.stringify(target)}).querySelector('input').click()`);
+  await until(`${sample}.dataset.fcDesign === ${JSON.stringify(target)} && ${picker}.dataset.fcDesignSelection === ${JSON.stringify(target)}`);
+  const paired = await evaluate(`${options}.find(o => o.dataset.fcDesign === ${JSON.stringify(target)}).dataset.fcPalette`);
+  assert.equal(await evaluate(`${sample}.dataset.fcPalette`), paired, "a design brings its paired palette");
+  const select = label => `[...${picker}.querySelectorAll('.fc-theme-picker__field')].find(l => l.textContent.startsWith(${JSON.stringify(label)})).querySelector('select')`;
+  const choose = async (label, value) => {
+    await evaluate(`(() => { const s = ${select(label)}; s.value = ${JSON.stringify(value)}; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  };
+  await choose("Color scheme", "dark");
+  await until(`${sample}.dataset.fcTheme === 'dark' && ${picker}.querySelector('[role=status]').textContent.endsWith('· dark')`);
+  await choose("Contrast", "high");
+  await until(`${sample}.dataset.fcTheme === 'high-contrast-dark' && ${options}.every(o => o.dataset.fcTheme === 'high-contrast-dark')`);
+  assert.ok((await evaluate(`${picker}.querySelector('[role=status]').textContent`)).endsWith("· high contrast"));
+  await choose("Color palette", "default");
+  await until(`${sample}.dataset.fcPalette === 'default' && ${picker}.dataset.fcPaletteSelection === 'default'`);
+});

@@ -53,6 +53,7 @@ pub mod suggestion;
 pub mod table;
 pub mod tabs;
 pub mod terminal;
+pub mod theme_picker;
 pub mod toast;
 pub mod tool_call;
 pub mod toolbar;

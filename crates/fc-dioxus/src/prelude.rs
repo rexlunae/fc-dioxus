@@ -69,6 +69,7 @@ pub use crate::{
     components::terminal::{
         AnsiColor, CursorStyle, Sgr, SgrSet, TermLine, TermRun, TermState, Terminal,
     },
+    components::theme_picker::{Contrast, Scheme, ThemeChoice, ThemePicker},
     components::toast::{
         use_toasts, Toast, ToastAction, ToastList, ToastOptions, ToastTone, Toaster, Toasts,
     },

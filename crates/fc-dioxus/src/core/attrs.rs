@@ -126,6 +126,8 @@ pub enum Kind {
     UserPrompt,
     /// A multiple-choice picker.
     Multiselect,
+    /// The theme picker.
+    ThemePicker,
 }
 impl Kind {
     const fn as_str(self) -> &'static str {
@@ -143,6 +145,7 @@ impl Kind {
             Self::Transfer => "transfer",
             Self::UserPrompt => "user-prompt",
             Self::Multiselect => "multiselect",
+            Self::ThemePicker => "theme-picker",
         }
     }
 }
@@ -575,4 +578,27 @@ impl GridData {
 /// `loading`, `loaded`, and `error`, or an address bar's `insecure`.
 pub(crate) fn named_state_attribute(value: &'static str) -> Attribute {
     Attribute::new("data-fc-state", value, None, false)
+}
+
+/// The theme picker's selections, mirrored so automation can read what is chosen without
+/// parsing labels.
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum ThemePickerData {
+    Design,
+    Palette,
+    Scheme,
+    Contrast,
+}
+impl ThemePickerData {
+    const fn name(self) -> &'static str {
+        match self {
+            Self::Design => "data-fc-design-selection",
+            Self::Palette => "data-fc-palette-selection",
+            Self::Scheme => "data-fc-scheme-selection",
+            Self::Contrast => "data-fc-contrast-selection",
+        }
+    }
+    pub(crate) fn attribute(self, value: &'static str) -> Attribute {
+        Attribute::new(self.name(), value, None, false)
+    }
 }

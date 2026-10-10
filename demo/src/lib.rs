@@ -159,6 +159,7 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("DataGrid", "grid"),
     ("Terminal", "terminal"),
     ("Webview", "webview"),
+    ("ThemePicker", "theme-picker"),
 ];
 
 /// The examples that render every Divider state.
@@ -526,6 +527,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Embedded browser",
         render: || rsx! { examples::webview::States {} },
         source: include_str!("examples/webview/states.rs"),
+    },
+    Example {
+        id: "theme-picker",
+        title: "Theme picker",
+        render: || rsx! { examples::theme_picker::States {} },
+        source: include_str!("examples/theme_picker/states.rs"),
     },
 ];
 

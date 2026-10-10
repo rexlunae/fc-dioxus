@@ -18,6 +18,28 @@ pub struct Capabilities {
     pub clipboard: bool,
 }
 
+/// A user preference the host reports through a media query. Fixed queries only, so no
+/// caller can pass the bridge arbitrary text.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum MediaPreference {
+    /// `prefers-color-scheme: dark`.
+    DarkScheme,
+    /// `prefers-contrast: more`.
+    MoreContrast,
+    /// `forced-colors: active`.
+    ForcedColors,
+}
+impl MediaPreference {
+    const fn query(self) -> &'static str {
+        match self {
+            Self::DarkScheme => "(prefers-color-scheme: dark)",
+            Self::MoreContrast => "(prefers-contrast: more)",
+            Self::ForcedColors => "(forced-colors: active)",
+        }
+    }
+}
+
 /// A host operation could not be performed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
@@ -248,6 +270,15 @@ impl DomBridge {
             Ok(_) => Ok(()),
             Err(_) => Err(DomError::Unsupported),
         }
+    }
+    /// Whether a user preference is on, or `None` on hosts without media queries, where
+    /// callers keep their light, standard-contrast default.
+    pub async fn prefers(self, preference: MediaPreference) -> Option<bool> {
+        let eval = document::eval(
+            "const query = await dioxus.recv(); return typeof matchMedia === 'function' ? matchMedia(query).matches : null;",
+        );
+        eval.send(preference.query()).ok()?;
+        eval.join::<Option<bool>>().await.ok().flatten()
     }
     /// Detect available host APIs after mounting; SSR and native return defaults.
     pub async fn capabilities(self) -> Capabilities {
