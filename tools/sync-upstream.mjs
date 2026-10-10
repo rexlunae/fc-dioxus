@@ -96,7 +96,7 @@ export function sync(check = false) {
   for (const path of files(join(cache, "dist")).filter(p => p.endsWith(".css"))) {
     expected.set(`crates/fc-dioxus/assets/${relative(join(cache, "dist"), path)}`, readFileSync(path));
   }
-  for (const [source, dest] of [["dist/tokens.json", "tokens.json"], ["demo/fixtures.html", "fixtures.html"], ["LICENSE", "LICENSE"]]) {
+  for (const [source, dest] of [["dist/tokens.json", "tokens.json"], ["demo/fixtures.html", "fixtures.html"], ["src/js/theme-presets.ts", "theme-presets.ts"], ["LICENSE", "LICENSE"]]) {
     expected.set(`upstream/${dest}`, readFileSync(join(cache, source)));
   }
   const tokenCode = generateTokens(JSON.parse(expected.get("upstream/tokens.json")));

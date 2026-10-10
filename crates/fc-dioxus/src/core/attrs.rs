@@ -82,6 +82,7 @@ pub(crate) fn theme_attributes(
     theme: Option<&'static str>,
     brand: Option<&'static str>,
     design: Option<&'static str>,
+    palette: Option<&'static str>,
 ) -> Vec<Attribute> {
     let mut attrs = vec![Attribute::new(
         "data-fc-version",
@@ -97,6 +98,9 @@ pub(crate) fn theme_attributes(
     }
     if let Some(design) = design {
         attrs.push(Attribute::new("data-fc-design", design, None, false));
+    }
+    if let Some(palette) = palette {
+        attrs.push(Attribute::new("data-fc-palette", palette, None, false));
     }
     attrs
 }

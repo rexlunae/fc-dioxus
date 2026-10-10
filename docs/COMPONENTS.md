@@ -22,8 +22,12 @@ replace its semantics. All six orientation/inset combinations are in the demo.
 infallible literal conversion. `FcData` uses typed `Kind`, `Id`, lifecycle, role,
 sequence, and epoch-millisecond timestamp fields. Truncation is not implemented.
 `FutureCss` also accepts `design: Option<Design>` for all 21 stock upstream visual
-presets. Absence inherits a surrounding design. The demo starts with Helix and
-provides independent design and color-scheme controls. No custom design CSS is authored.
+presets and `palette: Option<Palette>` for all 10 stock color palettes. A design carries
+no colors, so a set design applies the palette upstream pairs it with
+(`Design::palette()`) unless `palette` is given; with neither, both are inherited. The
+demo starts with Helix and provides design, palette, color-scheme, and direction
+controls. Choosing a design resets the palette to its pairing, as upstream's picker does.
+No custom design CSS is authored.
 
 Current action/surface APIs refine the proposals below:
 
@@ -140,8 +144,11 @@ Shared types (`Availability`, `Lifecycle`, `MessageRole`, `Tone`, `Orientation`,
 ### `FutureCss` and theming
 
 Specified in [DESIGN.md](DESIGN.md#theme). `Theme`: `System`, `Light`, `Dark`,
-`HighContrastLight`, `HighContrastDark`. `Brand`: `Forest` (the CSS library's brand theme
-set; new brands are added there first). `Direction`: `Ltr`, `Rtl`.
+`HighContrastLight`, `HighContrastDark`. `Design`: the 21 stock presets, with `name()`,
+`description()`, and `palette()` from upstream's catalog. `Palette`: `Default`, `Blue`,
+`Violet`, `Forest`, `Ink`, `Teal`, `Ember`, `Rose`, `Amber`, `Helix`. `Brand`: `Forest`
+(the older accent-only override; prefer `Palette::Forest`). `Direction`: `Ltr`, `Rtl`.
+Both catalogs are checked against `upstream/theme-presets.ts` by `tests/themes.rs`.
 
 ### Layout (`layout.css`)
 

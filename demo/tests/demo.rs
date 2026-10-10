@@ -82,8 +82,14 @@ fn query_inputs_select_only_known_theme_and_direction_values() {
             theme: Theme::Dark,
             direction: Direction::Rtl,
             design: Design::Helix,
+            palette: None,
         }
     );
+    assert_eq!(
+        DemoOptions::from_query("?design=ocean&palette=rose").palette,
+        Some(Palette::Rose)
+    );
+    assert_eq!(DemoOptions::from_query("?palette=nope").palette, None);
     assert_eq!(
         DemoOptions::from_query("?theme=garbage&dir=sideways&token=secret"),
         DemoOptions::default()

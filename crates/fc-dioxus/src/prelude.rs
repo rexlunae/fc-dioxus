@@ -15,6 +15,6 @@ pub use crate::{
         state::{Availability, HeadingLevel, Lifecycle, MessageRole, Orientation},
         text::{AccessibleName, Alt},
     },
-    theme::{Brand, Design, Direction, FutureCss, FutureCssProps, Stylesheets, Theme},
+    theme::{Brand, Design, Direction, FutureCss, FutureCssProps, Palette, Stylesheets, Theme},
 };
 pub use dioxus::prelude::*;

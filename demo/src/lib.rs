@@ -19,7 +19,6 @@ const SOURCE: Bem = Bem::new("fc-u-prewrap");
 const GRID: Bem = Bem::new("fc-grid-auto");
 const WIDE_GRID: Bem = Bem::new("fc-grid-auto--wide");
 const SPACED: Bem = Bem::new("fc-stack--8");
-const CHECK: Bem = Bem::new("fc-check__input");
 const BETWEEN: Bem = Bem::new("fc-cluster--between");
 
 /// A compiled example and the exact source that defines it.
@@ -115,6 +114,8 @@ pub struct DemoOptions {
     pub theme: Theme,
     /// Initial stock visual preset.
     pub design: Design,
+    /// Initial palette; `None` follows the design's paired palette.
+    pub palette: Option<Palette>,
     /// Initial direction.
     pub direction: Direction,
 }
@@ -124,6 +125,7 @@ impl Default for DemoOptions {
             fixtures: false,
             theme: Theme::System,
             design: Design::Helix,
+            palette: None,
             direction: Direction::Ltr,
         }
     }
@@ -142,6 +144,7 @@ impl DemoOptions {
                 "fixtures" => options.fixtures = value == "true",
                 "theme" => options.theme = parse_theme(value),
                 "design" => options.design = parse_design(value),
+                "palette" => options.palette = Palette::from_attribute(value),
                 "dir" => {
                     options.direction = if value == "rtl" {
                         Direction::Rtl
@@ -156,11 +159,7 @@ impl DemoOptions {
     }
 }
 fn parse_design(value: &str) -> Design {
-    Design::ALL
-        .iter()
-        .copied()
-        .find(|design| design.as_str() == value)
-        .unwrap_or(Design::Helix)
+    Design::from_attribute(value).unwrap_or(Design::Helix)
 }
 fn parse_theme(value: &str) -> Theme {
     match value {
@@ -206,10 +205,10 @@ pub fn Demo(props: DemoProps) -> Element {
     let mut theme = use_signal(|| props.options.theme);
     let mut design = use_signal(|| props.options.design);
     let mut direction = use_signal(|| props.options.direction);
-    let mut forest = use_signal(|| false);
+    let mut palette = use_signal(|| props.options.palette);
     let fixtures = props.options.fixtures;
     rsx! {
-        FutureCss { theme: theme(), design: design(), direction: direction(), brand: forest().then_some(Brand::Forest), stylesheets: props.stylesheets,
+        FutureCss { theme: theme(), design: design(), palette: palette(), direction: direction(), stylesheets: props.stylesheets,
             if props.stylesheets == Stylesheets::Automatic { document::Stylesheet { href: assets::COMPONENTS_CHECK_CSS } }
             div { class: PAD.block(),
                 main { class: ClassList::new(CONTAINER.block()).with(STACK.block()).with(SPACED.block()).to_string(),
@@ -229,11 +228,11 @@ pub fn Demo(props: DemoProps) -> Element {
                             div { class: CLUSTER.block(),
                                 Button { variant: ButtonVariant::Secondary, onclick: move |_| {
                                     let index = Design::ALL.iter().position(|item| *item == design()).unwrap_or(0);
-                                    if let Some(next) = Design::ALL.get((index + 1) % Design::ALL.len()) { design.set(*next); }
+                                    if let Some(next) = Design::ALL.get((index + 1) % Design::ALL.len()) { design.set(*next); palette.set(None); }
                                 }, "Try another design" }
                                 Badge { tone: BadgeTone::Solid, "21 stock themes" }
                             }
-                            p { "Current design: " strong { "{design().as_str()}" } }
+                            p { "Current design: " strong { "{design().name()}" } " · palette: " strong { "{palette().unwrap_or(design().palette()).name()}" } }
                         }
                         section { "data-showcase": "future-css", aria_labelledby: "appearance-title",
                             Card {
@@ -244,8 +243,16 @@ pub fn Demo(props: DemoProps) -> Element {
                                 CardBody {
                                     div { class: GRID.block(),
                                         div { label { r#for: "design", "Visual preset" }
-                                            select { id: "design", value: design().as_str(), onchange: move |event| design.set(parse_design(&event.value())),
-                                                for preset in Design::ALL { option { value: preset.as_str(), selected: *preset == design(), "{preset:?}" } }
+                                            // Picking a design brings its own palette, as upstream's picker does;
+                                            // an explicit palette is a choice made after the design.
+                                            select { id: "design", value: design().as_str(), onchange: move |event| { design.set(parse_design(&event.value())); palette.set(None); },
+                                                for preset in Design::ALL { option { value: preset.as_str(), selected: *preset == design(), "{preset.name()}" } }
+                                            }
+                                        }
+                                        div { label { r#for: "palette", "Color palette" }
+                                            select { id: "palette", value: palette().map_or("", Palette::as_str), onchange: move |event| palette.set(Palette::from_attribute(&event.value())),
+                                                option { value: "", selected: palette().is_none(), "Match design ({design().palette().name()})" }
+                                                for choice in Palette::ALL { option { value: choice.as_str(), selected: palette() == Some(*choice), "{choice.name()}" } }
                                             }
                                         }
                                         div { label { r#for: "theme", "Color scheme" }
@@ -264,7 +271,6 @@ pub fn Demo(props: DemoProps) -> Element {
                                             }
                                         }
                                     }
-                                    label { input { r#type: "checkbox", class: CHECK.block(), checked: forest(), onchange: move |event| forest.set(event.checked()) } " Forest brand override" }
                                 }
                                 CardFooter { divided: true, Badge { tone: BadgeTone::Success, dot: true, "Upstream styles" } Badge { tone: BadgeTone::Info, "Native semantics" } }
                             }

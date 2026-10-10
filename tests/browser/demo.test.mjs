@@ -33,6 +33,13 @@ async function until(expression) {
   while (Date.now() < deadline) { if (await evaluate(expression)) return; await sleep(80); }
   throw new Error(`Page did not become ready: ${expression}; exceptions=${JSON.stringify(exceptions)}`);
 }
+// Colors transition when a theme changes, and axe or getComputedStyle mid-transition
+// reports a blend of the old and new palettes that no user ever rests on.
+const settle = async () => {
+  const quiet = "new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))).then(() => !document.getAnimations().some(a => a instanceof CSSTransition && a.playState !== 'finished'))";
+  await until(quiet);
+  await until(quiet);
+};
 async function load(query, width = 320) {
   exceptions.length = 0;
   await send("Emulation.setDeviceMetricsOverride", { width, height: 1000, deviceScaleFactor: 1, mobile: false });
@@ -41,6 +48,7 @@ async function load(query, width = 320) {
   await send("Page.navigate", { url: `${server.origin}/?${query}` });
   await until("document.querySelectorAll('.fc-divider').length === 6 && ['tokens','themes','button','card','badge','alert','divider'].every(name => [...document.styleSheets].some(s => s.href?.includes('/'+name+'-'))) ");
   await evaluate("document.fonts.ready.then(() => true)");
+  await settle();
   await evaluate(axe);
 }
 
@@ -93,7 +101,7 @@ for (const theme of ["light", "dark"]) for (const dir of ["ltr", "rtl"]) {
     assert.ok(layout.scroll <= layout.width + 1, JSON.stringify(layout));
     assert.equal(layout.dividers.length, 6);
     assert.ok(layout.dividers.every(d => d.width > 0 && d.height > 0 && d.border > 0), JSON.stringify(layout.dividers));
-    const audit = await evaluate("axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } }).then(r => r.violations.map(v => ({id:v.id, impact:v.impact, nodes:v.nodes.map(n => n.target)})))");
+    const audit = await evaluate("axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } }).then(r => r.violations.map(v => ({id:v.id, impact:v.impact, nodes:v.nodes.map(n => [n.target, n.any.map(a => a.message)])})))");
     assert.deepEqual(audit, [], "axe must report zero WCAG A/AA violations");
     assert.deepEqual(exceptions, [], "no uncaught browser errors");
   });
@@ -145,7 +153,7 @@ test("every upstream preset changes rendered styling in light and dark and passe
     for (const preset of presets) {
       await evaluate(`document.getElementById('design').value=${JSON.stringify(preset)}; document.getElementById('design').dispatchEvent(new Event('change',{bubbles:true}))`);
       await until(`document.querySelector('[data-fc-version]').dataset.fcDesign === ${JSON.stringify(preset)}`);
-      await evaluate("new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))");
+      await settle();
       const appearance = await evaluate(`(() => {
         const root = document.querySelector('[data-fc-version]');
         const card = getComputedStyle(root.querySelector('.fc-card--feature'));
@@ -158,11 +166,44 @@ test("every upstream preset changes rendered styling in light and dark and passe
       assert.equal(appearance.scheme, scheme);
       assert.equal(appearance.overflow, false, `${preset}/${scheme} overflows`);
       appearances.add(JSON.stringify(appearance.appearance));
-      const violations = await evaluate("axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})))");
+      const violations = await evaluate("axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>[n.target,n.any.map(a=>a.message)])})))");
       assert.deepEqual(violations, [], `${preset}/${scheme} accessibility`);
     }
     assert.equal(appearances.size, presets.length, "each stock design must have a distinct computed appearance");
   }
+  await send("Emulation.setEmulatedMedia", { features: [] });
+});
+
+test("each design applies its paired palette and every palette recolors the page", async () => {
+  // Buttons transition their background; a mid-transition color would read as a repeat.
+  await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+  await load("fixtures=false&theme=light&design=helix", 1200);
+  const presets = readFileSync("upstream/theme-presets.ts", "utf8");
+  const pairs = [...presets.matchAll(/id:'([^']+)',name:'[^']*',description:'[^']*',palette:'([^']+)'/g)].map(m => [m[1], m[2]]);
+  assert.equal(pairs.length, 21, "upstream changed its design catalog");
+  const accent = "getComputedStyle(document.querySelector('#button .fc-btn--primary')).backgroundColor";
+  const pick = (id, value) => `document.getElementById('${id}').value=${JSON.stringify(value)}; document.getElementById('${id}').dispatchEvent(new Event('change',{bubbles:true}))`;
+  for (const [design, palette] of pairs) {
+    await evaluate(pick("design", design));
+    await until(`document.querySelector('[data-fc-version]').dataset.fcDesign === ${JSON.stringify(design)}`);
+    assert.equal(await evaluate("document.querySelector('[data-fc-version]').dataset.fcPalette"), palette, `${design} pairs with ${palette}`);
+  }
+  // A chosen palette overrides the design's, and a new design returns to its pairing.
+  await evaluate(pick("design", "ocean"));
+  await until("document.querySelector('[data-fc-version]').dataset.fcPalette === 'teal'");
+  const colors = new Set();
+  const palettes = await evaluate("[...document.getElementById('palette').options].map(o => o.value).filter(Boolean)");
+  assert.equal(palettes.length, 10);
+  for (const palette of palettes) {
+    await evaluate(pick("palette", palette));
+    await until(`document.querySelector('[data-fc-version]').dataset.fcPalette === ${JSON.stringify(palette)}`);
+    await settle();
+    colors.add(await evaluate(accent));
+  }
+  assert.equal(colors.size, palettes.length, "each palette must give primary actions a distinct color");
+  await evaluate(pick("design", "forest"));
+  await until("document.querySelector('[data-fc-version]').dataset.fcPalette === 'forest'");
+  assert.equal(await evaluate("document.getElementById('palette').value"), "");
   await send("Emulation.setEmulatedMedia", { features: [] });
 });
 

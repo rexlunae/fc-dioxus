@@ -528,6 +528,8 @@ Stylesheets::External }` and the components emit no stylesheet links.
 #[component]
 pub fn FutureCss(
     #[props(default)] theme: Theme,           // System, Light, Dark, HighContrastLight, HighContrastDark
+    #[props(default)] design: Option<Design>, // data-fc-design: geometry, depth, surface, type
+    #[props(default)] palette: Option<Palette>, // data-fc-palette; defaults to design.palette()
     #[props(default)] brand: Option<Brand>,   // data-fc-brand, e.g. Brand::Forest
     #[props(default)] direction: Option<Direction>, // Ltr, Rtl, or inherit
     #[props(default)] stylesheets: Stylesheets,
