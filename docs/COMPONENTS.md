@@ -1619,11 +1619,6 @@ pub enum ResizeUnit { Percent, Px }   // % of the split; CSS px for edge handles
   `fc-terminal__text--danger`; two table headers marked sorted at once; busy-button label
   spans in some fixtures and not others; markup from before and after a binding mixed
   in the carousel, splitter, menu, and select fixtures.
-- **grid.css's unscoped `[role="row"] { display: contents }`**
-  ([future-css#48](https://github.com/rexlunae/future-css/issues/48)) collapses git rows
-  when it loads after git.css. `GitSurface` requests grid.css before git.css to pin the
-  bundle's order until upstream scopes the rule
-  ([future-css#52](https://github.com/rexlunae/future-css/pull/52)).
 - **Editor binding bugs** found in review (lost block text, unremovable marks,
   cross-editor commands, leaked listeners) are fixed upstream in
   [future-css#51](https://github.com/rexlunae/future-css/pull/51); the crate picks them

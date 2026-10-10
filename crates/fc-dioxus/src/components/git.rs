@@ -174,16 +174,7 @@ pub fn GitSurface(
     let empty = rows.is_empty();
     let paths: Vec<String> = rows.iter().map(|e| e.path.clone()).collect();
     rsx! {
-        if use_stylesheets() {
-            // grid.css styles every `[role="row"]` as `display: contents`, and git rows
-            // are rows. Upstream's bundle puts grid before git, so git's own row rule
-            // wins on equal specificity; per-component links load in mount order, so a
-            // grid mounted after this surface would collapse its rows and make them
-            // unfocusable. Links dedupe by href, so asking for grid.css first here pins
-            // the bundle order whichever mounts first.
-            document::Stylesheet { href: assets::COMPONENTS_GRID_CSS }
-            document::Stylesheet { href: assets::COMPONENTS_GIT_CSS }
-        }
+        if use_stylesheets() { document::Stylesheet { href: assets::COMPONENTS_GIT_CSS } }
         div { ..attributes,
             div { class: BEM.element("header"),
                 // A repository with no commits has a branch and no history.

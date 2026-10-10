@@ -604,7 +604,7 @@ test("the git surface sorts conflicts first, roves with arrows, and stages witho
   assert.equal(await evaluate(`${rows}[0].getAttribute('aria-selected')`), "true", "the first file starts selected");
   assert.equal(await evaluate(`${rows}.filter(r => r.tabIndex === 0).length`), 1, "one tab stop");
   assert.equal(await evaluate(`${surface}.dataset.fcConflicted`), "1");
-  // grid.css's unscoped row rule must not collapse git rows, whatever loaded first.
+  // Rows keep their own layout; grid.css styles only the grid's rows.
   assert.equal(await evaluate(`getComputedStyle(${rows}[0]).display`), "flex");
   await evaluate(`${rows}[0].focus()`);
   await press("ArrowDown", "ArrowDown", 40);

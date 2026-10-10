@@ -2793,12 +2793,12 @@ dependencies = [
 [[package]]
 name = "fc-context-menu"
 version = "0.1.0"
-source = "git+https://github.com/rexlunae/future-css?rev=c1733d48337afe4c25b92ce770151c5784048ed9#c1733d48337afe4c25b92ce770151c5784048ed9"
+source = "git+https://github.com/rexlunae/future-css?rev=6bfc984afa51c6f339bd701beae5f3805a305925#6bfc984afa51c6f339bd701beae5f3805a305925"
 
 [[package]]
 name = "fc-core"
 version = "0.1.0"
-source = "git+https://github.com/rexlunae/future-css?rev=c1733d48337afe4c25b92ce770151c5784048ed9#c1733d48337afe4c25b92ce770151c5784048ed9"
+source = "git+https://github.com/rexlunae/future-css?rev=6bfc984afa51c6f339bd701beae5f3805a305925#6bfc984afa51c6f339bd701beae5f3805a305925"
 dependencies = [
  "serde",
 ]
@@ -2816,7 +2816,7 @@ dependencies = [
 [[package]]
 name = "fc-diff"
 version = "0.1.0"
-source = "git+https://github.com/rexlunae/future-css?rev=c1733d48337afe4c25b92ce770151c5784048ed9#c1733d48337afe4c25b92ce770151c5784048ed9"
+source = "git+https://github.com/rexlunae/future-css?rev=6bfc984afa51c6f339bd701beae5f3805a305925#6bfc984afa51c6f339bd701beae5f3805a305925"
 
 [[package]]
 name = "fc-dioxus"
@@ -2840,12 +2840,12 @@ dependencies = [
 [[package]]
 name = "fc-git"
 version = "0.1.0"
-source = "git+https://github.com/rexlunae/future-css?rev=c1733d48337afe4c25b92ce770151c5784048ed9#c1733d48337afe4c25b92ce770151c5784048ed9"
+source = "git+https://github.com/rexlunae/future-css?rev=6bfc984afa51c6f339bd701beae5f3805a305925#6bfc984afa51c6f339bd701beae5f3805a305925"
 
 [[package]]
 name = "fc-grid"
 version = "0.1.0"
-source = "git+https://github.com/rexlunae/future-css?rev=c1733d48337afe4c25b92ce770151c5784048ed9#c1733d48337afe4c25b92ce770151c5784048ed9"
+source = "git+https://github.com/rexlunae/future-css?rev=6bfc984afa51c6f339bd701beae5f3805a305925#6bfc984afa51c6f339bd701beae5f3805a305925"
 dependencies = [
  "fc-core",
  "serde",
@@ -2854,7 +2854,7 @@ dependencies = [
 [[package]]
 name = "fc-model"
 version = "0.1.0"
-source = "git+https://github.com/rexlunae/future-css?rev=c1733d48337afe4c25b92ce770151c5784048ed9#c1733d48337afe4c25b92ce770151c5784048ed9"
+source = "git+https://github.com/rexlunae/future-css?rev=6bfc984afa51c6f339bd701beae5f3805a305925#6bfc984afa51c6f339bd701beae5f3805a305925"
 dependencies = [
  "fc-core",
  "serde",
@@ -2863,7 +2863,7 @@ dependencies = [
 [[package]]
 name = "fc-rich-text"
 version = "0.1.0"
-source = "git+https://github.com/rexlunae/future-css?rev=c1733d48337afe4c25b92ce770151c5784048ed9#c1733d48337afe4c25b92ce770151c5784048ed9"
+source = "git+https://github.com/rexlunae/future-css?rev=6bfc984afa51c6f339bd701beae5f3805a305925#6bfc984afa51c6f339bd701beae5f3805a305925"
 dependencies = [
  "fc-core",
  "fc-model",
@@ -2873,7 +2873,7 @@ dependencies = [
 [[package]]
 name = "fc-select"
 version = "0.1.0"
-source = "git+https://github.com/rexlunae/future-css?rev=c1733d48337afe4c25b92ce770151c5784048ed9#c1733d48337afe4c25b92ce770151c5784048ed9"
+source = "git+https://github.com/rexlunae/future-css?rev=6bfc984afa51c6f339bd701beae5f3805a305925#6bfc984afa51c6f339bd701beae5f3805a305925"
 
 [[package]]
 name = "fc-tokens"
