@@ -9,7 +9,8 @@ where Dioxus forces a change, this file changes in the same commit.
 `Badge`, `Tag`, `Kbd`, `Alert`, `Avatar`, `AvatarGroup`, `Spinner`, `ShimmerText`,
 `Loading`, `Skeleton`, `Progress`, `ProgressRing`, `Breadcrumb`, `Crumb`, `EmptyState`,
 `DescriptionList`, `DescriptionItem`, `List`, `ListItem`, `Checkbox`, `CheckGroup`,
-`Radio`, `Switch`, and `SwitchRow`, plus the
+`Radio`, `Switch`, `SwitchRow`, `Field`, `Input`, `Textarea`, `NativeSelect`,
+`InputGroup`, `InputAddon`, `ErrorSummary`, `Choice`, and `Disclosure`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -75,6 +76,20 @@ Current action/surface APIs refine the proposals below:
   `DomBridge::set_indeterminate`; HTML forbids `aria-checked` on a native checkbox, so
   hosts without a DOM show it unchecked. Radios share state through
   `CheckGroup { radios: RadioChoice { name, value, onchange } }`.
+- `Field` provides its control's id, hint id, error id, and required flag through
+  context; `Input`, `Textarea`, and `NativeSelect` read it, so labels and descriptions are
+  wired by construction. `control: Option<Id>` names the control when an
+  `ErrorSummary` links to it. `InputVariant` covers form-variants.css (`Filled`, `Soft`,
+  `Underlined`); `Field { inline }` is `fc-field--inline`. Inside an `InputGroup`, an
+  `Input` renders as `fc-input-group__control`. `NativeSelect` is the styled native
+  `<select>`; the listbox `Select` from select.css is separate. `Autocomplete` is
+  still planned. `Choice` is the card-style radio from form-variants.css and shares
+  `CheckGroup`'s radio state. Upstream's form-variants fixture wraps controls in a
+  `<label class="fc-field">`; this library keeps one `Field` shape, so that fixture is
+  exercised for classes but not compared structurally.
+- `ErrorSummary` focuses itself on mount whenever it has errors, so render it after a
+  submit, not on first load.
+- `Disclosure` is native `<details>`; `open` sets the initial state.
 - `Clipped` (in `core::text`) holds the full value of any shortened text;
   `Clipped::chars` shortens by character, `Clipped::lines` declares a CSS clamp.
 - `AlertTone` mirrors exactly the neutral/info/success/warning/danger CSS vocabulary.

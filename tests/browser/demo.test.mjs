@@ -226,6 +226,19 @@ test("checkboxes, radios, switches, and list rows keep native behaviour", async 
   assert.equal(await evaluate("document.querySelector('#list a[aria-disabled=true]').hasAttribute('href')"), false, "an unavailable link has no destination");
 });
 
+test("fields wire labels, descriptions, and errors, and the summary takes focus", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  assert.ok(await evaluate("[...document.querySelectorAll('#field label[for]')].every(l => document.getElementById(l.htmlFor)?.matches('input, textarea, select'))"), "every field label targets its control");
+  assert.ok(await evaluate("[...document.querySelectorAll('#field [aria-describedby]')].every(n => n.getAttribute('aria-describedby').split(' ').every(id => document.getElementById(id)))"), "descriptions resolve");
+  assert.equal(await evaluate("document.activeElement?.classList.contains('fc-error-summary')"), true, "the summary takes focus when it appears");
+  await evaluate("document.querySelector('#field .fc-error-summary__link').click()");
+  const email = "document.getElementById(document.querySelector('#field .fc-error-summary__link').hash.slice(1))";
+  assert.equal(await evaluate(`${email}.getAttribute('aria-invalid')`), "true");
+  await evaluate(`(() => { const input = ${email}; input.focus(); input.value = 'ada@example.com'; input.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await until("!document.querySelector('#field .fc-error-summary')");
+  assert.equal(await evaluate("[...document.querySelectorAll('#field input[type=email]')].pop().hasAttribute('aria-invalid')"), false);
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

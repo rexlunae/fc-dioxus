@@ -122,71 +122,86 @@ fn tree_within(document: &Document, index: usize, hidden: bool) -> Option<Tree> 
     })
 }
 
+type Case = (&'static str, &'static [&'static str], fn() -> Element);
+
+/// Each fixture, the classes whose subtrees are compared, and the example rendering them.
+const CASES: &[Case] = &[
+    (
+        "button",
+        &["fc-btn"],
+        || rsx! { fc_demo::examples::button::States {} },
+    ),
+    (
+        "card",
+        &["fc-card"],
+        || rsx! { fc_demo::examples::card::States {} },
+    ),
+    (
+        "badge",
+        &["fc-badge", "fc-tag", "fc-kbd"],
+        || rsx! { fc_demo::examples::badge::States {} },
+    ),
+    (
+        "alert",
+        &["fc-alert"],
+        || rsx! { fc_demo::examples::alert::States {} },
+    ),
+    (
+        "avatar",
+        &["fc-avatar", "fc-avatar-group"],
+        || rsx! { fc_demo::examples::avatar::States {} },
+    ),
+    (
+        "spinner",
+        &["fc-spinner", "fc-shimmer-text"],
+        || rsx! { fc_demo::examples::spinner::States {} },
+    ),
+    (
+        "loading",
+        &["fc-skeleton", "fc-progress", "fc-progress-ring"],
+        || rsx! { fc_demo::examples::loading::States {} },
+    ),
+    (
+        "breadcrumb",
+        &["fc-breadcrumb"],
+        || rsx! { fc_demo::examples::breadcrumb::States {} },
+    ),
+    (
+        "empty-state",
+        &["fc-empty"],
+        || rsx! { fc_demo::examples::empty_state::States {} },
+    ),
+    (
+        "description-list",
+        &["fc-dl"],
+        || rsx! { fc_demo::examples::description_list::States {} },
+    ),
+    (
+        "list",
+        &["fc-list"],
+        || rsx! { fc_demo::examples::list::States {} },
+    ),
+    (
+        "check",
+        &["fc-check", "fc-check-group", "fc-switch", "fc-switch-row"],
+        || rsx! { fc_demo::examples::check::States {} },
+    ),
+    (
+        "field",
+        &["fc-field", "fc-input", "fc-input-group", "fc-error-summary"],
+        || rsx! { fc_demo::examples::field::States {} },
+    ),
+    (
+        "disclosure",
+        &["fc-disclosure"],
+        || rsx! { fc_demo::examples::disclosure::States {} },
+    ),
+];
+
 #[test]
 fn styled_components_match_every_upstream_reference_subtree() {
     let upstream = Document::parse(include_str!("../../upstream/fixtures.html"));
-    for (fixture, classes, render) in [
-        (
-            "button",
-            &["fc-btn"][..],
-            (|| rsx! { fc_demo::examples::button::States {} }) as fn() -> Element,
-        ),
-        (
-            "card",
-            &["fc-card"][..],
-            (|| rsx! { fc_demo::examples::card::States {} }) as fn() -> Element,
-        ),
-        (
-            "badge",
-            &["fc-badge", "fc-tag", "fc-kbd"][..],
-            (|| rsx! { fc_demo::examples::badge::States {} }) as fn() -> Element,
-        ),
-        (
-            "alert",
-            &["fc-alert"][..],
-            (|| rsx! { fc_demo::examples::alert::States {} }) as fn() -> Element,
-        ),
-        (
-            "avatar",
-            &["fc-avatar", "fc-avatar-group"][..],
-            (|| rsx! { fc_demo::examples::avatar::States {} }) as fn() -> Element,
-        ),
-        (
-            "spinner",
-            &["fc-spinner", "fc-shimmer-text"][..],
-            (|| rsx! { fc_demo::examples::spinner::States {} }) as fn() -> Element,
-        ),
-        (
-            "loading",
-            &["fc-skeleton", "fc-progress", "fc-progress-ring"][..],
-            (|| rsx! { fc_demo::examples::loading::States {} }) as fn() -> Element,
-        ),
-        (
-            "breadcrumb",
-            &["fc-breadcrumb"][..],
-            (|| rsx! { fc_demo::examples::breadcrumb::States {} }) as fn() -> Element,
-        ),
-        (
-            "empty-state",
-            &["fc-empty"][..],
-            (|| rsx! { fc_demo::examples::empty_state::States {} }) as fn() -> Element,
-        ),
-        (
-            "description-list",
-            &["fc-dl"][..],
-            (|| rsx! { fc_demo::examples::description_list::States {} }) as fn() -> Element,
-        ),
-        (
-            "list",
-            &["fc-list"][..],
-            (|| rsx! { fc_demo::examples::list::States {} }) as fn() -> Element,
-        ),
-        (
-            "check",
-            &["fc-check", "fc-check-group", "fc-switch", "fc-switch-row"][..],
-            (|| rsx! { fc_demo::examples::check::States {} }) as fn() -> Element,
-        ),
-    ] {
+    for &(fixture, classes, render) in CASES {
         let ours = Document::parse(&dioxus_ssr::render_element(
             rsx! { FutureCss { stylesheets: Stylesheets::External, {render()} } },
         ));

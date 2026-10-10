@@ -73,6 +73,15 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Radio", "check"),
     ("Switch", "check"),
     ("SwitchRow", "check"),
+    ("Field", "field"),
+    ("Input", "field"),
+    ("Textarea", "field"),
+    ("NativeSelect", "field"),
+    ("InputGroup", "field"),
+    ("InputAddon", "field"),
+    ("ErrorSummary", "field"),
+    ("Choice", "field"),
+    ("Disclosure", "disclosure"),
 ];
 
 /// The examples that render every Divider state.
@@ -170,6 +179,18 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Checkboxes, radios & switches",
         render: || rsx! { examples::check::States {} },
         source: include_str!("examples/check/states.rs"),
+    },
+    Example {
+        id: "field",
+        title: "Fields & inputs",
+        render: || rsx! { examples::field::States {} },
+        source: include_str!("examples/field/states.rs"),
+    },
+    Example {
+        id: "disclosure",
+        title: "Disclosures",
+        render: || rsx! { examples::disclosure::States {} },
+        source: include_str!("examples/disclosure/states.rs"),
     },
 ];
 
