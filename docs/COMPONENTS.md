@@ -10,7 +10,9 @@ where Dioxus forces a change, this file changes in the same commit.
 `Loading`, `Skeleton`, `Progress`, `ProgressRing`, `Breadcrumb`, `Crumb`, `EmptyState`,
 `DescriptionList`, `DescriptionItem`, `List`, `ListItem`, `Checkbox`, `CheckGroup`,
 `Radio`, `Switch`, `SwitchRow`, `Field`, `Input`, `Textarea`, `NativeSelect`,
-`InputGroup`, `InputAddon`, `ErrorSummary`, `Choice`, and `Disclosure`, plus the
+`InputGroup`, `InputAddon`, `ErrorSummary`, `Choice`, `Disclosure`, `ButtonGroup`,
+`ControlGroup`, `ControlLabel`, `Segmented`, `Segment`, `SplitButton`, `Fab`, `FabMenu`,
+and `FabMenuItem`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -90,6 +92,19 @@ Current action/surface APIs refine the proposals below:
 - `ErrorSummary` focuses itself on mount whenever it has errors, so render it after a
   submit, not on first load.
 - `Disclosure` is native `<details>`; `open` sets the initial state.
+- `ButtonGroup` and `ControlGroup` give the `Button`s, `Input`s, and `NativeSelect`s inside
+  them their item classes through context, so items need no class from the author.
+  `ControlGroup` is named by `GroupName::Label` (a `role="group"`) or `GroupName::Legend`
+  (a `<fieldset>`, which alone can be `disabled`); `ControlLayout` is `Wrap`, `Joined`,
+  `Vertical`, or `Plain`. Outside a `Field`, an `Input` keeps the author's `id`, so a
+  `ControlLabel` or plain `<label for>` can target it.
+- `Segmented` takes `Segments::Single { name, value, onchange }` (radios) or
+  `Segments::Multiple { values, onchange }` (checkboxes); its legend is visually hidden.
+- `SplitButton` renders the action as a `Button` and the toggle with
+  `aria-haspopup="menu"` and `aria-expanded`; the menu goes in `menu`. While the action
+  is busy the toggle is `aria-disabled`, matching upstream.
+- `Fab` takes a required `label`: the accessible name when icon-only, visible text when
+  `extended`. `menu: Id` sets `popovertarget` to a `FabMenu`, which is a native popover.
 - `Clipped` (in `core::text`) holds the full value of any shortened text;
   `Clipped::chars` shortens by character, `Clipped::lines` declares a CSS clamp.
 - `AlertTone` mirrors exactly the neutral/info/success/warning/danger CSS vocabulary.

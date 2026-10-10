@@ -128,6 +128,7 @@ pub fn Button(props: ButtonProps) -> Element {
                 ButtonShape::Text
             },
         )
+        .extend(super::group_item_class().as_deref())
         .extend(props.class.as_deref());
     let mut attributes = component_attributes(
         props.attributes,

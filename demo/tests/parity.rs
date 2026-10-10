@@ -93,6 +93,10 @@ fn tree_within(document: &Document, index: usize, hidden: bool) -> Option<Tree> 
         attrs.remove("aria-hidden");
     }
     let hidden = hidden || node.attr("aria-hidden") == Some("true");
+    // An input without a type is a text input; upstream writes it in some fixtures only.
+    if tag == "input" && node.attr("type").is_none() {
+        attrs.insert("type".to_owned(), "text".to_owned());
+    }
     // IDs differ per render. The Dioxus API also requires explanatory text for
     // unavailable controls; fc-a11y separately verifies these added references.
     attrs.remove("aria-describedby");
@@ -114,6 +118,11 @@ fn tree_within(document: &Document, index: usize, hidden: bool) -> Option<Tree> 
         .enumerate()
         .filter(|(_, child)| child.parent == Some(index))
         .filter_map(|(child, _)| tree_within(document, child, hidden))
+        // A bare span around text is inert. Upstream wraps a busy button's label in one
+        // in button's fixture and not in control-group's or split-button's.
+        .filter(|child| {
+            !(child.tag == "span" && child.attrs.is_empty() && child.children.is_empty())
+        })
         .collect();
     Some(Tree {
         tag,
@@ -195,6 +204,31 @@ const CASES: &[Case] = &[
         "disclosure",
         &["fc-disclosure"],
         || rsx! { fc_demo::examples::disclosure::States {} },
+    ),
+    (
+        "button-group",
+        &["fc-button-group"],
+        || rsx! { fc_demo::examples::button_group::States {} },
+    ),
+    (
+        "control-group",
+        &["fc-control-group"],
+        || rsx! { fc_demo::examples::control_group::States {} },
+    ),
+    (
+        "segmented",
+        &["fc-segmented"],
+        || rsx! { fc_demo::examples::segmented::States {} },
+    ),
+    (
+        "split-button",
+        &["fc-split-btn"],
+        || rsx! { fc_demo::examples::split_button::States {} },
+    ),
+    (
+        "fab",
+        &["fc-fab", "fc-fab-menu"],
+        || rsx! { fc_demo::examples::fab::States {} },
     ),
 ];
 

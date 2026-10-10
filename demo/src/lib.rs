@@ -82,6 +82,15 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("ErrorSummary", "field"),
     ("Choice", "field"),
     ("Disclosure", "disclosure"),
+    ("ButtonGroup", "button-group"),
+    ("ControlGroup", "control-group"),
+    ("ControlLabel", "control-group"),
+    ("Segmented", "segmented"),
+    ("Segment", "segmented"),
+    ("SplitButton", "split-button"),
+    ("Fab", "fab"),
+    ("FabMenu", "fab"),
+    ("FabMenuItem", "fab"),
 ];
 
 /// The examples that render every Divider state.
@@ -192,6 +201,36 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         render: || rsx! { examples::disclosure::States {} },
         source: include_str!("examples/disclosure/states.rs"),
     },
+    Example {
+        id: "button-group",
+        title: "Button groups",
+        render: || rsx! { examples::button_group::States {} },
+        source: include_str!("examples/button_group/states.rs"),
+    },
+    Example {
+        id: "control-group",
+        title: "Control groups",
+        render: || rsx! { examples::control_group::States {} },
+        source: include_str!("examples/control_group/states.rs"),
+    },
+    Example {
+        id: "segmented",
+        title: "Segmented controls",
+        render: || rsx! { examples::segmented::States {} },
+        source: include_str!("examples/segmented/states.rs"),
+    },
+    Example {
+        id: "split-button",
+        title: "Split buttons",
+        render: || rsx! { examples::split_button::States {} },
+        source: include_str!("examples/split_button/states.rs"),
+    },
+    Example {
+        id: "fab",
+        title: "Floating action buttons",
+        render: || rsx! { examples::fab::States {} },
+        source: include_str!("examples/fab/states.rs"),
+    },
 ];
 
 /// Initial application inputs, shared by SSR and client rendering.
@@ -301,7 +340,7 @@ pub fn Demo(props: DemoProps) -> Element {
             if props.stylesheets == Stylesheets::Automatic { document::Stylesheet { href: assets::COMPONENTS_CHECK_CSS } }
             div { class: PAD.block(),
                 main { class: ClassList::new(CONTAINER.block()).with(STACK.block()).with(SPACED.block()).to_string(),
-                    header { class: ClassList::new(CLUSTER.block()).with(BETWEEN.block()).to_string(),
+                    header { id: "top", class: ClassList::new(CLUSTER.block()).with(BETWEEN.block()).to_string(),
                         div { strong { "future-css" } " / Dioxus" }
                         nav { aria_label: "Demo pages", class: CLUSTER.block(),
                             a { href: "?fixtures=false", "Showcase" }

@@ -22,6 +22,11 @@ impl Bem {
     pub fn element(self, element: &str) -> String {
         format!("{}__{element}", self.0)
     }
+    /// A modifier with no enum of its own, for a component composing another's block.
+    #[must_use]
+    pub(crate) fn modifier_raw(self, suffix: &str) -> String {
+        format!("{}--{suffix}", self.0)
+    }
     /// The class for a typed modifier, or none for the bare block.
     #[must_use]
     pub fn modifier<M: Modifier>(self, modifier: M) -> Option<String> {

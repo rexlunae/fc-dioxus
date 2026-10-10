@@ -79,6 +79,17 @@ struct Wiring {
     invalid: bool,
     required: bool,
 }
+impl Wiring {
+    /// Inside a field the field owns the control's id; elsewhere the author's id stands,
+    /// so a [`ControlLabel`](super::button_group::ControlLabel) can target it.
+    fn protected(&self, names: &[&'static str]) -> Vec<&'static str> {
+        let mut names = names.to_vec();
+        if self.id.is_some() {
+            names.push("id");
+        }
+        names
+    }
+}
 fn use_wiring(invalid: bool) -> Wiring {
     let context = try_consume_context::<Signal<FieldContext>>().map(|c| c.read().clone());
     let describedby = context.as_ref().and_then(|c| {
@@ -226,12 +237,13 @@ pub fn Input(
         ClassList::new(INPUT.block())
             .with_modifier(INPUT, variant)
             .with_modifier(INPUT, size)
+            .extend(super::group_control_class().as_deref())
     }
     .extend(class.as_deref());
     let mut attributes = component_attributes(
         attributes,
         classes,
-        &["type", "id", "aria-invalid", "aria-describedby", "value"],
+        &wiring.protected(&["type", "aria-invalid", "aria-describedby", "value"]),
     );
     attributes.extend(availability_attributes(&availability));
     rsx! {
@@ -274,7 +286,7 @@ pub fn Textarea(
     let mut attributes = component_attributes(
         attributes,
         classes,
-        &["id", "aria-invalid", "aria-describedby", "value"],
+        &wiring.protected(&["aria-invalid", "aria-describedby", "value"]),
     );
     attributes.extend(availability_attributes(&availability));
     rsx! {
@@ -301,11 +313,12 @@ pub fn NativeSelect(
     let classes = ClassList::new(INPUT.block())
         .with_modifier(INPUT, variant)
         .with_modifier(INPUT, size)
+        .extend(super::group_item_class().as_deref())
         .extend(class.as_deref());
     let mut attributes = component_attributes(
         attributes,
         classes,
-        &["id", "aria-invalid", "aria-describedby"],
+        &wiring.protected(&["aria-invalid", "aria-describedby"]),
     );
     attributes.extend(availability_attributes(&availability));
     rsx! {

@@ -67,6 +67,11 @@ fn inventory_and_rendered_classes_cannot_silently_drift() -> Result<(), Box<dyn 
         "field.css",
         "form-variants.css",
         "disclosure.css",
+        "button-group.css",
+        "control-group.css",
+        "segmented.css",
+        "split-button.css",
+        "fab.css",
     ];
     for filename in implemented_files {
         let implemented = css_classes(&fs::read_to_string(
