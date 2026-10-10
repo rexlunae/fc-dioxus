@@ -136,6 +136,26 @@ fn styled_components_match_every_upstream_reference_subtree() {
             &["fc-alert"][..],
             (|| rsx! { fc_demo::examples::alert::States {} }) as fn() -> Element,
         ),
+        (
+            "avatar",
+            &["fc-avatar", "fc-avatar-group"][..],
+            (|| rsx! { fc_demo::examples::avatar::States {} }) as fn() -> Element,
+        ),
+        (
+            "spinner",
+            &["fc-spinner", "fc-shimmer-text"][..],
+            (|| rsx! { fc_demo::examples::spinner::States {} }) as fn() -> Element,
+        ),
+        (
+            "loading",
+            &["fc-skeleton", "fc-progress", "fc-progress-ring"][..],
+            (|| rsx! { fc_demo::examples::loading::States {} }) as fn() -> Element,
+        ),
+        (
+            "breadcrumb",
+            &["fc-breadcrumb"][..],
+            (|| rsx! { fc_demo::examples::breadcrumb::States {} }) as fn() -> Element,
+        ),
     ] {
         let ours = Document::parse(&dioxus_ssr::render_element(
             rsx! { FutureCss { stylesheets: Stylesheets::External, {render()} } },

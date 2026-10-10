@@ -53,6 +53,16 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("CardLayout", "card"),
     ("CardFooter", "card"),
     ("CardLink", "card"),
+    ("Avatar", "avatar"),
+    ("AvatarGroup", "avatar"),
+    ("Spinner", "spinner"),
+    ("ShimmerText", "spinner"),
+    ("Loading", "loading"),
+    ("Skeleton", "loading"),
+    ("Progress", "loading"),
+    ("ProgressRing", "loading"),
+    ("Breadcrumb", "breadcrumb"),
+    ("Crumb", "breadcrumb"),
 ];
 
 /// The examples that render every Divider state.
@@ -102,6 +112,30 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Alerts & feedback",
         render: || rsx! { examples::alert::States {} },
         source: include_str!("examples/alert/states.rs"),
+    },
+    Example {
+        id: "avatar",
+        title: "Avatars",
+        render: || rsx! { examples::avatar::States {} },
+        source: include_str!("examples/avatar/states.rs"),
+    },
+    Example {
+        id: "spinner",
+        title: "Spinners",
+        render: || rsx! { examples::spinner::States {} },
+        source: include_str!("examples/spinner/states.rs"),
+    },
+    Example {
+        id: "loading",
+        title: "Skeletons & progress",
+        render: || rsx! { examples::loading::States {} },
+        source: include_str!("examples/loading/states.rs"),
+    },
+    Example {
+        id: "breadcrumb",
+        title: "Breadcrumbs",
+        render: || rsx! { examples::breadcrumb::States {} },
+        source: include_str!("examples/breadcrumb/states.rs"),
     },
 ];
 
