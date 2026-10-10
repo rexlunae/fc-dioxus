@@ -77,7 +77,10 @@ and raise it.
     typeahead, filtering, ranges, diffs, git status, and text offsets come from
     `fc-select`, `fc-context-menu`, `fc-grid`, `fc-diff`, `fc-git`, `fc-model`, and
     `fc-rich-text`. A component that reimplements one of them is a review failure; a
-    function they lack is an upstream issue.
+    function they lack is an upstream issue. Behaviour upstream deliberately keeps in
+    TypeScript because only the browser can answer it (the editor's selection work) is
+    shipped as upstream wrote it: `cargo xtask sync-upstream` strips the types from the
+    files in its `bindings` list into `assets/js/`, and `core::platform` binds them.
 11. **A Rust port of TypeScript logic ships with a parity test** against upstream's
     TypeScript at the pinned revision, in the style of upstream's `tests/wasm.test.ts`.
     Two implementations without one will drift, and upstream calls a divergence between

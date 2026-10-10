@@ -29,6 +29,7 @@ pub use crate::{
     components::diff::DiffView,
     components::disclosure::Disclosure,
     components::divider::{Divider, DividerInset, DividerProps},
+    components::editor::{BlockTag, Editor, EditorState, Prose, DEFAULT_MARKS},
     components::empty_state::EmptyState,
     components::fab::{Fab, FabMenu, FabMenuItem, FabSize, FabTone},
     components::field::{

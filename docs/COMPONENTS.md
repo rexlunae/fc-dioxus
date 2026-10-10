@@ -21,7 +21,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
 `NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
 `Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, `Select`, `Menu`, `MenuButton`,
-`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, `DiffView`, `GitSurface`, `DataGrid`, `Terminal`, `Webview`, and `ThemePicker` (without its custom-theme editor), plus the
+`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, `DiffView`, `GitSurface`, `DataGrid`, `Terminal`, `Webview`, `Editor`, `Prose`, and `ThemePicker` (without its custom-theme editor), plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -1294,20 +1294,34 @@ the button. The root mirrors the branch and every count into `data-fc-*`.
 ### Rich text editor (`editor.css`)
 
 ```rust
-#[component] fn Editor(label: AccessibleName, value: ReadSignal<Document>,
-    onchange: EventHandler<Document>, onselectionchange: Option<EventHandler<MarkSet>>,
-    #[props(default)] state: EditorState,      // Idle, Saving, Error
-    #[props(default)] readonly: bool, #[props(default)] toolbar: Option<Element>) -> Element;
+#[component] fn Editor(label: AccessibleName,
+    #[props(default)] initial: String,                 // trusted HTML, read once
+    #[props(default)] placeholder: Option<String>,
+    #[props(default)] state: EditorState,              // Idle, Saving, Error
+    #[props(default)] readonly: bool,
+    #[props(default = DEFAULT_MARKS.to_vec())] marks: Vec<Mark>,   // fc_rich_text::Mark
+    #[props(default)] blocks: Vec<BlockTag>,           // H1, H2, H3, Pre, Blockquote
+    #[props(default)] onchange: Option<EventHandler<String>>,      // the document's HTML
+    #[props(default)] onmarks: Option<EventHandler<Vec<Mark>>>) -> Element;
 #[component] fn Prose(children: Element) -> Element;   // .fc-prose for rendered rich text
+pub async fn DomBridge::bind_editor(self, &Id) -> Result<EditorSession, DomError>;
 ```
 
-The editor is the one component that cannot be built on the virtual DOM alone:
-`contenteditable` content is mutated by the browser, and reconciling it with a virtual DOM
-is the problem every editor framework exists to solve. The plan scopes it last (Phase 5):
-the document model is `fc_rich_text::Block`, input arrives through `beforeinput` events,
-and the editable region is rendered once and patched through `DomBridge`, never by
-re-rendering. If that proves unworkable on a renderer, the editor ships a documented fallback there (a
-plain `<textarea>` over the same document model) rather than nothing.
+The one component whose behaviour is not Rust. Editing is selection work (where the caret
+is, what the IME is composing, how to wrap a selection without collapsing it), and
+upstream keeps it out of its Rust models on purpose. So the markup is Rust and the
+behaviour is upstream's own `editor.ts`, with `selection.ts`, `urls.ts`, and `toolbar.ts`:
+`cargo xtask sync-upstream` strips their types into `assets/js/` (a folder asset, so their
+relative imports resolve), and `DomBridge::bind_editor` imports and attaches them on
+mount, streaming `EditorEvent::Change` and `EditorEvent::Marks` back. The document is
+rendered once and then belongs to the browser; re-rendering `innerHTML` would discard the
+caret. The binding owns the toolbar's `aria-pressed` (marks across the whole selection, so
+a half-bold selection reads as not bold) and its roving tabindex; neither is rendered
+dynamically, so the two never contend. Removing a mark unwraps it and keeps the text.
+Links use upstream's URL allowlist. Without a script host (server rendering, native) the
+editor is plain editable text with an inert toolbar, which upstream calls degraded but not
+broken. `fc_rich_text::Block` is ready for a Rust document model when one is wanted; it is
+not wired, since the binding is the source of truth for the DOM.
 
 ### Embedded browser (`webview.css`)
 

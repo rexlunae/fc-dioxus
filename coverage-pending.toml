@@ -2,5 +2,4 @@
 # every state, parity checks, and showcase are implemented. New files fail inventory.
 pending = [
 "theme-picker.css",
-"editor.css",
 ]

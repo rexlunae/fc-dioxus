@@ -21,6 +21,7 @@ pub mod description_list;
 pub mod dialog;
 pub mod diff;
 pub mod disclosure;
+pub mod editor;
 pub mod empty_state;
 pub mod fab;
 pub mod field;

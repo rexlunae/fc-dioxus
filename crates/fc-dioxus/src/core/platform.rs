@@ -306,3 +306,70 @@ pub fn location_query() -> Option<String> {
         None
     }
 }
+
+/// Something upstream's editor binding reported.
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum EditorEvent {
+    /// The document changed; its HTML.
+    Change(String),
+    /// The marks covering the whole selection.
+    Marks(Vec<crate::models::rich_text::Mark>),
+}
+
+/// Upstream's editor binding attached to one `.fc-editor`. Events arrive in order;
+/// dropping the session stops listening but leaves the binding on its element.
+pub struct EditorSession(document::Eval);
+impl EditorSession {
+    /// The next event, or `None` once the host stops sending.
+    pub async fn next(&mut self) -> Option<EditorEvent> {
+        let (kind, html, marks) = self
+            .0
+            .recv::<(String, String, Vec<crate::models::rich_text::Mark>)>()
+            .await
+            .ok()?;
+        match kind.as_str() {
+            "change" => Some(EditorEvent::Change(html)),
+            _ => Some(EditorEvent::Marks(marks)),
+        }
+    }
+    /// Replace the document. The HTML must come from the application's own state,
+    /// never from untrusted input: like upstream's `value` setter, this is `innerHTML`.
+    pub fn set_value(&self, html: &str) {
+        let _ = self.0.send(html);
+    }
+}
+
+impl DomBridge {
+    /// Attach upstream's editor binding (`editor.ts`, shipped unchanged as JavaScript)
+    /// to the `.fc-editor` with this id.
+    /// # Errors
+    /// `Unsupported` where the host cannot load modules (server rendering, native), and
+    /// `MissingTarget` when no element has the id. The editor then stays plain,
+    /// editable text with an inert toolbar, which upstream calls degraded but not broken.
+    pub async fn bind_editor(self, id: &Id) -> Result<EditorSession, DomError> {
+        let mut eval = document::eval(
+            r#"const [id, base] = await dioxus.recv();
+const root = document.getElementById(id);
+if (!root) { dioxus.send(["missing", "", []]); return; }
+const { FutureCssEditor } = await import(`${base}/editor.js`);
+const editor = new FutureCssEditor({
+  root,
+  onChange: html => dioxus.send(["change", html, []]),
+  onSelectionChange: active => dioxus.send(["marks", "", Object.keys(active).filter(mark => active[mark])]),
+});
+dioxus.send(["ready", "", []]);
+while (true) editor.value = await dioxus.recv();"#,
+        );
+        eval.send((id.as_str(), super::assets::BINDINGS_JS.to_string()))
+            .map_err(|_| DomError::Unsupported)?;
+        match eval
+            .recv::<(String, String, Vec<crate::models::rich_text::Mark>)>()
+            .await
+        {
+            Ok((kind, _, _)) if kind == "ready" => Ok(EditorSession(eval)),
+            Ok(_) => Err(DomError::MissingTarget),
+            Err(_) => Err(DomError::Unsupported),
+        }
+    }
+}

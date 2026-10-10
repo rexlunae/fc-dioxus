@@ -160,6 +160,8 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Terminal", "terminal"),
     ("Webview", "webview"),
     ("ThemePicker", "theme-picker"),
+    ("Editor", "editor"),
+    ("Prose", "editor"),
 ];
 
 /// The examples that render every Divider state.
@@ -533,6 +535,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Theme picker",
         render: || rsx! { examples::theme_picker::States {} },
         source: include_str!("examples/theme_picker/states.rs"),
+    },
+    Example {
+        id: "editor",
+        title: "Rich text editor",
+        render: || rsx! { examples::editor::States {} },
+        source: include_str!("examples/editor/states.rs"),
     },
 ];
 

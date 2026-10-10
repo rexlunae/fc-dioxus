@@ -742,3 +742,44 @@ test("the theme picker previews each design and drives a nested FutureCss", asyn
   await choose("Color palette", "default");
   await until(`${sample}.dataset.fcPalette === 'default' && ${picker}.dataset.fcPaletteSelection === 'default'`);
 });
+
+test("the editor runs upstream's binding: marks report across the selection and removal keeps text", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const editor = "document.querySelector('#editor .fc-editor')";
+  const content = `${editor}.querySelector('.fc-editor__content')`;
+  const button = mark => `${editor}.querySelector('[data-fc-mark=${mark}]')`;
+  // The binding makes the toolbar a roving set: one tab stop.
+  await until(`[...${editor}.querySelectorAll('.fc-toolbar__item')].filter(b => b.tabIndex === 0).length === 1`);
+  const select = async (text) => {
+    await evaluate(`(() => {
+      const content = ${content};
+      content.focus();
+      const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const at = node.textContent.indexOf(${JSON.stringify(text)});
+        if (at < 0) continue;
+        const range = document.createRange();
+        range.setStart(node, at);
+        range.setEnd(node, at + ${text.length});
+        const selection = getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        return;
+      }
+    })()`);
+  };
+  await select("bold");
+  await until(`${button("bold")}.getAttribute('aria-pressed') === 'true' && document.querySelector('#editor [role=status]').textContent === 'Marks: Bold'`);
+  await select("Some");
+  await until(`${button("bold")}.getAttribute('aria-pressed') === 'false'`);
+  await evaluate(`${button("italic")}.click()`);
+  await until(`${content}.querySelector('em')?.textContent === 'Some' && ${button("italic")}.getAttribute('aria-pressed') === 'true'`);
+  await until("document.querySelector('#editor pre').textContent.includes('<em>Some</em>')");
+  await evaluate(`${button("italic")}.click()`);
+  await until(`!${content}.querySelector('em') && ${content}.textContent === 'Some bold and code.'`);
+  await evaluate(`${editor}.querySelector('[data-fc-block=h2]').click()`);
+  await until(`${content}.querySelector('h2')?.textContent.startsWith('Some')`);
+  const readonly = "document.querySelectorAll('#editor .fc-editor')[3]";
+  assert.equal(await evaluate(`${readonly}.querySelector('.fc-editor__content').isContentEditable`), false);
+  assert.equal(await evaluate(`${readonly}.querySelector('[data-fc-mark=bold]').disabled`), true);
+});

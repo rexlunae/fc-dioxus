@@ -602,3 +602,12 @@ impl ThemePickerData {
         Attribute::new(self.name(), value, None, false)
     }
 }
+
+/// A formatting control's command, read by upstream's editor binding.
+pub(crate) fn editor_mark_attribute(mark: &'static str) -> Attribute {
+    Attribute::new("data-fc-mark", mark, None, false)
+}
+/// A block control's command, read by upstream's editor binding.
+pub(crate) fn editor_block_attribute(block: &'static str) -> Attribute {
+    Attribute::new("data-fc-block", block, None, false)
+}
