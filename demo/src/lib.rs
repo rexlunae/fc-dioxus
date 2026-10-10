@@ -91,6 +91,13 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Fab", "fab"),
     ("FabMenu", "fab"),
     ("FabMenuItem", "fab"),
+    ("Masthead", "masthead"),
+    ("MastheadLink", "masthead"),
+    ("Navbar", "navbar"),
+    ("NavbarItem", "navbar"),
+    ("Pagination", "pagination"),
+    ("Search", "search"),
+    ("SearchView", "search"),
 ];
 
 /// The examples that render every Divider state.
@@ -231,6 +238,30 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         render: || rsx! { examples::fab::States {} },
         source: include_str!("examples/fab/states.rs"),
     },
+    Example {
+        id: "masthead",
+        title: "Masthead",
+        render: || rsx! { examples::masthead::States {} },
+        source: include_str!("examples/masthead/states.rs"),
+    },
+    Example {
+        id: "navbar",
+        title: "Navigation bar",
+        render: || rsx! { examples::navbar::States {} },
+        source: include_str!("examples/navbar/states.rs"),
+    },
+    Example {
+        id: "pagination",
+        title: "Pagination",
+        render: || rsx! { examples::pagination::States {} },
+        source: include_str!("examples/pagination/states.rs"),
+    },
+    Example {
+        id: "search",
+        title: "Search",
+        render: || rsx! { examples::search::States {} },
+        source: include_str!("examples/search/states.rs"),
+    },
 ];
 
 /// Initial application inputs, shared by SSR and client rendering.
@@ -335,6 +366,7 @@ pub fn Demo(props: DemoProps) -> Element {
     let mut direction = use_signal(|| props.options.direction);
     let mut palette = use_signal(|| props.options.palette);
     let fixtures = props.options.fixtures;
+    let docked_label = AccessibleName::try_from("Demo pages").ok();
     rsx! {
         FutureCss { theme: theme(), design: design(), palette: palette(), direction: direction(), stylesheets: props.stylesheets,
             if props.stylesheets == Stylesheets::Automatic { document::Stylesheet { href: assets::COMPONENTS_CHECK_CSS } }
@@ -424,6 +456,14 @@ pub fn Demo(props: DemoProps) -> Element {
                                 {(example.render)()}
                                 if !fixtures { Source { text: example.source, name: example.id } }
                             }
+                        }
+                    }
+                    if let (true, Some(label)) = (fixtures, docked_label) {
+                        // The docked state of the navigation bar, pinned for real on this page.
+                        Navbar { label, fixed: true,
+                            NavbarItem { href: "?fixtures=false", icon: rsx! { "◧" }, label: rsx! { "Showcase" } }
+                            NavbarItem { href: "?fixtures=true", current: true, icon: rsx! { "☰" }, label: rsx! { "Fixtures" } }
+                            NavbarItem { href: "https://github.com/rexlunae/future-css", icon: rsx! { "↗" }, label: rsx! { "Upstream" } }
                         }
                     }
                     footer { p { "future-css {assets::CSS_VERSION} · Dioxus 0.7 · Semantic HTML, shared design tokens, no local CSS." } }

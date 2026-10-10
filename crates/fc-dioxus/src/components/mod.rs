@@ -17,6 +17,10 @@ pub mod fab;
 pub mod field;
 pub mod list;
 pub mod loading;
+pub mod masthead;
+pub mod navbar;
+pub mod pagination;
+pub mod search;
 pub mod segmented;
 pub mod spinner;
 pub mod split_button;
@@ -60,5 +64,42 @@ pub(crate) fn heading(level: HeadingLevel, class: String, children: Element) -> 
         HeadingLevel::H4 => rsx! { h4 { class, {children} } },
         HeadingLevel::H5 => rsx! { h5 { class, {children} } },
         HeadingLevel::H6 => rsx! { h6 { class, {children} } },
+    }
+}
+
+/// A navigation destination: a link, or a button when there is no URL to go to.
+///
+/// Unavailable links lose their `href` and carry `aria-disabled`, since `<a>` has no
+/// disabled state; buttons use the native attribute. `current` marks the page.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn nav_target(
+    class: String,
+    href: Option<String>,
+    onclick: Option<EventHandler<MouseEvent>>,
+    current: bool,
+    availability: &crate::core::state::Availability,
+    extra: Vec<Attribute>,
+    children: Element,
+) -> Element {
+    use crate::core::{attrs::availability_attributes, state::Availability};
+    let blocked = *availability != Availability::Enabled;
+    if href.is_none() && onclick.is_some() {
+        let state = availability_attributes(availability);
+        return rsx! {
+            button { class, r#type: "button", aria_current: current.then_some("page"),
+                onclick: move |event| if !blocked { if let Some(onclick) = onclick { onclick.call(event); } },
+                ..state, ..extra, {children}
+            }
+        };
+    }
+    let state = match availability {
+        Availability::Disabled => vec![Attribute::new("aria-disabled", "true", None, false)],
+        other => availability_attributes(other),
+    };
+    rsx! {
+        a { class, href: href.filter(|_| !blocked), aria_current: current.then_some("page"),
+            onclick: move |event| if blocked { event.prevent_default(); } else if let Some(onclick) = onclick { onclick.call(event); },
+            ..state, ..extra, {children}
+        }
     }
 }

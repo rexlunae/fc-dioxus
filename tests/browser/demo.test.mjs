@@ -239,6 +239,19 @@ test("fields wire labels, descriptions, and errors, and the summary takes focus"
   assert.equal(await evaluate("[...document.querySelectorAll('#field input[type=email]')].pop().hasAttribute('aria-invalid')"), false);
 });
 
+test("pagination pages in place and search submits without navigating", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const first = "document.querySelector('#pagination nav')";
+  await evaluate(`[...${first}.querySelectorAll('a')].find(a => a.textContent === '2').click()`);
+  await until("document.querySelector('#pagination [role=status]').textContent.includes('page 2 of 12')");
+  assert.equal(await evaluate(`${first}.querySelector('[aria-current=page]').textContent`), "2");
+  assert.equal(await evaluate(`${first}.querySelector('.fc-pagination__link--prev').hasAttribute('aria-disabled')`), false, "previous is enabled after page 1");
+  const before = await evaluate("location.pathname + location.search");
+  await evaluate("(() => { const input = document.querySelector('#search input[type=search]'); input.value = 'tokens'; input.dispatchEvent(new Event('input', { bubbles: true })); input.form.requestSubmit(); })()");
+  await until("document.querySelector('#search [role=status]').textContent.includes('tokens')");
+  assert.equal(await evaluate("location.pathname + location.search"), before, "submitting does not navigate");
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

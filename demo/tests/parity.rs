@@ -230,6 +230,26 @@ const CASES: &[Case] = &[
         &["fc-fab", "fc-fab-menu"],
         || rsx! { fc_demo::examples::fab::States {} },
     ),
+    (
+        "masthead",
+        &["fc-masthead"],
+        || rsx! { fc_demo::examples::masthead::States {} },
+    ),
+    (
+        "navbar",
+        &["fc-navbar"],
+        || rsx! { fc_demo::examples::navbar::States {} },
+    ),
+    (
+        "pagination",
+        &["fc-pagination"],
+        || rsx! { fc_demo::examples::pagination::States {} },
+    ),
+    (
+        "search",
+        &["fc-search"],
+        || rsx! { fc_demo::examples::search::States {} },
+    ),
 ];
 
 #[test]

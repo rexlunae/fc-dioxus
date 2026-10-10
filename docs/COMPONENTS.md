@@ -12,7 +12,8 @@ where Dioxus forces a change, this file changes in the same commit.
 `Radio`, `Switch`, `SwitchRow`, `Field`, `Input`, `Textarea`, `NativeSelect`,
 `InputGroup`, `InputAddon`, `ErrorSummary`, `Choice`, `Disclosure`, `ButtonGroup`,
 `ControlGroup`, `ControlLabel`, `Segmented`, `Segment`, `SplitButton`, `Fab`, `FabMenu`,
-and `FabMenuItem`, plus the
+`FabMenuItem`, `Masthead`, `MastheadLink`, `Navbar`, `NavbarItem`, `Pagination`,
+`Search`, and `SearchView`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -105,6 +106,20 @@ Current action/surface APIs refine the proposals below:
   is busy the toggle is `aria-disabled`, matching upstream.
 - `Fab` takes a required `label`: the accessible name when icon-only, visible text when
   `extended`. `menu: Id` sets `popovertarget` to a `FabMenu`, which is a native popover.
+- Navigation destinations (`MastheadLink`, `NavbarItem`, pagination links) share one
+  rule: a link, or a button when given `onclick` and no `href`; an unavailable link drops
+  its `href` and carries `aria-disabled`; `current` is `aria-current="page"`.
+- `NavbarItem::badge` takes `NavBadge::Count { count, announce }` or
+  `NavBadge::Dot { announce }`: the drawn badge sits inside the hidden icon, so the
+  announcement is required. The demo's fixture page docks a real `Navbar { fixed }`.
+- `Pagination` takes `page`, `pages`, and either `href: Callback<u32, String>` for
+  crawlable links or `onchange` for in-app paging. Items default to the pure
+  `page_window(page, pages, siblings)` (first, last, neighbours, gaps that never hide a
+  single page), or pass `items` to choose them.
+- `Search` is a `<form role="search">` when given `onsubmit`, otherwise a plain search
+  landmark. `SearchView { open }` writes `data-fc-open` to hold the view open or closed;
+  `busy` marks a stale list. `own_clear` hides the browser's clear button when
+  `trailing` supplies a named one.
 - `Clipped` (in `core::text`) holds the full value of any shortened text;
   `Clipped::chars` shortens by character, `Clipped::lines` declares a CSS clamp.
 - `AlertTone` mirrors exactly the neutral/info/success/warning/danger CSS vocabulary.

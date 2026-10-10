@@ -149,3 +149,11 @@ pub(crate) fn clipped_attributes(text: &super::text::Clipped) -> Vec<Attribute> 
         Vec::new()
     }
 }
+
+/// Hold a disclosure-like region open or closed regardless of focus; absent leaves it to
+/// the CSS (`data-fc-open`).
+pub(crate) fn open_attribute(open: Option<bool>) -> Vec<Attribute> {
+    open.map(|open| Attribute::new("data-fc-open", open.to_string(), None, false))
+        .into_iter()
+        .collect()
+}

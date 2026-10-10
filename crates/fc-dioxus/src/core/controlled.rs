@@ -3,12 +3,20 @@
 use dioxus::prelude::*;
 
 /// A state handle that either owns a value or requests updates from its owner.
-#[derive(Clone, Copy)]
 pub struct Controllable<T: Clone + PartialEq + 'static> {
     value: Option<ReadSignal<T>>,
     local: Signal<T>,
     on_change: Option<EventHandler<T>>,
 }
+// Every field is a copyable handle, whatever T is; a derive would demand T: Copy and
+// make a String-valued handle unusable in two closures.
+#[allow(clippy::expl_impl_clone_on_copy)]
+impl<T: Clone + PartialEq + 'static> Clone for Controllable<T> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+impl<T: Clone + PartialEq + 'static> Copy for Controllable<T> {}
 impl<T: Clone + PartialEq + 'static> Controllable<T> {
     /// Read the current value, subscribing the rendering component to changes.
     #[must_use]
