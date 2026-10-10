@@ -207,6 +207,25 @@ test("each design applies its paired palette and every palette recolors the page
   await send("Emulation.setEmulatedMedia", { features: [] });
 });
 
+test("checkboxes, radios, switches, and list rows keep native behaviour", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const boxes = "[...document.querySelectorAll('#check .fc-check__input[type=checkbox]')]";
+  assert.equal(await evaluate(`${boxes}[2].indeterminate`), true, "a mixed checkbox sets the DOM property");
+  await evaluate(`${boxes}[2].click()`);
+  await until(`!${boxes}[2].indeterminate && ${boxes}[2].checked`);
+  await evaluate(`${boxes}[3].click()`);
+  assert.equal(await evaluate(`${boxes}[3].checked`), false, "a disabled checkbox cannot change");
+  const radios = "[...document.querySelectorAll('#check input[type=radio]')]";
+  assert.equal(await evaluate(`new Set(${radios}.map(r => r.name)).size`), 1, "radios share one name");
+  await evaluate(`${radios}[1].click()`);
+  await until(`${radios}[1].checked && !${radios}[0].checked`);
+  const row = "document.querySelector('#list label.fc-list__item input[role=switch]')";
+  assert.equal(await evaluate(`${row}.checked`), true);
+  await evaluate(`${row}.closest('label').querySelector('.fc-list__headline').click()`);
+  await until(`!${row}.checked`);
+  assert.equal(await evaluate("document.querySelector('#list a[aria-disabled=true]').hasAttribute('href')"), false, "an unavailable link has no destination");
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

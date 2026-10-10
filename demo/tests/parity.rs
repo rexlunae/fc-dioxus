@@ -81,8 +81,18 @@ struct Tree {
 }
 
 fn tree(document: &Document, index: usize) -> Option<Tree> {
+    tree_within(document, index, false)
+}
+
+fn tree_within(document: &Document, index: usize, hidden: bool) -> Option<Tree> {
     let node = document.nodes.get(index)?;
     let (tag, mut attrs) = signature(node);
+    // Inside a hidden subtree, aria-hidden on a descendant changes nothing a reader
+    // receives; a reusable component may repeat it, the reference markup need not.
+    if hidden {
+        attrs.remove("aria-hidden");
+    }
+    let hidden = hidden || node.attr("aria-hidden") == Some("true");
     // IDs differ per render. The Dioxus API also requires explanatory text for
     // unavailable controls; fc-a11y separately verifies these added references.
     attrs.remove("aria-describedby");
@@ -103,7 +113,7 @@ fn tree(document: &Document, index: usize) -> Option<Tree> {
         .iter()
         .enumerate()
         .filter(|(_, child)| child.parent == Some(index))
-        .filter_map(|(child, _)| tree(document, child))
+        .filter_map(|(child, _)| tree_within(document, child, hidden))
         .collect();
     Some(Tree {
         tag,
@@ -155,6 +165,26 @@ fn styled_components_match_every_upstream_reference_subtree() {
             "breadcrumb",
             &["fc-breadcrumb"][..],
             (|| rsx! { fc_demo::examples::breadcrumb::States {} }) as fn() -> Element,
+        ),
+        (
+            "empty-state",
+            &["fc-empty"][..],
+            (|| rsx! { fc_demo::examples::empty_state::States {} }) as fn() -> Element,
+        ),
+        (
+            "description-list",
+            &["fc-dl"][..],
+            (|| rsx! { fc_demo::examples::description_list::States {} }) as fn() -> Element,
+        ),
+        (
+            "list",
+            &["fc-list"][..],
+            (|| rsx! { fc_demo::examples::list::States {} }) as fn() -> Element,
+        ),
+        (
+            "check",
+            &["fc-check", "fc-check-group", "fc-switch", "fc-switch-row"][..],
+            (|| rsx! { fc_demo::examples::check::States {} }) as fn() -> Element,
         ),
     ] {
         let ours = Document::parse(&dioxus_ssr::render_element(

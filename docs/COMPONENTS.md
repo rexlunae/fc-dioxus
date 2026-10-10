@@ -7,7 +7,9 @@ where Dioxus forces a change, this file changes in the same commit.
 
 **Implemented now:** `FutureCss`, `Divider`, `Button`, `Card` and its parts,
 `Badge`, `Tag`, `Kbd`, `Alert`, `Avatar`, `AvatarGroup`, `Spinner`, `ShimmerText`,
-`Loading`, `Skeleton`, `Progress`, `ProgressRing`, `Breadcrumb`, and `Crumb`, plus the
+`Loading`, `Skeleton`, `Progress`, `ProgressRing`, `Breadcrumb`, `Crumb`, `EmptyState`,
+`DescriptionList`, `DescriptionItem`, `List`, `ListItem`, `Checkbox`, `CheckGroup`,
+`Radio`, `Switch`, and `SwitchRow`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -60,6 +62,21 @@ Current action/surface APIs refine the proposals below:
 - `Spinner` requires a `SpinnerLabel`: `Decorative`, or `Status(name)`, which wraps the
   hidden drawing in `role="status"` with visually hidden text.
 - `Crumb` without `href` is the current page and gets `aria-current="page"`.
+- `EmptyState` takes an optional `title` (the compact form has only a body) and a
+  `heading` level. `error` adds the tone; `announce` adds `role="alert"`.
+- `ListItem::current` renders `aria-current="page"` on a link and `"true"` on a button,
+  as upstream's fixture does, rather than `aria-selected`. Unavailable links lose their
+  `href` and carry `aria-disabled`. `supporting_clipped: Clipped` declares
+  `data-fc-truncated` and keeps the full text in `title`.
+- `Switch` takes `label: impl Into<ControlName>`: an `AccessibleName`, or
+  `ControlName::Wrapped` inside a `<label>` that already names it, such as a
+  `ListAction::Label` row. `SwitchRow` uses the wrapped form itself.
+- `CheckState::Mixed` sets the native `indeterminate` property after mount through
+  `DomBridge::set_indeterminate`; HTML forbids `aria-checked` on a native checkbox, so
+  hosts without a DOM show it unchecked. Radios share state through
+  `CheckGroup { radios: RadioChoice { name, value, onchange } }`.
+- `Clipped` (in `core::text`) holds the full value of any shortened text;
+  `Clipped::chars` shortens by character, `Clipped::lines` declares a CSS clamp.
 - `AlertTone` mirrors exactly the neutral/info/success/warning/danger CSS vocabulary.
   Alerts default to static content, support explicit `Urgency`, optional icons, banner,
   actions, and `Dismiss` with a required name. Titles use the fixture's native paragraph.

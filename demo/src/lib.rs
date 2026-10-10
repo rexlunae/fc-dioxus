@@ -63,6 +63,16 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("ProgressRing", "loading"),
     ("Breadcrumb", "breadcrumb"),
     ("Crumb", "breadcrumb"),
+    ("EmptyState", "empty-state"),
+    ("DescriptionList", "description-list"),
+    ("DescriptionItem", "description-list"),
+    ("List", "list"),
+    ("ListItem", "list"),
+    ("Checkbox", "check"),
+    ("CheckGroup", "check"),
+    ("Radio", "check"),
+    ("Switch", "check"),
+    ("SwitchRow", "check"),
 ];
 
 /// The examples that render every Divider state.
@@ -136,6 +146,30 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Breadcrumbs",
         render: || rsx! { examples::breadcrumb::States {} },
         source: include_str!("examples/breadcrumb/states.rs"),
+    },
+    Example {
+        id: "empty-state",
+        title: "Empty states",
+        render: || rsx! { examples::empty_state::States {} },
+        source: include_str!("examples/empty_state/states.rs"),
+    },
+    Example {
+        id: "description-list",
+        title: "Description lists",
+        render: || rsx! { examples::description_list::States {} },
+        source: include_str!("examples/description_list/states.rs"),
+    },
+    Example {
+        id: "list",
+        title: "Lists",
+        render: || rsx! { examples::list::States {} },
+        source: include_str!("examples/list/states.rs"),
+    },
+    Example {
+        id: "check",
+        title: "Checkboxes, radios & switches",
+        render: || rsx! { examples::check::States {} },
+        source: include_str!("examples/check/states.rs"),
     },
 ];
 

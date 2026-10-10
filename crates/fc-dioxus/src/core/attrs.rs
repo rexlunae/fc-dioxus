@@ -137,3 +137,15 @@ pub(crate) fn availability_attributes(availability: &super::state::Availability)
         ],
     }
 }
+
+/// Declare truncation and keep the full value reachable, as upstream's contract requires.
+pub(crate) fn clipped_attributes(text: &super::text::Clipped) -> Vec<Attribute> {
+    if text.is_truncated() {
+        vec![
+            Attribute::new("data-fc-truncated", "true", None, false),
+            Attribute::new("title", text.full_text().to_owned(), None, false),
+        ]
+    } else {
+        Vec::new()
+    }
+}

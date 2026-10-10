@@ -7,6 +7,11 @@ try {
   }
   const node = document.getElementById(data);
   if (!node) return "missing";
+  if (operation === "indeterminate") {
+    if (!("indeterminate" in node)) return "unsupported";
+    node.indeterminate = option === "on";
+    return "ok";
+  }
   const method = {
     modal: "showModal", close: "close", focus: "focus", scroll: "scrollIntoView",
     popover: option === "open" ? "showPopover" : "hidePopover",

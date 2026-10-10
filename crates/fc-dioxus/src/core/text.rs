@@ -62,3 +62,84 @@ pub enum Alt {
     /// Intentionally empty alternative text.
     Decorative,
 }
+
+/// How much of a [`Clipped`] value is shown.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum ClipMode {
+    /// Shown in full.
+    Full,
+    /// Clamped by the CSS to this many lines; the full text is still in the DOM.
+    Lines(u8),
+    /// Shortened to this many characters, with an ellipsis.
+    Chars(usize),
+}
+
+/// Text that may be shown shortened. Holding the full value is not optional, so a
+/// component can always declare `data-fc-truncated` and keep the full value reachable.
+///
+/// ```
+/// use fc_dioxus::prelude::Clipped;
+/// let id = Clipped::chars("9f2c1e04b7a3", 7);
+/// assert_eq!(id.shown(), "9f2c1e0…");
+/// assert!(id.is_truncated());
+/// assert!(!Clipped::chars("short", 7).is_truncated());
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Clipped {
+    full: String,
+    mode: ClipMode,
+}
+impl Clipped {
+    /// Text shown in full.
+    #[must_use]
+    pub fn full(text: impl Into<String>) -> Self {
+        Self {
+            full: text.into(),
+            mode: ClipMode::Full,
+        }
+    }
+    /// Text the CSS clamps to `lines`. It may or may not overflow, so it is declared
+    /// truncated whenever it is clamped at all.
+    #[must_use]
+    pub fn lines(text: impl Into<String>, lines: u8) -> Self {
+        Self {
+            full: text.into(),
+            mode: ClipMode::Lines(lines),
+        }
+    }
+    /// Text shortened to at most `chars` characters, never splitting one.
+    #[must_use]
+    pub fn chars(text: impl Into<String>, chars: usize) -> Self {
+        Self {
+            full: text.into(),
+            mode: ClipMode::Chars(chars),
+        }
+    }
+    /// The complete value.
+    #[must_use]
+    pub fn full_text(&self) -> &str {
+        &self.full
+    }
+    /// The text to display.
+    #[must_use]
+    pub fn shown(&self) -> String {
+        match self.mode {
+            ClipMode::Chars(limit) if self.full.chars().count() > limit => {
+                let mut shown: String = self.full.chars().take(limit).collect();
+                shown.push('…');
+                shown
+            }
+            _ => self.full.clone(),
+        }
+    }
+    /// Whether the displayed text may be less than the full value.
+    #[must_use]
+    pub fn is_truncated(&self) -> bool {
+        match self.mode {
+            ClipMode::Full => false,
+            ClipMode::Lines(_) => true,
+            ClipMode::Chars(limit) => self.full.chars().count() > limit,
+        }
+    }
+}

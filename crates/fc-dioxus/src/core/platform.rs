@@ -108,6 +108,18 @@ impl DomBridge {
         )
         .await
     }
+    /// Show a checkbox as mixed, which only a DOM property can express. Without a host
+    /// the checkbox renders unchecked.
+    /// # Errors
+    /// Returns a host error when the target or API is unavailable.
+    pub async fn set_indeterminate(self, id: &Id, mixed: bool) -> Result<(), DomError> {
+        Self::send(
+            "indeterminate",
+            id.as_str(),
+            if mixed { "on" } else { "off" },
+        )
+        .await
+    }
     /// Copy text through a data channel. On failure, retain selectable source text.
     /// # Errors
     /// Returns `Unsupported` or `Rejected` when clipboard access is unavailable.

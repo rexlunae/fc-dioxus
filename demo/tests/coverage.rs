@@ -60,6 +60,10 @@ fn inventory_and_rendered_classes_cannot_silently_drift() -> Result<(), Box<dyn 
         "spinner.css",
         "loading.css",
         "breadcrumb.css",
+        "empty-state.css",
+        "description-list.css",
+        "list.css",
+        "check.css",
     ];
     for filename in implemented_files {
         let implemented = css_classes(&fs::read_to_string(
