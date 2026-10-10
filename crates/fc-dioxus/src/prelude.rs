@@ -32,6 +32,7 @@ pub use crate::{
         Loading, Progress, ProgressRing, ProgressValue, RingSize, Skeleton, SkeletonShape,
     },
     components::masthead::{Masthead, MastheadLink},
+    components::menu::{ContextMenuArea, Menu, MenuAnchor, MenuButton, MenuEntry},
     components::multiselect::{MultiOption, MultiSelect},
     components::nav::{
         NavCurrent, NavFooter, NavGroup, NavHeading, NavIcon, NavLink, NavList, NavSidebar,
@@ -66,6 +67,7 @@ pub use crate::{
         controlled::{use_controllable, Controllable},
         id::{use_id, Id},
         measure::Percent,
+        platform::{Edge, MenuPoint},
         state::{Availability, HeadingLevel, Lifecycle, MessageRole, Orientation},
         text::{AccessibleName, Alt, ClipMode, Clipped},
     },

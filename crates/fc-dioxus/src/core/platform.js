@@ -38,6 +38,37 @@ try {
     style.setProperty("max-block-size", `${Math.max(80, Math.min(available, 384))}px`);
     return "ok";
   }
+  if (operation === "point") {
+    // Upstream menu.ts placeAt: a menu at a viewport point, its start edge at x by
+    // default, clamped inside the viewport and moved above flipY when it would cross
+    // the block end.
+    const [x, y, flipY, edge] = option.split(",");
+    const style = node.style;
+    style.position = "fixed";
+    style.insetBlockStart = `${Number(y)}px`;
+    style.insetInlineEnd = "auto";
+    style.insetBlockEnd = "auto";
+    style.margin = "0";
+    const rtl = getComputedStyle(node).direction === "rtl";
+    const rect = node.getBoundingClientRect();
+    const viewWidth = document.documentElement.clientWidth;
+    const viewHeight = document.documentElement.clientHeight;
+    const side = edge || (rtl ? "right" : "left");
+    const wanted = side === "left" ? Number(x) : Number(x) - rect.width;
+    const left = Math.min(Math.max(0, wanted), Math.max(0, viewWidth - rect.width));
+    style.insetInlineStart = `${rtl ? viewWidth - left - rect.width : left}px`;
+    if (Number(y) + rect.height > viewHeight) {
+      const above = (flipY === "" ? Number(y) : Number(flipY)) - rect.height;
+      style.insetBlockStart = `${above >= 0 ? above : Math.max(0, viewHeight - rect.height)}px`;
+    }
+    return "ok";
+  }
+  if (operation === "below") {
+    // A menu button's menu: under the trigger's start edge, flipping above it.
+    const rect = node.getBoundingClientRect();
+    const rtl = getComputedStyle(node).direction === "rtl";
+    return `${rtl ? rect.right : rect.left},${rect.bottom + 4},${rect.top - 4},${rtl ? "right" : "left"}`;
+  }
   if (operation === "capture") {
     // Pointer capture keeps a drag's moves coming to the handle wherever the pointer goes.
     try { node.setPointerCapture(Number(option)); return "ok"; } catch { return "rejected"; }

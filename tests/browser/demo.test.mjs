@@ -477,6 +477,39 @@ test("select keeps focus on its button, commits with Enter, and restores with Es
   await until(`${invoker}.dataset.fcValue === 'opus'`);
 });
 
+test("menus move focus in, skip what cannot be used, search by typing, and return focus", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const trigger = "document.querySelector('#menu [aria-haspopup=menu]')";
+  const menu = `document.getElementById(${trigger}.getAttribute('aria-controls'))`;
+  const focusedLabel = "document.activeElement.querySelector('.fc-menu__label')?.textContent";
+  await evaluate(`${trigger}.focus()`);
+  await press("ArrowDown", "ArrowDown", 40);
+  await until(`${menu}.matches(':popover-open') && ${focusedLabel} === 'Cut'`);
+  assert.equal(await evaluate(`${trigger}.getAttribute('aria-expanded')`), "true");
+  await press("ArrowDown", "ArrowDown", 40);
+  await until(`${focusedLabel} === 'Copy'`);
+  await press("ArrowDown", "ArrowDown", 40);
+  await until(`${focusedLabel} === 'Wrap lines'`);
+  await press("d", "KeyD", 68);
+  await until(`${focusedLabel} === 'Delete file'`);
+  await press("Escape", "Escape", 27);
+  await until(`!${menu}.matches(':popover-open') && document.activeElement === ${trigger}`);
+  await press("ArrowUp", "ArrowUp", 38);
+  await until(`${focusedLabel} === 'Delete file'`);
+  await press("Home", "Home", 36);
+  await until(`${focusedLabel} === 'Cut'`);
+  await press("ArrowDown", "ArrowDown", 40);
+  await press("Enter", "Enter", 13);
+  await until("document.querySelector('#menu [role=status]').textContent === 'Chose: copy'");
+  await until(`document.activeElement === ${trigger}`);
+
+  const area = "document.querySelector('#menu .fc-card')";
+  await evaluate(`(() => { const r = ${area}.getBoundingClientRect(); ${area}.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: r.x + 20, clientY: r.y + 10 })); })()`);
+  await until("[...document.querySelectorAll('#menu [role=menu]')].some(m => m.matches(':popover-open'))");
+  await press("Escape", "Escape", 27);
+  await until(`document.activeElement === ${area}`);
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

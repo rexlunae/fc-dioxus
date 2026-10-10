@@ -20,7 +20,8 @@ where Dioxus forces a change, this file changes in the same commit.
 `MessagePart`, `Tabs`, `Tab`, `TabPanel`, `Toolbar`, `ToolbarItem`, `ToolbarDivider`,
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
 `NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
-`Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, and `Select`, plus the
+`Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, `Select`, `Menu`, `MenuButton`,
+and `ContextMenuArea`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -228,6 +229,17 @@ Current action/surface APIs refine the proposals below:
   options the control is `aria-disabled` and the list says "No matches". Upstream's
   fixture and binding both use `fc-select__option-label`, which select.css does not
   define, so labels render without that class; only the invoker's parts are compared.
+- `Menu` runs on upstream's `fc_context_menu::Menu`: a top-layer popover with light
+  dismiss, roving focus into the items (unlike a select), arrows that wrap past
+  separators and unavailable items, Home and End, a 500 ms typeahead, Tab that closes
+  without trapping, and focus returned to `return_focus` on every close. It opens
+  `MenuAnchor::Below(trigger)` or `MenuAnchor::At(point)`, placed by
+  `DomBridge::place_at`, which ports upstream's clamp-and-flip. `MenuButton` is the menu
+  button pattern (Arrow Up opens at the last item); `ContextMenuArea` opens one at the
+  pointer on right-click. Entries are `MenuEntry` items, checkboxes, submenus (which
+  report their id so the app can open the next menu), groups, and separators.
+  Upstream's fixture draws an open menu with active and expanded markers its binding
+  never writes, so only groups, separators, and shortcuts are compared structurally.
 - **Routing.** With the `router` feature, every component that renders a link
   (`LinkButton`, `NavLink`, `Crumb`, `ListAction::Link`, `MastheadLink`, `NavbarItem`,
   pagination links, `Source`) resolves its `href` against the nearest `dioxus-router`

@@ -23,6 +23,7 @@ pub mod field;
 pub mod list;
 pub mod loading;
 pub mod masthead;
+pub mod menu;
 pub mod multiselect;
 pub mod nav;
 pub mod navbar;

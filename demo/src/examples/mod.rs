@@ -27,6 +27,7 @@ pub mod future_css;
 pub mod list;
 pub mod loading;
 pub mod masthead;
+pub mod menu;
 pub mod metric;
 pub mod multiselect;
 pub mod nav;

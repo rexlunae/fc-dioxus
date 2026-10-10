@@ -48,6 +48,29 @@ pub enum ScrollBlock {
     Center,
 }
 
+/// Which side of a popup sits at a point's x.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Edge {
+    /// The popup's left edge.
+    Left,
+    /// The popup's right edge.
+    Right,
+}
+
+/// A viewport point a popup opens at, in CSS pixels.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct MenuPoint {
+    /// Horizontal position.
+    pub x: f64,
+    /// Vertical position.
+    pub y: f64,
+    /// Where the popup's bottom goes if it would cross the viewport's, e.g. a
+    /// trigger's top.
+    pub flip_y: Option<f64>,
+    /// Which edge sits at `x`; the inline start when `None`.
+    pub edge: Option<Edge>,
+}
+
 /// An asynchronous host bridge; errors are acknowledged by the host.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct DomBridge;
@@ -139,6 +162,53 @@ impl DomBridge {
     /// Returns a host error when the target or API is unavailable.
     pub async fn place_below(self, list: &Id, invoker: &Id) -> Result<(), DomError> {
         Self::send("place", list.as_str(), invoker.as_str()).await
+    }
+    /// Place a fixed popup at a viewport point, as upstream's `menu.ts` does: its start
+    /// edge at `x` (or `edge`), clamped inside the viewport, and moved above `flip_y`
+    /// when it would cross the bottom.
+    /// # Errors
+    /// Returns a host error when the target or API is unavailable.
+    pub async fn place_at(self, id: &Id, point: MenuPoint) -> Result<(), DomError> {
+        let edge = match point.edge {
+            Some(Edge::Left) => "left",
+            Some(Edge::Right) => "right",
+            None => "",
+        };
+        let flip = point.flip_y.map(|f| f.to_string()).unwrap_or_default();
+        Self::send(
+            "point",
+            id.as_str(),
+            &format!("{},{},{flip},{edge}", point.x, point.y),
+        )
+        .await
+    }
+    /// The point a menu opens at under a trigger: its start edge, 4px below, flipping to
+    /// 4px above.
+    /// # Errors
+    /// Returns a host error when the target or API is unavailable.
+    pub async fn point_below(self, trigger: &Id) -> Result<MenuPoint, DomError> {
+        let eval = document::eval(include_str!("platform.js"));
+        eval.send(("below", trigger.as_str(), ""))
+            .map_err(|_| DomError::Unsupported)?;
+        let answer = eval
+            .join::<String>()
+            .await
+            .map_err(|_| DomError::Unsupported)?;
+        let parts: Vec<&str> = answer.split(',').collect();
+        match parts.as_slice() {
+            [x, y, flip, edge] => Ok(MenuPoint {
+                x: x.parse().map_err(|_| DomError::Rejected)?,
+                y: y.parse().map_err(|_| DomError::Rejected)?,
+                flip_y: flip.parse().ok(),
+                edge: Some(if *edge == "right" {
+                    Edge::Right
+                } else {
+                    Edge::Left
+                }),
+            }),
+            _ if answer == "missing" => Err(DomError::MissingTarget),
+            _ => Err(DomError::Unsupported),
+        }
     }
     /// Route a pointer's events to an element for the rest of a drag.
     /// # Errors

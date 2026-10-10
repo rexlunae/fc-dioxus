@@ -77,6 +77,7 @@ const IMPLEMENTED: &[&str] = &[
     "splitter.css",
     "datepicker.css",
     "select.css",
+    "menu.css",
 ];
 
 #[test]

@@ -415,6 +415,15 @@ const CASES: &[Case] = &[
         &["fc-select__value", "fc-select__chevron"],
         || rsx! { fc_demo::examples::select::States {} },
     ),
+    (
+        "menu",
+        &[
+            "fc-menu__group-label",
+            "fc-menu__separator",
+            "fc-menu__shortcut",
+        ],
+        || rsx! { fc_demo::examples::menu::States {} },
+    ),
 ];
 
 #[test]
