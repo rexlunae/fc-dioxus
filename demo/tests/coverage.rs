@@ -80,6 +80,7 @@ const IMPLEMENTED: &[&str] = &[
     "menu.css",
     "context-strip.css",
     "composer.css",
+    "code.css",
 ];
 
 #[test]

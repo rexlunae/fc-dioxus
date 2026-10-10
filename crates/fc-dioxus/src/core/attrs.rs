@@ -431,3 +431,8 @@ pub(crate) fn error_state_attribute(error: bool) -> Vec<Attribute> {
         Vec::new()
     }
 }
+
+/// The language a code block holds (`data-fc-lang`), e.g. `rust`.
+pub(crate) fn lang_attribute(lang: &str) -> Attribute {
+    Attribute::new("data-fc-lang", lang.to_owned(), None, false)
+}

@@ -20,6 +20,7 @@ pub use crate::{
         SwitchRow, SwitchSize,
     },
     components::citation::{Cite, Source, Sources},
+    components::code::{CodeBlock, CodeLayout, CodeSource, SyntaxRole, SyntaxSpan},
     components::composer::{Attachment, Composer},
     components::context_strip::ContextStrip,
     components::datepicker::{DateNames, DatePicker, Time, TimePicker},

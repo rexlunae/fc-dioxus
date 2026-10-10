@@ -434,6 +434,11 @@ const CASES: &[Case] = &[
         &["fc-composer__attachments"],
         || rsx! { fc_demo::examples::composer::States {} },
     ),
+    (
+        "code",
+        &["fc-code--unsupported"],
+        || rsx! { fc_demo::examples::code::States {} },
+    ),
 ];
 
 #[test]
