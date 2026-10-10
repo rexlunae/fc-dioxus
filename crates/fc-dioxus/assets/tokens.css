@@ -1,0 +1,292 @@
+/*!
+ * future-css design tokens -- GENERATED FILE, DO NOT EDIT.
+ * Source: src/tokens (see README)
+ * Regenerate: npm run build:tokens
+ */
+@layer fc.tokens {
+  :root {
+  /* border */
+  --fc-border-width-none: 0;
+  --fc-border-width-thin: 1px;
+  --fc-border-width-thick: 2px;
+  --fc-border-width-focus: 2px;
+
+  /* code */
+  --fc-code-bg: light-dark(#f3f4f7, #0e0f13);
+  --fc-code-bg-subtle: light-dark(#e6e8ec, #24262b);
+  --fc-code-bg-inset: light-dark(#ffffff, #050608);
+  --fc-code-border-default: light-dark(#86898f, #606369);
+  --fc-code-bg-added: light-dark(#e6f5e8, #142317);
+  --fc-code-bg-removed: light-dark(#ffebe8, #2c1917);
+  --fc-code-fg: light-dark(#0e0f13, #e6e8ec);
+  --fc-code-comment: light-dark(#696c72, #7a7d83);
+  --fc-code-keyword: light-dark(#7e5db1, #906fc5);
+  --fc-code-string: light-dark(#317a45, #448c56);
+  --fc-code-number: light-dark(#936500, #a57710);
+  --fc-code-function: light-dark(#007598, #0a8aae);
+  --fc-code-type: light-dark(#b14f46, #c56157);
+  --fc-code-operator: light-dark(#696c72, #7a7d83);
+  --fc-code-punctuation: light-dark(#696c71, #7b7d82);
+  --fc-code-property: light-dark(#376daf, #497fc3);
+  --fc-code-constant: light-dark(#955890, #a86aa2);
+  --fc-code-tag: light-dark(#b14f46, #c56157);
+  --fc-code-attribute: light-dark(#906606, #a27825);
+  --fc-code-regexp: light-dark(#955890, #a86aa2);
+  --fc-code-heading: light-dark(#2d6fbe, #3d7ece);
+  --fc-code-link: light-dark(#00769c, #0088af);
+  --fc-code-invalid: light-dark(#bd423a, #d2554c);
+  --fc-code-added-fg: light-dark(#0b5d2a, #76cf8a);
+  --fc-code-removed-fg: light-dark(#902824, #f98f84);
+
+  /* color */
+  --fc-color-surface-depth-0: var(--fc-color-bg-canvas);
+  --fc-color-surface-depth-1: var(--fc-color-bg-surface);
+  --fc-color-surface-depth-2: var(--fc-color-bg-raised);
+  --fc-color-surface-depth-3: var(--fc-color-bg-overlay);
+  --fc-color-surface-depth-4: var(--fc-color-bg-sunken);
+  --fc-color-bg-canvas: light-dark(#f9fafb, #050608);
+  --fc-color-bg-surface: light-dark(#ffffff, #0e0f13);
+  --fc-color-bg-raised: light-dark(#ffffff, #24262b);
+  --fc-color-bg-overlay: light-dark(#ffffff, #0e0f13);
+  --fc-color-bg-sunken: light-dark(#e6e8ec, #000000);
+  --fc-color-bg-subtle: light-dark(#e6e8ec, #0e0f13);
+  --fc-color-bg-muted: light-dark(#d2d4da, #24262b);
+  --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
+  --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
+  --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
+  --fc-color-text-default: light-dark(#0e0f13, #f9fafb);
+  --fc-color-text-muted: light-dark(#3a3d44, #b7bbc1);
+  --fc-color-text-subtle: light-dark(#51555d, #9598a0);
+  --fc-color-text-inverse: light-dark(#ffffff, #000000);
+  --fc-color-text-on-accent: light-dark(#ffffff, #000000);
+  --fc-color-text-on-danger: light-dark(#ffffff, #000000);
+  --fc-color-selected-bg: light-dark(#e5f3ff, #041f3f);
+  --fc-color-selected-fg: light-dark(#0051b0, #a3ceff);
+  --fc-color-disabled-bg: light-dark(#e6e8ec, #0e0f13);
+  --fc-color-disabled-fg: light-dark(#3a3d44, #b7bbc1);
+  --fc-color-disabled-border: light-dark(#b7bbc1, #3a3d44);
+  --fc-color-text-on-success: light-dark(#ffffff, #000000);
+  --fc-color-text-on-info: light-dark(#ffffff, #000000);
+  --fc-color-text-on-warning: light-dark(#000000, #000000);
+  --fc-color-border-default: light-dark(#b7bbc1, #3a3d44);
+  --fc-color-border-subtle: light-dark(#d2d4da, #24262b);
+  --fc-color-border-strong: light-dark(#70747d, #70747d);
+  --fc-color-border-interactive: light-dark(#51555d, #9598a0);
+  --fc-color-accent-bg: light-dark(#0063d7, #4699fe);
+  --fc-color-accent-bg-hover: light-dark(#0051b0, #76b4ff);
+  --fc-color-accent-bg-active: light-dark(#004388, #a3ceff);
+  --fc-color-accent-bg-subtle: light-dark(#e5f3ff, #0b3565);
+  --fc-color-accent-text: light-dark(#0051b0, #a3ceff);
+  --fc-color-accent-border: light-dark(#0063d7, #4699fe);
+  --fc-color-success-bg: light-dark(#196632, #56d57b);
+  --fc-color-success-bg-hover: light-dark(#154f27, #86e79c);
+  --fc-color-success-bg-active: light-dark(#103a1c, #b7f3c2);
+  --fc-color-success-text: light-dark(#154f27, #86e79c);
+  --fc-color-success-bg-subtle: light-dark(#ddfbe2, #03210c);
+  --fc-color-success-border: light-dark(#218041, #37bb62);
+  --fc-color-warning-bg: light-dark(#c18500, #e29c00);
+  --fc-color-warning-bg-hover: light-dark(#e29c00, #f9ae00);
+  --fc-color-warning-bg-active: light-dark(#f9ae00, #ffc43d);
+  --fc-color-warning-text: light-dark(#483000, #ffdd8e);
+  --fc-color-warning-bg-subtle: light-dark(#fff2c8, #291a00);
+  --fc-color-warning-border: light-dark(#9c6a00, #c18500);
+  --fc-color-danger-bg: light-dark(#be1219, #ff534b);
+  --fc-color-danger-bg-hover: light-dark(#970911, #ff7f72);
+  --fc-color-danger-bg-active: light-dark(#76080c, #ffa89c);
+  --fc-color-danger-text: light-dark(#970911, #ffa89c);
+  --fc-color-danger-bg-subtle: light-dark(#ffe7e2, #320102);
+  --fc-color-danger-border: light-dark(#be1219, #ff534b);
+  --fc-color-info-bg: light-dark(#005c76, #57c0e6);
+  --fc-color-info-bg-hover: light-dark(#00475b, #87d7f7);
+  --fc-color-info-bg-active: light-dark(#063645, #b7ebff);
+  --fc-color-info-text: light-dark(#00475b, #87d7f7);
+  --fc-color-info-bg-subtle: light-dark(#daf7ff, #011e28);
+  --fc-color-info-border: light-dark(#007494, #26a7d0);
+  --fc-color-focus-ring: light-dark(#0063d7, #76b4ff);
+  --fc-color-focus-ring-offset: light-dark(#ffffff, #050608);
+
+  /* duration */
+  --fc-duration-instant: 0ms;
+  --fc-duration-fast: 120ms;
+  --fc-duration-normal: 200ms;
+  --fc-duration-slow: 300ms;
+
+  /* easing */
+  --fc-easing-linear: linear;
+  --fc-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --fc-easing-decelerate: cubic-bezier(0, 0, 0, 1);
+  --fc-easing-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --fc-easing-spring: cubic-bezier(0.3, 1.25, 0.5, 1);
+
+  /* font */
+  --fc-font-size-3xs: 0.625rem;
+  --fc-font-size-2xs: 0.6875rem;
+  --fc-font-size-xs: 0.75rem;
+  --fc-font-size-sm: 0.875rem;
+  --fc-font-size-md: 1rem;
+  --fc-font-size-lg: 1.125rem;
+  --fc-font-size-xl: 1.25rem;
+  --fc-font-size-2xl: 1.5rem;
+  --fc-font-size-3xl: 1.875rem;
+  --fc-font-size-4xl: 2.25rem;
+  --fc-font-size-5xl: 3rem;
+  --fc-font-size-6xl: 3.75rem;
+  --fc-font-weight-regular: 400;
+  --fc-font-weight-medium: 500;
+  --fc-font-weight-semibold: 600;
+  --fc-font-weight-bold: 700;
+  --fc-font-family-sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif;
+  --fc-font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* line */
+  --fc-line-height-none: 1;
+  --fc-line-height-tight: 1.15;
+  --fc-line-height-snug: 1.4;
+  --fc-line-height-normal: 1.6;
+  --fc-line-height-relaxed: 1.75;
+
+  /* opacity */
+  --fc-opacity-disabled: 0.55;
+  --fc-opacity-hover-overlay: 0.08;
+  --fc-opacity-pressed-overlay: 0.12;
+  --fc-opacity-scrim: 0.55;
+
+  /* radius */
+  --fc-radius-none: 0;
+  --fc-radius-sm: 0.375rem;
+  --fc-radius-md: 0.5rem;
+  --fc-radius-lg: 0.75rem;
+  --fc-radius-xl: 1rem;
+  --fc-radius-2xl: 1.5rem;
+  --fc-radius-full: 9999px;
+
+  /* shadow */
+  --fc-shadow-floating: 0 12px 32px -8px light-dark(rgb(16 18 27 / 0.14), rgb(0 0 0 / 0.5));
+  --fc-shadow-dialog: 0 32px 64px -12px light-dark(rgb(16 18 27 / 0.24), rgb(0 0 0 / 0.65));
+  --fc-shadow-raised: 0 1px 2px 0 light-dark(rgb(16 18 27 / 0.06), rgb(0 0 0 / 0.4)), 0 4px 12px -4px light-dark(rgb(16 18 27 / 0.08), rgb(0 0 0 / 0.3));
+  --fc-shadow-overlay: 0 8px 24px -8px light-dark(rgb(16 18 27 / 0.12), rgb(0 0 0 / 0.5)), 0 2px 4px -2px light-dark(rgb(16 18 27 / 0.1), rgb(0 0 0 / 0.5));
+  --fc-shadow-modal: 0 24px 48px -12px light-dark(rgb(16 18 27 / 0.22), rgb(0 0 0 / 0.6)), 0 2px 6px -1px light-dark(rgb(16 18 27 / 0.08), rgb(0 0 0 / 0.5));
+
+  /* size */
+  --fc-size-target-min: 1.5rem;
+  --fc-size-target-comfortable: 2.5rem;
+  --fc-size-content-max: 75ch;
+  --fc-size-measure: 65ch;
+
+  /* space */
+  --fc-space-0: 0;
+  --fc-space-1: 0.25rem;
+  --fc-space-2: 0.5rem;
+  --fc-space-3: 0.75rem;
+  --fc-space-4: 1rem;
+  --fc-space-5: 1.25rem;
+  --fc-space-6: 1.5rem;
+  --fc-space-8: 2rem;
+  --fc-space-10: 2.5rem;
+  --fc-space-12: 3rem;
+  --fc-space-16: 4rem;
+  --fc-space-20: 5rem;
+  --fc-space-24: 6rem;
+  --fc-space-32: 8rem;
+  --fc-space-px: 0.0625rem;
+  --fc-space-0-5: 0.125rem;
+  --fc-space-1-5: 0.375rem;
+
+  /* term */
+  --fc-term-bg: light-dark(#050608, #000000);
+  --fc-term-bg-raised: light-dark(#0e0f13, #0e0f13);
+  --fc-term-fg: light-dark(#f3f4f7, #e6e8ec);
+  --fc-term-fg-dim: light-dark(#9598a0, #9598a0);
+  --fc-term-cursor: light-dark(#f3f4f7, #f3f4f7);
+  --fc-term-ansi-black: light-dark(#b6b7ba, #b6b7ba);
+  --fc-term-ansi-red: light-dark(#ff7f72, #ff7f72);
+  --fc-term-ansi-green: light-dark(#67d283, #67d283);
+  --fc-term-ansi-yellow: light-dark(#e3ad4b, #e3ad4b);
+  --fc-term-ansi-blue: light-dark(#60b9ff, #60b9ff);
+  --fc-term-ansi-magenta: light-dark(#f985f0, #f985f0);
+  --fc-term-ansi-cyan: light-dark(#51cade, #51cade);
+  --fc-term-ansi-white: light-dark(#b6b7ba, #b6b7ba);
+  --fc-term-ansi-bright-black: light-dark(#dcdee2, #dcdee2);
+  --fc-term-ansi-bright-red: light-dark(#ffa393, #ffa393);
+  --fc-term-ansi-bright-green: light-dark(#88fca4, #88fca4);
+  --fc-term-ansi-bright-yellow: light-dark(#ffd368, #ffd368);
+  --fc-term-ansi-bright-blue: light-dark(#81e1ff, #81e1ff);
+  --fc-term-ansi-bright-magenta: light-dark(#ffa9ff, #ffa9ff);
+  --fc-term-ansi-bright-cyan: light-dark(#6ef4ff, #6ef4ff);
+  --fc-term-ansi-bright-white: light-dark(#dddedf, #dddedf);
+
+  /* tracking */
+  --fc-tracking-normal: 0;
+  --fc-tracking-tight: -0.01em;
+  --fc-tracking-wide: 0.04em;
+
+  /* type */
+  --fc-type-body: var(--fc-font-weight-regular) var(--fc-font-size-md)/var(--fc-line-height-normal) var(--fc-font-family-sans);
+  --fc-type-body-small: var(--fc-font-weight-regular) var(--fc-font-size-sm)/var(--fc-line-height-normal) var(--fc-font-family-sans);
+  --fc-type-title: var(--fc-font-weight-semibold) var(--fc-font-size-2xl)/var(--fc-line-height-tight) var(--fc-font-family-sans);
+  --fc-type-heading-1: var(--fc-font-weight-semibold) var(--fc-font-size-4xl)/var(--fc-line-height-tight) var(--fc-font-family-sans);
+  --fc-type-heading-2: var(--fc-font-weight-semibold) var(--fc-font-size-3xl)/var(--fc-line-height-tight) var(--fc-font-family-sans);
+  --fc-type-heading-3: var(--fc-font-weight-semibold) var(--fc-font-size-2xl)/var(--fc-line-height-tight) var(--fc-font-family-sans);
+  --fc-type-heading-4: var(--fc-font-weight-semibold) var(--fc-font-size-xl)/var(--fc-line-height-tight) var(--fc-font-family-sans);
+  --fc-type-heading-5: var(--fc-font-weight-semibold) var(--fc-font-size-lg)/var(--fc-line-height-tight) var(--fc-font-family-sans);
+  --fc-type-heading-6: var(--fc-font-weight-semibold) var(--fc-font-size-md)/var(--fc-line-height-tight) var(--fc-font-family-sans);
+  --fc-type-code: var(--fc-font-weight-regular) var(--fc-font-size-sm)/var(--fc-line-height-snug) var(--fc-font-family-mono);
+  --fc-type-label: var(--fc-font-weight-medium) var(--fc-font-size-sm)/var(--fc-line-height-snug) var(--fc-font-family-sans);
+  --fc-type-body-tracking: var(--fc-tracking-normal);
+  --fc-type-body-small-tracking: var(--fc-tracking-normal);
+  --fc-type-title-tracking: var(--fc-tracking-normal);
+  --fc-type-heading-1-tracking: var(--fc-tracking-normal);
+  --fc-type-heading-2-tracking: var(--fc-tracking-normal);
+  --fc-type-heading-3-tracking: var(--fc-tracking-normal);
+  --fc-type-heading-4-tracking: var(--fc-tracking-normal);
+  --fc-type-heading-5-tracking: var(--fc-tracking-normal);
+  --fc-type-heading-6-tracking: var(--fc-tracking-normal);
+  --fc-type-code-tracking: var(--fc-tracking-normal);
+  --fc-type-label-tracking: var(--fc-tracking-normal);
+
+  /* z */
+  --fc-z-0: 0;
+  --fc-z-base: 0;
+  --fc-z-raised: 10;
+  --fc-z-sticky: 100;
+  --fc-z-dropdown: 200;
+  --fc-z-overlay: 300;
+  --fc-z-modal: 400;
+  --fc-z-popover: 500;
+  --fc-z-toast: 600;
+  }
+
+  /*
+   * Schemes. "light dark" tells the UA to pick based on the user's OS/browser
+   * setting -- this is the default and requires no JavaScript. An author
+   * override (a theme switcher in the UI) only ever changes these two
+   * declarations; because every themed token is a light-dark() pair, that alone
+   * re-themes the whole system.
+   */
+  :root {
+    color-scheme: light dark;
+  }
+
+  [data-fc-theme="system"] { color-scheme: light dark; }
+
+  [data-fc-theme="light"] {
+    color-scheme: light;
+  }
+
+  [data-fc-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  /*
+   * Forced colors (Windows High Contrast). The OS overrides component colors
+   * here, so the tokens that matter are the focus ones: a focus ring drawn from
+   * a suppressed token would disappear entirely.
+   */
+  @media (forced-colors: active) {
+    :root {
+      --fc-color-focus-ring: Highlight;
+      --fc-color-focus-ring-offset: Canvas;
+    }
+  }
+}
+

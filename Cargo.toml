@@ -1,0 +1,53 @@
+[workspace]
+members = ["crates/fc-dioxus", "crates/fc-a11y", "crates/fc-tokens", "demo", "xtask"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+license = "MIT"
+
+[workspace.dependencies]
+dioxus = { version = "=0.7.9", default-features = false, features = ["lib"] }
+dioxus-ssr = "=0.7.9"
+fc-dioxus = { path = "crates/fc-dioxus", version = "0.1.0" }
+fc-a11y = { path = "crates/fc-a11y", version = "0.1.0", default-features = false }
+fc-tokens = { path = "crates/fc-tokens", version = "0.1.0" }
+html5ever = "0.35"
+markup5ever_rcdom = "0.35"
+web-sys = { version = "0.3", features = ["Window", "Location"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "deny"
+unreachable_pub = "warn"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+indexing_slicing = "deny"
+todo = "deny"
+dbg_macro = "deny"
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false
+
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = "s"

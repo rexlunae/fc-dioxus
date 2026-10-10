@@ -1,0 +1,9 @@
+[application]
+name = "fc-demo"
+default_platform = "web"
+
+[web.app]
+title = "future-css · Dioxus"
+
+[web.watcher]
+watch_path = ["demo", "crates/fc-dioxus", "crates/fc-tokens"]

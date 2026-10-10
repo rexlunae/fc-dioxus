@@ -1,0 +1,292 @@
+/*!
+ * future-css -- https://github.com/estith/future-css
+ * A styling system for multi-language, multi-platform systems
+ *
+ * Regenerate with: npm run build
+ * This file is generated; edit the sources in src/ instead.
+ */
+/*!
+ * future-css -- skeleton and progress
+ *
+ * Two answers to "something is happening" (the third, the spinner, has its
+ * own file -- spinner.css -- because it has a family of styles):
+ *
+ *   skeleton   content is coming, and its shape is known
+ *   progress   work is happening, and how much is done is known
+ *
+ * Neither is announced by itself. A skeleton's region
+ * carries `aria-busy="true"` until the content lands; progress is the native
+ * `<progress>` element, which assistive technology already understands.
+ */
+
+@layer fc.components {
+  /* ---- Skeleton -------------------------------------------------------- */
+
+  /*
+   * A placeholder in the shape of the content to come, so the layout does not
+   * jump when it arrives. The shimmer runs along the inline axis; the RTL
+   * branch reverses it, because a sweep against the reading direction reads
+   * as going backwards.
+   */
+  .fc-skeleton {
+    display: block;
+    block-size: 1lh;
+    background-color: var(--fc-color-bg-muted);
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklch, var(--fc-color-bg-surface) 60%, transparent) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    border-radius: var(--fc-radius-md);
+    animation: fc-loading-shimmer 1.6s ease-in-out infinite;
+  }
+
+  .fc-skeleton:dir(rtl) {
+    animation-direction: reverse;
+  }
+
+  /* Text lines are shorter than the line box, like real glyphs. */
+  .fc-skeleton--text {
+    block-size: 0.75lh;
+    margin-block: 0.125lh;
+  }
+
+  .fc-skeleton--text:last-child {
+    inline-size: 70%;
+  }
+
+  .fc-skeleton--circle {
+    inline-size: var(--fc-skeleton-size, 2.5rem);
+    block-size: var(--fc-skeleton-size, 2.5rem);
+    border-radius: var(--fc-radius-full);
+  }
+
+  .fc-skeleton--block {
+    block-size: var(--fc-skeleton-size, 8rem);
+    border-radius: var(--fc-radius-lg);
+  }
+
+  @keyframes fc-loading-shimmer {
+    from {
+      background-position: 150% 0;
+    }
+
+    to {
+      background-position: -50% 0;
+    }
+  }
+
+  /* ---- Progress -------------------------------------------------------- */
+
+  /*
+   * The native element, restyled through its vendor parts. It keeps its role,
+   * its value, and its announcements, which a div with a width would not.
+   */
+  .fc-progress {
+    appearance: none;
+    display: block;
+    inline-size: 100%;
+    block-size: var(--fc-progress-size, 0.5rem);
+    background-color: var(--fc-color-bg-muted);
+    color: var(--fc-color-accent-bg);
+    border: 0;
+    border-radius: var(--fc-radius-full);
+    overflow: hidden;
+  }
+
+  .fc-progress::-webkit-progress-bar {
+    background-color: var(--fc-color-bg-muted);
+  }
+
+  .fc-progress::-webkit-progress-value {
+    background-color: var(--fc-color-accent-bg);
+    border-radius: var(--fc-radius-full);
+    transition: inline-size var(--fc-duration-slow) var(--fc-easing-standard);
+  }
+
+  .fc-progress::-moz-progress-bar {
+    background-color: var(--fc-color-accent-bg);
+    border-radius: var(--fc-radius-full);
+  }
+
+  .fc-progress--sm {
+    --fc-progress-size: 0.25rem;
+  }
+
+  /*
+   * Indeterminate: a value-less <progress>. Drawn as a moving band, never as a
+   * bar frozen at some width, which would claim a percentage nobody knows.
+   */
+  .fc-progress:indeterminate {
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--fc-color-accent-bg) 40%,
+      var(--fc-color-accent-bg) 60%,
+      transparent 100%
+    );
+    background-size: 40% 100%;
+    background-repeat: no-repeat;
+    animation: fc-loading-sweep 1.4s var(--fc-easing-standard) infinite;
+  }
+
+  .fc-progress:indeterminate::-webkit-progress-bar {
+    background-color: transparent;
+  }
+
+  .fc-progress:indeterminate::-moz-progress-bar {
+    background-color: transparent;
+  }
+
+  .fc-progress:indeterminate:dir(rtl) {
+    animation-direction: reverse;
+  }
+
+  @keyframes fc-loading-sweep {
+    from {
+      background-position: -60% 0;
+    }
+
+    to {
+      background-position: 160% 0;
+    }
+  }
+
+  /* ---- Progress ring --------------------------------------------------- */
+
+  /*
+   * Circular determinate progress: an upload, a context window filling up.
+   * There is no native circular element, so the role and values are ARIA,
+   * and the drawn value is a custom property the markup states beside them:
+   *
+   *   <div class="fc-progress-ring" role="progressbar" aria-label="Uploading"
+   *        aria-valuemin="0" aria-valuemax="100" aria-valuenow="42"
+   *        style="--fc-progress-value: 42">
+   *     <span class="fc-progress-ring__label">42%</span>
+   *   </div>
+   *
+   * It only ever shows a known amount; an unknown one is a spinner, so the
+   * ring never pretends to know. Whoever updates `aria-valuenow` updates the
+   * property in the same write.
+   */
+  .fc-progress-ring {
+    --fc-progress-ring-size: 2.5rem;
+    --fc-progress-ring-width: 0.25rem;
+    --fc-progress-ring-fill: var(--fc-color-accent-border);
+
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    inline-size: var(--fc-progress-ring-size);
+    block-size: var(--fc-progress-ring-size);
+    color: var(--fc-color-text-default);
+    font-size: var(--fc-font-size-xs);
+    font-variant-numeric: tabular-nums;
+    /* Animates between values because the property is registered below. */
+    transition: --fc-progress-value var(--fc-duration-slow) var(--fc-easing-standard);
+  }
+
+  /*
+   * Registered as a number so a change of value interpolates rather than
+   * jumping; unregistered custom properties cannot transition.
+   */
+  @property --fc-progress-value {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+  }
+
+  /*
+   * A conic fill cut to a ring by a radial mask. The fill starts at the top
+   * and runs clockwise in both directions, like a clock face, which is how a
+   * circular gauge is read in RTL scripts too.
+   */
+  .fc-progress-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--fc-radius-full);
+    background: conic-gradient(
+      var(--fc-progress-ring-fill) calc(var(--fc-progress-value, 0) * 1%),
+      var(--fc-color-bg-muted) 0
+    );
+    /* A mask reads only alpha, so any opaque colour cuts the same ring. */
+    mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - var(--fc-progress-ring-width) - 0.5px),
+      currentColor calc(100% - var(--fc-progress-ring-width))
+    );
+  }
+
+  .fc-progress-ring__label {
+    position: relative;
+  }
+
+  .fc-progress-ring--sm {
+    --fc-progress-ring-size: 1.5rem;
+    --fc-progress-ring-width: 0.1875rem;
+  }
+
+  .fc-progress-ring--lg {
+    --fc-progress-ring-size: 4rem;
+    --fc-progress-ring-width: 0.375rem;
+    font-size: var(--fc-font-size-sm);
+  }
+
+  /* A failed run keeps its ring at the point it stopped, in the danger colour. */
+  .fc-progress-ring--error {
+    --fc-progress-ring-fill: var(--fc-color-danger-border);
+  }
+
+  /* ---- Reduced motion -------------------------------------------------- */
+
+  /*
+   * The shimmer and sweep are decoration on top of a shape that already says
+   * "loading", so they stop, and
+   * the indeterminate bar becomes a static, full-width hatch that cannot be read
+   * as a percentage.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .fc-skeleton {
+      animation: none;
+      background-image: none;
+    }
+
+    .fc-progress:indeterminate {
+      animation: none;
+      background-size: auto;
+      background-image: repeating-linear-gradient(
+        45deg,
+        var(--fc-color-accent-bg) 0 0.375rem,
+        transparent 0.375rem 0.75rem
+      );
+    }
+  }
+
+  /* ---- Forced colors --------------------------------------------------- */
+
+  @media (forced-colors: active) {
+    .fc-skeleton {
+      border: var(--fc-border-width-thin) dashed GrayText;
+    }
+
+    .fc-progress {
+      border: var(--fc-border-width-thin) solid CanvasText;
+    }
+
+    /* Gradient colours are not forced, so the ring restates them itself. */
+    .fc-progress-ring {
+      --fc-progress-ring-fill: Highlight;
+      forced-color-adjust: none;
+      color: CanvasText;
+    }
+
+    .fc-progress-ring::before {
+      border: var(--fc-border-width-thin) solid CanvasText;
+    }
+  }
+}

@@ -1,0 +1,24 @@
+[package]
+name = "fc-a11y"
+description = "Framework-independent static accessibility checks for HTML"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+default = ["html"]
+html = ["dep:html5ever", "dep:markup5ever_rcdom"]
+
+[dependencies]
+fc-tokens.workspace = true
+html5ever = { workspace = true, optional = true }
+markup5ever_rcdom = { workspace = true, optional = true }
+
+[[bin]]
+name = "fc-a11y"
+path = "src/main.rs"
+required-features = ["html"]
+
+[lints]
+workspace = true

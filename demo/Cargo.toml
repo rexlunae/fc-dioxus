@@ -1,0 +1,31 @@
+[package]
+name = "fc-demo"
+description = "Live examples and source for fc-dioxus"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[features]
+default = ["web"]
+web = ["dioxus/web", "fc-dioxus/web"]
+desktop = ["dioxus/desktop"]
+mobile = ["dioxus/mobile"]
+fullstack = ["dioxus/fullstack"]
+server = ["fullstack", "dioxus/server"]
+liveview = ["dioxus/liveview", "dioxus/server"]
+native = ["dioxus/native"]
+ssr = ["dep:dioxus-ssr"]
+
+[dependencies]
+dioxus = { workspace = true, features = ["launch"] }
+fc-dioxus.workspace = true
+dioxus-ssr = { workspace = true, optional = true }
+
+[dev-dependencies]
+dioxus-ssr.workspace = true
+fc-a11y = { workspace = true, features = ["html"] }
+
+[lints]
+workspace = true

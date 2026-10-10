@@ -1,0 +1,318 @@
+/*!
+ * future-css -- https://github.com/estith/future-css
+ * A styling system for multi-language, multi-platform systems
+ *
+ * Regenerate with: npm run build
+ * This file is generated; edit the sources in src/ instead.
+ */
+/*!
+ * future-css -- button component
+ *
+ * The reference component, and the template for every other component. The
+ * pattern repeated here:
+ *
+ *   1. Style the REAL element (`button`, not a div). A button is focusable,
+ *      activatable with Space and Enter, and announced as a button for free.
+ *   2. Variants and sizes are separate classes, so they compose freely:
+ *      `.fc-btn--danger.fc-btn--sm` is valid and correct.
+ *   3. Every state is styled -- rest, hover, active, focus, disabled. A
+ *      component that styles only its rest state is unfinished.
+ *   4. Nothing references a colour literal or a primitive token.
+ */
+
+@layer fc.components {
+  .fc-btn {
+    /*
+     * inline-flex + gap rather than padding alone: it keeps the label centred
+     * when an icon is present, and lets the label wrap instead of forcing the
+     * control to overflow when translated.
+     */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--fc-space-2);
+
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+
+    /*
+     * The same height as `.fc-input` and `.fc-select` at every size, so a
+     * button beside a field lines up without a wrapper fixing it. Comfortably
+     * above the WCAG 2.2 target size minimum.
+     */
+    min-block-size: var(--fc-size-target-comfortable);
+    min-inline-size: var(--fc-size-target-min);
+
+    padding-block: var(--fc-space-2);
+    padding-inline: var(--fc-space-4);
+
+    border: var(--fc-border-width-control, var(--fc-border-width-thin)) solid transparent;
+    border-radius: var(--fc-btn-radius, var(--fc-radius-lg));
+
+    font-family: inherit;
+    font-size: var(--fc-font-size-sm);
+    font-weight: var(--fc-font-weight-medium);
+    line-height: var(--fc-line-height-snug);
+
+    cursor: pointer;
+    user-select: none;
+    /* Removes the ~300ms tap delay on touch devices. */
+    touch-action: manipulation;
+
+    /*
+     * Only the properties that actually change on interaction, and never `all`:
+     * transitioning everything animates layout properties and produces jank.
+     */
+    transition:
+      background-color var(--fc-duration-fast) var(--fc-easing-standard),
+      border-color var(--fc-duration-fast) var(--fc-easing-standard),
+      color var(--fc-duration-fast) var(--fc-easing-standard),
+      box-shadow var(--fc-duration-fast) var(--fc-easing-standard),
+      scale var(--fc-duration-fast) var(--fc-easing-standard);
+  }
+
+  /*
+   * A press sinks the button slightly. `scale` rather than `transform` so it
+   * composes with any transform the caller sets, and it is a compositor-only
+   * property, so it never triggers layout. Disabled and busy buttons do not
+   * respond, because a control that moves when it cannot act is lying.
+   */
+  .fc-btn:active:not(:disabled, [aria-disabled="true"], [aria-busy="true"]) {
+    scale: var(--fc-btn-press-scale, 0.97);
+  }
+
+  /* ---- Sizes ----------------------------------------------------------- */
+
+  .fc-btn--sm {
+    min-block-size: 2rem;
+    --fc-btn-radius: var(--fc-radius-md);
+    --fc-btn-corner-limit: 1rem;
+    padding-block: var(--fc-space-1);
+    padding-inline: var(--fc-space-3);
+    font-size: var(--fc-font-size-xs);
+  }
+
+  .fc-btn--lg {
+    min-block-size: 3rem;
+    padding-block: var(--fc-space-3);
+    padding-inline: var(--fc-space-6);
+    font-size: var(--fc-font-size-md);
+  }
+
+  /* Icon-only buttons stay square so the hit target matches the glyph. */
+  .fc-btn--icon {
+    padding-inline: var(--fc-space-2);
+    aspect-ratio: 1;
+  }
+
+  /* Full width is a layout decision, kept separate from visual variants. */
+  .fc-btn--block {
+    display: flex;
+    inline-size: 100%;
+  }
+
+  /* ---- Variants -------------------------------------------------------- */
+
+  /*
+   * Hover rules sit inside `(hover: hover)`. On touch screens a tap leaves the
+   * last-tapped button in its hover colour until something else is tapped,
+   * which reads as a stuck control.
+   *
+   * The neutral variants tint with `currentColor` at the shared overlay
+   * opacities instead of swapping to a fixed surface token. A fixed token is
+   * only right on the surface it was picked against -- `bg-subtle` matches
+   * `bg-surface` exactly in dark mode, which made the subtle button invisible
+   * on a card -- while a tint of the label colour stays visible on any surface
+   * in either scheme.
+   */
+
+  /* Default / primary. The faint shadow lifts it off the page as the one
+     action to take. */
+  .fc-btn--primary,
+  .fc-btn--ok {
+    background-color: var(--fc-btn-primary-bg, var(--fc-color-accent-bg));
+    color: var(--fc-btn-primary-fg, var(--fc-color-text-on-accent));
+    border-color: var(--fc-btn-primary-border, var(--fc-color-accent-border));
+    box-shadow: var(--fc-shadow-raised);
+  }
+
+  /* Secondary: an outlined button that sits beside a primary without competing. */
+  .fc-btn--secondary,
+  .fc-btn--cancel {
+    background-color: var(--fc-color-bg-surface);
+    color: var(--fc-color-text-default);
+    border-color: var(--fc-color-border-interactive);
+  }
+
+  /* Ghost: no chrome until interacted with. Low affordance -- use sparingly. */
+  .fc-btn--ghost,
+  .fc-btn--tertiary {
+    background-color: transparent;
+    color: var(--fc-color-text-default);
+    border-color: transparent;
+  }
+
+  /* Subtle: a tinted fill for the least important of several actions. */
+  .fc-btn--subtle {
+    background-color: color-mix(in oklab, currentColor calc(var(--fc-opacity-hover-overlay) * 100%), transparent);
+    color: var(--fc-color-text-default);
+    border-color: transparent;
+  }
+
+  /*
+   * Destructive. Always paired with a confirmation step in the markup: a
+   * danger-styled button is a request, not a confirmation.
+   */
+  .fc-btn--danger {
+    background-color: var(--fc-color-danger-bg);
+    color: var(--fc-color-text-on-danger);
+    border-color: var(--fc-color-danger-border);
+    box-shadow: var(--fc-shadow-raised);
+  }
+
+  @media (hover: hover) {
+    .fc-btn--primary:hover,
+    .fc-btn--ok:hover {
+      background-color: var(--fc-btn-primary-bg-hover, var(--fc-color-accent-bg-hover));
+    }
+
+    .fc-btn--secondary:hover,
+    .fc-btn--cancel:hover {
+      border-color: color-mix(in oklab, var(--fc-color-border-interactive), var(--fc-color-text-default) 40%);
+    }
+
+    .fc-btn--secondary:hover,
+    .fc-btn--cancel:hover,
+    .fc-btn--ghost:hover,
+    .fc-btn--tertiary:hover {
+      background-color: color-mix(in oklab, currentColor calc(var(--fc-opacity-hover-overlay) * 100%), transparent);
+    }
+
+    .fc-btn--subtle:hover {
+      background-color: color-mix(in oklab, currentColor calc(var(--fc-opacity-pressed-overlay) * 100%), transparent);
+    }
+
+    .fc-btn--danger:hover {
+      background-color: var(--fc-color-danger-bg-hover);
+      border-color: var(--fc-color-danger-bg-hover);
+    }
+  }
+
+  /* Pressed. After the hover block, because a pressed button is also hovered
+     and the two have equal specificity. */
+  .fc-btn--primary:active,
+  .fc-btn--ok:active {
+    background-color: var(--fc-btn-primary-bg-active, var(--fc-color-accent-bg-active));
+    box-shadow: none;
+  }
+
+  .fc-btn--secondary:active,
+  .fc-btn--cancel:active,
+  .fc-btn--ghost:active,
+  .fc-btn--tertiary:active {
+    background-color: color-mix(in oklab, currentColor calc(var(--fc-opacity-pressed-overlay) * 100%), transparent);
+  }
+
+  .fc-btn--subtle:active {
+    background-color: color-mix(in oklab, currentColor calc(var(--fc-opacity-pressed-overlay) * 150%), transparent);
+  }
+
+  .fc-btn--danger:active {
+    box-shadow: none;
+  }
+
+  /* ---- States ---------------------------------------------------------- */
+
+  /*
+   * The base focus ring paints its offset gap with box-shadow, and this layer
+   * outranks base, so the raised variants' own shadow would erase the gap.
+   * Restated here so every variant keeps it.
+   */
+  .fc-btn:focus-visible {
+    box-shadow: 0 0 0 var(--fc-space-0-5) var(--fc-color-focus-ring-offset);
+  }
+
+  /*
+   * Disabled. Two details matter:
+   *   - `opacity` alone is not enough, since it drags the label below the
+   *     contrast minimum; dedicated disabled colors preserve label readability.
+   *   - `cursor: not-allowed` comes from the reset layer.
+   *
+   * `:disabled` handles the truly disabled control. `aria-disabled` is the
+   * preferred pattern for a control that must stay focusable so the user can
+   * perceive why it is unavailable, and is handled just below.
+   */
+  .fc-btn:disabled,
+  .fc-btn[aria-disabled="true"] {
+    background-color: var(--fc-color-disabled-bg);
+    color: var(--fc-color-disabled-fg);
+    border-color: var(--fc-color-disabled-border);
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 1;
+  }
+
+  /* Blocks activation without removing the element from the tab order. */
+  .fc-btn[aria-disabled="true"] {
+    pointer-events: none;
+  }
+
+  /*
+   * Loading. The label stays in the DOM rather than being swapped for a spinner,
+   * so the accessible name does not change and the control is never left
+   * unlabelled.
+   */
+  .fc-btn[aria-busy="true"] {
+    cursor: progress;
+  }
+
+  .fc-btn__spinner {
+    inline-size: 1em;
+    block-size: 1em;
+    border: var(--fc-border-width-thick) solid currentColor;
+    /* Logical longhand, so the spin direction reads correctly in RTL. */
+    border-block-start-color: transparent;
+    border-radius: var(--fc-radius-full);
+    animation: fc-spin 0.6s linear infinite;
+  }
+
+  @keyframes fc-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  /*
+   * Reduced motion: a spinner is the one case where stopping the animation
+   * entirely would remove the only loading affordance, so it slows to a crawl
+   * instead of freezing. This deliberately overrides the blanket reset.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .fc-btn__spinner {
+      animation-duration: 2s;
+    }
+  }
+
+  /* ---- Forced colors --------------------------------------------------- */
+
+  /*
+   * In Windows High Contrast the OS discards background and border colours. The
+   * remaining job is making the edges visible, done with a border because
+   * box-shadow is also suppressed.
+   */
+  @media (forced-colors: active) {
+    .fc-btn {
+      background-color: ButtonFace;
+      color: ButtonText;
+      border-color: ButtonBorder;
+    }
+
+    .fc-btn--primary,
+    .fc-btn--ok {
+      background-color: Highlight;
+      color: HighlightText;
+      border-color: Highlight;
+    }
+  }
+}

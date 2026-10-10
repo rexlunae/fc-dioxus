@@ -1,0 +1,5 @@
+/* Generated light-only email foundation; inline for client compatibility. */
+.fc-email { background-color: #f9fafb; color: #0e0f13; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif; font-size: 16px; line-height: 1.6; }
+.fc-email-surface { background-color: #ffffff; color: #0e0f13; padding: 16px; }
+.fc-email-link { color: #0051b0; text-decoration: underline; }
+.fc-email-muted { color: #3a3d44; }

@@ -1,0 +1,132 @@
+import assert from "node:assert/strict";
+import { before, after, test } from "node:test";
+import { spawn } from "node:child_process";
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { serve } from "../../tools/serve.mjs";
+
+const chromePath = [process.env.CHROME_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(path => path && existsSync(path));
+assert.ok(chromePath, "Chrome is required; no browser means failure, never a skipped suite. Set CHROME_PATH.");
+const axe = readFileSync(new URL("../../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
+let server, chrome, profile, ws;
+let nextId = 0;
+const pending = new Map();
+const exceptions = [];
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+function send(method, params = {}) {
+  return new Promise((resolve, reject) => {
+    const id = ++nextId;
+    const timeout = setTimeout(() => { pending.delete(id); reject(new Error(`CDP timeout: ${method}`)); }, 20000);
+    pending.set(id, result => { clearTimeout(timeout); result.error ? reject(new Error(JSON.stringify(result.error))) : resolve(result.result); });
+    ws.send(JSON.stringify({ id, method, params }));
+  });
+}
+async function evaluate(expression) {
+  const result = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
+  if (result.exceptionDetails) throw new Error(JSON.stringify(result.exceptionDetails));
+  return result.result.value;
+}
+async function until(expression) {
+  const deadline = Date.now() + 20000;
+  while (Date.now() < deadline) { if (await evaluate(expression)) return; await sleep(80); }
+  throw new Error(`Page did not become ready: ${expression}; exceptions=${JSON.stringify(exceptions)}`);
+}
+async function load(query, width = 320) {
+  exceptions.length = 0;
+  await send("Emulation.setDeviceMetricsOverride", { width, height: 1000, deviceScaleFactor: 1, mobile: false });
+  await send("Page.navigate", { url: "about:blank" });
+  await until("location.href === 'about:blank'");
+  await send("Page.navigate", { url: `${server.origin}/?${query}` });
+  await until("document.querySelectorAll('.fc-divider').length === 6 && [...document.styleSheets].some(s => s.href?.includes('divider'))");
+  await evaluate("document.fonts.ready.then(() => true)");
+  await evaluate(axe);
+}
+
+before(async () => {
+  server = await serve();
+  profile = await mkdtemp(join(tmpdir(), "fc-dioxus-browser-"));
+  chrome = spawn(chromePath, ["--headless=new", "--disable-gpu", "--no-sandbox", "--no-first-run", `--user-data-dir=${profile}`, "--remote-debugging-port=0", "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
+  const endpoint = await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("Chrome did not start")), 20000);
+    chrome.stderr.on("data", bytes => { const match = /ws:\/\/\S+/.exec(String(bytes)); if (match) { clearTimeout(timer); resolve(match[0]); } });
+    chrome.on("error", error => { clearTimeout(timer); reject(error); });
+  });
+  const origin = endpoint.replace(/^ws:/, "http:").replace(/\/devtools\/browser\/.*$/, "");
+  const targets = await (await fetch(`${origin}/json/list`)).json();
+  const target = targets.find(target => target.type === "page");
+  assert.ok(target, "Chrome exposes a page target");
+  ws = new WebSocket(target.webSocketDebuggerUrl);
+  await new Promise((resolve, reject) => { ws.addEventListener("open", resolve, { once: true }); ws.addEventListener("error", reject, { once: true }); });
+  ws.addEventListener("message", event => {
+    const message = JSON.parse(event.data);
+    if (message.id) { pending.get(message.id)?.(message); pending.delete(message.id); }
+    if (message.method === "Runtime.exceptionThrown") exceptions.push(message.params);
+  });
+  await send("Runtime.enable");
+  await send("Page.enable");
+  await send("DOM.enable");
+  await send("CSS.enable");
+});
+after(async () => {
+  ws?.close();
+  if (chrome && chrome.exitCode === null) { const exited = new Promise(resolve => chrome.once("exit", resolve)); chrome.kill(); await exited; }
+  await server?.close();
+  if (profile) await rm(profile, { recursive: true, force: true });
+});
+
+for (const theme of ["light", "dark"]) for (const dir of ["ltr", "rtl"]) {
+  test(`fixtures: ${theme}/${dir}, 320px, visible dividers and axe WCAG AA`, async () => {
+    await load(`fixtures=true&theme=${theme}&dir=${dir}`);
+    const layout = await evaluate(`(() => {
+      const root = document.querySelector('[data-fc-version]');
+      return { theme: root.dataset.fcTheme, dir: root.dir,
+        width: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth,
+        dividers: [...document.querySelectorAll('.fc-divider')].map(node => {
+          const css = getComputedStyle(node), box = node.getBoundingClientRect();
+          return { width: box.width, height: box.height, border: parseFloat(css.borderBlockStartWidth) + parseFloat(css.borderInlineStartWidth) };
+        }) };
+    })()`);
+    assert.equal(layout.theme, theme);
+    assert.equal(layout.dir, dir);
+    assert.ok(layout.scroll <= layout.width + 1, JSON.stringify(layout));
+    assert.equal(layout.dividers.length, 6);
+    assert.ok(layout.dividers.every(d => d.width > 0 && d.height > 0 && d.border > 0), JSON.stringify(layout.dividers));
+    const audit = await evaluate("axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } }).then(r => r.violations.map(v => ({id:v.id, impact:v.impact, nodes:v.nodes.map(n => n.target)})))");
+    assert.deepEqual(audit, [], "axe must report zero WCAG A/AA violations");
+    assert.deepEqual(exceptions, [], "no uncaught browser errors");
+  });
+}
+
+test("theme controls, direction, source disclosure, focus visibility and copy feedback work", async () => {
+  await load("fixtures=false&theme=light&dir=ltr", 1200);
+  await evaluate("document.getElementById('theme').value='dark'; document.getElementById('theme').dispatchEvent(new Event('change',{bubbles:true}))");
+  await until("document.querySelector('[data-fc-version]').dataset.fcTheme === 'dark'");
+  await evaluate("document.getElementById('direction').value='rtl'; document.getElementById('direction').dispatchEvent(new Event('change',{bubbles:true}))");
+  await until("document.querySelector('[data-fc-version]').dir === 'rtl'");
+  await evaluate("document.querySelector('summary').focus()");
+  await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
+  await send("Input.dispatchKeyEvent", { type: "char", text: "\r", unmodifiedText: "\r", key: "Enter", windowsVirtualKeyCode: 13 });
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
+  await until("document.querySelector('details').open");
+  await send("DOM.getDocument");
+  const { root } = await send("DOM.getDocument");
+  const { nodeId } = await send("DOM.querySelector", { nodeId: root.nodeId, selector: "#theme" });
+  await send("CSS.forcePseudoState", { nodeId, forcedPseudoClasses: ["focus-visible"] });
+  assert.ok(await evaluate("(() => {const c=getComputedStyle(document.getElementById('theme'));return parseFloat(c.outlineWidth)>0 || c.boxShadow!=='none'})()"), "visible keyboard focus ring");
+  await evaluate("document.querySelector('[data-copy]').click()");
+  await until("document.querySelector('[role=status]').textContent.length > 0");
+  mkdirSync("target/screenshots", { recursive: true });
+  await evaluate("document.querySelector('details').open=false");
+  const screenshot = await send("Page.captureScreenshot", { format: "png" });
+  writeFileSync("target/screenshots/showcase-dark.png", Buffer.from(screenshot.data, "base64"));
+  assert.deepEqual(exceptions, []);
+});
+
+test("forced colors retain separator borders", async () => {
+  await send("Emulation.setEmulatedMedia", { features: [{ name: "forced-colors", value: "active" }] });
+  await load("fixtures=true&theme=light&dir=ltr");
+  assert.ok(await evaluate("[...document.querySelectorAll('.fc-divider')].every(n => { const c=getComputedStyle(n); return parseFloat(c.borderInlineStartWidth)+parseFloat(c.borderBlockStartWidth)>0; })"));
+  await send("Emulation.setEmulatedMedia", { features: [] });
+});

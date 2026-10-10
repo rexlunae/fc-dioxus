@@ -1,0 +1,130 @@
+/*!
+ * future-css design tokens -- GENERATED FILE, DO NOT EDIT.
+ * Source: src/tokens (see README)
+ * Regenerate: npm run build:tokens
+ */
+@layer fc.tokens {
+  @supports (color: oklch(0.5 0.1 250)) {
+    @media (color-gamut: p3) and (prefers-contrast: no-preference) and (forced-colors: none) {
+      :root:not([data-fc-brand], [data-fc-palette], [data-fc-theme^="high-contrast"]) {
+        --fc-color-surface-depth-0: light-dark(oklch(0.985 0.002 265), oklch(0.12 0.007 265));
+        --fc-color-surface-depth-1: light-dark(oklch(1 0 265), oklch(0.17 0.008 265));
+        --fc-color-surface-depth-2: light-dark(oklch(1 0 265), oklch(0.27 0.01 265));
+        --fc-color-surface-depth-3: light-dark(oklch(1 0 265), oklch(0.17 0.008 265));
+        --fc-color-surface-depth-4: light-dark(oklch(0.93 0.006 265), oklch(0 0 0));
+        --fc-color-bg-canvas: light-dark(oklch(0.985 0.002 265), oklch(0.12 0.007 265));
+        --fc-color-bg-surface: light-dark(oklch(1 0 265), oklch(0.17 0.008 265));
+        --fc-color-bg-raised: light-dark(oklch(1 0 265), oklch(0.27 0.01 265));
+        --fc-color-bg-overlay: light-dark(oklch(1 0 265), oklch(0.17 0.008 265));
+        --fc-color-bg-sunken: light-dark(oklch(0.93 0.006 265), oklch(0 0 0));
+        --fc-color-bg-subtle: light-dark(oklch(0.93 0.006 265), oklch(0.17 0.008 265));
+        --fc-color-bg-muted: light-dark(oklch(0.87 0.008 265), oklch(0.27 0.01 265));
+        --fc-color-bg-thumb: light-dark(oklch(1 0 0), oklch(0.985 0.002 265));
+        --fc-color-bg-inverse: light-dark(oklch(0.17 0.008 265), oklch(1 0 265));
+        --fc-color-text-inverse-muted: light-dark(oklch(0.79 0.01 265), oklch(0.36 0.012 265));
+        --fc-color-text-default: light-dark(oklch(0.17 0.008 265), oklch(0.985 0.002 265));
+        --fc-color-text-muted: light-dark(oklch(0.36 0.012 265), oklch(0.79 0.01 265));
+        --fc-color-text-subtle: light-dark(oklch(0.45 0.014 265), oklch(0.68 0.012 265));
+        --fc-color-text-inverse: light-dark(oklch(1 0 265), oklch(0 0 265));
+        --fc-color-text-on-accent: light-dark(oklch(1 0 0), oklch(0 0 265));
+        --fc-color-text-on-danger: light-dark(oklch(1 0 0), oklch(0 0 265));
+        --fc-color-selected-bg: light-dark(oklch(0.96 0.03 255), oklch(0.24 0.07 255));
+        --fc-color-selected-fg: light-dark(oklch(0.45 0.17 255), oklch(0.84 0.09 255));
+        --fc-color-disabled-bg: light-dark(oklch(0.93 0.006 265), oklch(0.17 0.008 265));
+        --fc-color-disabled-fg: light-dark(oklch(0.36 0.012 265), oklch(0.79 0.01 265));
+        --fc-color-disabled-border: light-dark(oklch(0.79 0.01 265), oklch(0.36 0.012 265));
+        --fc-color-text-on-success: light-dark(oklch(1 0 0), oklch(0 0 265));
+        --fc-color-text-on-info: light-dark(oklch(1 0 0), oklch(0 0 265));
+        --fc-color-text-on-warning: light-dark(oklch(0 0 265), oklch(0 0 265));
+        --fc-color-border-default: light-dark(oklch(0.79 0.01 265), oklch(0.36 0.012 265));
+        --fc-color-border-subtle: light-dark(oklch(0.87 0.008 265), oklch(0.27 0.01 265));
+        --fc-color-border-strong: light-dark(oklch(0.56 0.014 265), oklch(0.56 0.014 265));
+        --fc-color-border-interactive: light-dark(oklch(0.45 0.014 265), oklch(0.68 0.012 265));
+        --fc-color-accent-bg: light-dark(oklch(0.52 0.2 255), oklch(0.68 0.17 255));
+        --fc-color-accent-bg-hover: light-dark(oklch(0.45 0.17 255), oklch(0.76 0.13 255));
+        --fc-color-accent-bg-active: light-dark(oklch(0.39 0.13 255), oklch(0.84 0.09 255));
+        --fc-color-accent-bg-subtle: light-dark(oklch(0.96 0.03 255), oklch(0.33 0.095 255));
+        --fc-color-accent-text: light-dark(oklch(0.45 0.17 255), oklch(0.84 0.09 255));
+        --fc-color-accent-border: light-dark(oklch(0.52 0.2 255), oklch(0.68 0.17 255));
+        --fc-color-success-bg: light-dark(oklch(0.45 0.11 150), oklch(0.78 0.17 150));
+        --fc-color-success-bg-hover: light-dark(oklch(0.38 0.09 150), oklch(0.85 0.14 150));
+        --fc-color-success-bg-active: light-dark(oklch(0.31 0.07 150), oklch(0.91 0.09 150));
+        --fc-color-success-text: light-dark(oklch(0.38 0.09 150), oklch(0.85 0.14 150));
+        --fc-color-success-bg-subtle: light-dark(oklch(0.96 0.045 150), oklch(0.22 0.055 150));
+        --fc-color-success-border: light-dark(oklch(0.53 0.13 150), oklch(0.7 0.17 150));
+        --fc-color-warning-bg: light-dark(oklch(0.66 0.15 80), oklch(0.74 0.17 80));
+        --fc-color-warning-bg-hover: light-dark(oklch(0.74 0.17 80), oklch(0.8 0.18 80));
+        --fc-color-warning-bg-active: light-dark(oklch(0.8 0.18 80), oklch(0.86 0.16 80));
+        --fc-color-warning-text: light-dark(oklch(0.33 0.07 80), oklch(0.92 0.11 80));
+        --fc-color-warning-bg-subtle: light-dark(oklch(0.97 0.06 80), oklch(0.23 0.05 80));
+        --fc-color-warning-border: light-dark(oklch(0.56 0.13 80), oklch(0.66 0.15 80));
+        --fc-color-danger-bg: light-dark(oklch(0.51 0.2 27), oklch(0.68 0.21 27));
+        --fc-color-danger-bg-hover: light-dark(oklch(0.43 0.17 27), oklch(0.76 0.175 27));
+        --fc-color-danger-bg-active: light-dark(oklch(0.36 0.14 27), oklch(0.84 0.13 27));
+        --fc-color-danger-text: light-dark(oklch(0.43 0.17 27), oklch(0.84 0.13 27));
+        --fc-color-danger-bg-subtle: light-dark(oklch(0.96 0.045 27), oklch(0.2 0.08 27));
+        --fc-color-danger-border: light-dark(oklch(0.51 0.2 27), oklch(0.68 0.21 27));
+        --fc-color-info-bg: light-dark(oklch(0.44 0.085 225), oklch(0.76 0.11 225));
+        --fc-color-info-bg-hover: light-dark(oklch(0.37 0.07 225), oklch(0.84 0.09 225));
+        --fc-color-info-bg-active: light-dark(oklch(0.31 0.055 225), oklch(0.91 0.06 225));
+        --fc-color-info-text: light-dark(oklch(0.37 0.07 225), oklch(0.84 0.09 225));
+        --fc-color-info-bg-subtle: light-dark(oklch(0.96 0.035 225), oklch(0.22 0.04 225));
+        --fc-color-info-border: light-dark(oklch(0.52 0.1 225), oklch(0.68 0.12 225));
+        --fc-color-pride-red: light-dark(oklch(0.52 0.2 25), oklch(0.8 0.12 25));
+        --fc-color-pride-orange: light-dark(oklch(0.54 0.15 55), oklch(0.8 0.12 55));
+        --fc-color-pride-yellow: light-dark(oklch(0.55 0.12 95), oklch(0.8 0.09 95));
+        --fc-color-pride-green: light-dark(oklch(0.5 0.15 150), oklch(0.8 0.12 150));
+        --fc-color-pride-blue: light-dark(oklch(0.5 0.2 255), oklch(0.8 0.12 255));
+        --fc-color-pride-violet: light-dark(oklch(0.5 0.2 305), oklch(0.8 0.12 305));
+        --fc-color-focus-ring: light-dark(oklch(0.52 0.2 255), oklch(0.76 0.13 255));
+        --fc-color-focus-ring-offset: light-dark(oklch(1 0 0), oklch(0.12 0.007 265));
+        --fc-term-bg: light-dark(oklch(0.12 0.007 265), oklch(0 0 265));
+        --fc-term-bg-raised: light-dark(oklch(0.17 0.008 265), oklch(0.17 0.008 265));
+        --fc-term-fg: light-dark(oklch(0.967 0.004 265), oklch(0.93 0.006 265));
+        --fc-term-fg-dim: light-dark(oklch(0.68 0.012 265), oklch(0.68 0.012 265));
+        --fc-term-cursor: light-dark(oklch(0.967 0.004 265), oklch(0.967 0.004 265));
+        --fc-term-ansi-black: light-dark(oklch(0.78 0.004 265), oklch(0.78 0.004 265));
+        --fc-term-ansi-red: light-dark(oklch(0.78 0.19 27), oklch(0.78 0.19 27));
+        --fc-term-ansi-green: light-dark(oklch(0.78 0.15 150), oklch(0.78 0.15 150));
+        --fc-term-ansi-yellow: light-dark(oklch(0.78 0.13 80), oklch(0.78 0.13 80));
+        --fc-term-ansi-blue: light-dark(oklch(0.78 0.18 255), oklch(0.78 0.18 255));
+        --fc-term-ansi-magenta: light-dark(oklch(0.78 0.19 330), oklch(0.78 0.19 330));
+        --fc-term-ansi-cyan: light-dark(oklch(0.78 0.11 210), oklch(0.78 0.11 210));
+        --fc-term-ansi-white: light-dark(oklch(0.78 0.004 265), oklch(0.78 0.004 265));
+        --fc-term-ansi-bright-black: light-dark(oklch(0.9 0.006 265), oklch(0.9 0.006 265));
+        --fc-term-ansi-bright-red: light-dark(oklch(0.9 0.2 27), oklch(0.9 0.2 27));
+        --fc-term-ansi-bright-green: light-dark(oklch(0.9 0.16 150), oklch(0.9 0.16 150));
+        --fc-term-ansi-bright-yellow: light-dark(oklch(0.9 0.14 80), oklch(0.9 0.14 80));
+        --fc-term-ansi-bright-blue: light-dark(oklch(0.9 0.19 255), oklch(0.9 0.19 255));
+        --fc-term-ansi-bright-magenta: light-dark(oklch(0.9 0.2 330), oklch(0.9 0.2 330));
+        --fc-term-ansi-bright-cyan: light-dark(oklch(0.9 0.12 210), oklch(0.9 0.12 210));
+        --fc-term-ansi-bright-white: light-dark(oklch(0.9 0.002 265), oklch(0.9 0.002 265));
+        --fc-code-bg: light-dark(oklch(0.967 0.004 265), oklch(0.17 0.008 265));
+        --fc-code-bg-subtle: light-dark(oklch(0.93 0.006 265), oklch(0.27 0.01 265));
+        --fc-code-bg-inset: light-dark(oklch(1 0 265), oklch(0.12 0.007 265));
+        --fc-code-border-default: light-dark(oklch(0.63 0.01 265), oklch(0.5 0.01 265));
+        --fc-code-bg-added: light-dark(oklch(0.955 0.022 150), oklch(0.238 0.03 150));
+        --fc-code-bg-removed: light-dark(oklch(0.955 0.022 27), oklch(0.238 0.03 27));
+        --fc-code-fg: light-dark(oklch(0.17 0.008 265), oklch(0.93 0.006 265));
+        --fc-code-comment: light-dark(oklch(0.53 0.01 265), oklch(0.59 0.01 265));
+        --fc-code-keyword: light-dark(oklch(0.55 0.13 300), oklch(0.61 0.13 300));
+        --fc-code-string: light-dark(oklch(0.52 0.11 150), oklch(0.58 0.11 150));
+        --fc-code-number: light-dark(oklch(0.54 0.12 80), oklch(0.6 0.12 80));
+        --fc-code-function: light-dark(oklch(0.52 0.11 225), oklch(0.59 0.11 225));
+        --fc-code-type: light-dark(oklch(0.55 0.13 27), oklch(0.61 0.13 27));
+        --fc-code-operator: light-dark(oklch(0.53 0.01 265), oklch(0.59 0.01 265));
+        --fc-code-punctuation: light-dark(oklch(0.53 0.008 265), oklch(0.59 0.008 265));
+        --fc-code-property: light-dark(oklch(0.53 0.12 255), oklch(0.59 0.12 255));
+        --fc-code-constant: light-dark(oklch(0.55 0.11 330), oklch(0.61 0.11 330));
+        --fc-code-tag: light-dark(oklch(0.55 0.13 27), oklch(0.61 0.13 27));
+        --fc-code-attribute: light-dark(oklch(0.54 0.11 80), oklch(0.6 0.11 80));
+        --fc-code-regexp: light-dark(oklch(0.55 0.11 330), oklch(0.61 0.11 330));
+        --fc-code-heading: light-dark(oklch(0.54 0.14 255), oklch(0.59 0.14 255));
+        --fc-code-link: light-dark(oklch(0.52 0.12 225), oklch(0.58 0.12 225));
+        --fc-code-invalid: light-dark(oklch(0.55 0.16 27), oklch(0.61 0.16 27));
+        --fc-code-added-fg: light-dark(oklch(0.42 0.11 150), oklch(0.78 0.13 150));
+        --fc-code-removed-fg: light-dark(oklch(0.44 0.14 27), oklch(0.76 0.13 27));
+      }
+    }
+  }
+}

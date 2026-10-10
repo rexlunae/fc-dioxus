@@ -1,0 +1,411 @@
+/*!
+ * future-css -- https://github.com/estith/future-css
+ * A styling system for multi-language, multi-platform systems
+ *
+ * Regenerate with: npm run build
+ * This file is generated; edit the sources in src/ instead.
+ */
+/*!
+ * future-css -- form field
+ *
+ * A label, an optional hint, a control, and an optional error, wired together
+ * with `for`/`id` and `aria-describedby`. The control is the real element --
+ * `<input>`, `<textarea>`, or a native `<select>` -- so autofill, password
+ * managers, mobile keyboards, and validation all keep working.
+ *
+ *   <div class="fc-field">
+ *     <label class="fc-field__label" for="email">Email</label>
+ *     <p class="fc-field__hint" id="email-hint">We never share it.</p>
+ *     <input class="fc-input" id="email" type="email"
+ *            aria-describedby="email-hint email-error">
+ *     <p class="fc-field__error" id="email-error"></p>
+ *   </div>
+ *
+ * The error element exists from the start and is filled when validation fails.
+ * Adding the node later would leave `aria-describedby` pointing at nothing until
+ * it arrives, and some screen readers cache the description on first focus.
+ */
+
+@layer fc.components {
+  .fc-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fc-space-1-5);
+    min-inline-size: 0;
+  }
+
+  .fc-field__label {
+    font-size: var(--fc-font-size-sm);
+    font-weight: var(--fc-font-weight-medium);
+    color: var(--fc-color-text-default);
+  }
+
+  /*
+   * The asterisk is decoration for sighted users; the control's `required`
+   * attribute is what assistive technology announces. Marking it aria-hidden in
+   * the markup keeps it from being read as "star".
+   */
+  .fc-field__required {
+    color: var(--fc-color-danger-text);
+    margin-inline-start: var(--fc-space-0-5);
+  }
+
+  .fc-field__optional {
+    color: var(--fc-color-text-muted);
+    font-weight: var(--fc-font-weight-regular);
+    margin-inline-start: var(--fc-space-1);
+  }
+
+  .fc-field__hint {
+    margin: 0;
+    font-size: var(--fc-font-size-sm);
+    color: var(--fc-color-text-muted);
+  }
+
+  /*
+   * The error is never colour alone: it is text, it is announced through
+   * aria-describedby, and it carries a glyph so the state survives greyscale and
+   * forced colours.
+   */
+  .fc-field__error {
+    margin: 0;
+    display: flex;
+    gap: var(--fc-space-1);
+    align-items: baseline;
+    font-size: var(--fc-font-size-sm);
+    font-weight: var(--fc-font-weight-medium);
+    color: var(--fc-color-danger-text);
+  }
+
+  .fc-field__error::before {
+    /* Alternative text after the slash is empty, so the glyph is not read. */
+    content: "\26A0\FE0E" / "";
+  }
+
+  /* Present in the DOM from the start, invisible until it has something to say. */
+  .fc-field__error:empty {
+    display: none;
+  }
+
+  /* ---- Text controls --------------------------------------------------- */
+
+  .fc-input {
+    display: block;
+    inline-size: 100%;
+    min-block-size: var(--fc-size-target-comfortable);
+    /* Small enough that one line of text plus padding stays under the minimum,
+       so the minimum -- shared with buttons and selects -- is the real height.
+       With space-2 the input came out 42px beside a 40px button. */
+    padding-block: var(--fc-space-1-5);
+    padding-inline: var(--fc-space-3);
+
+    background-color: var(--fc-color-bg-surface);
+    color: var(--fc-color-text-default);
+    border: var(--fc-border-width-control, var(--fc-border-width-thin)) solid var(--fc-color-border-interactive);
+    border-radius: var(--fc-radius-lg);
+
+    font-family: inherit;
+    font-size: var(--fc-font-size-md);
+    line-height: var(--fc-line-height-normal);
+
+    transition:
+      border-color var(--fc-duration-fast) var(--fc-easing-standard),
+      box-shadow var(--fc-duration-fast) var(--fc-easing-standard),
+      background-color var(--fc-duration-fast) var(--fc-easing-standard);
+  }
+
+  /*
+   * Hover moves the border toward the text colour. `border-strong` is not used
+   * because it is lighter than `border-interactive` in the light scheme, so the
+   * edge faded on hover there and darkened in dark mode.
+   */
+  .fc-input:hover {
+    border-color: color-mix(in oklab, var(--fc-color-border-interactive), var(--fc-color-text-default) 40%);
+  }
+
+  /*
+   * Text inputs match :focus-visible on every focus, mouse included. The ring
+   * sits flush against the accent border, with a soft accent halo beyond it,
+   * rather than floating a gap away: a ring that hovers off a text box reads as
+   * a second box. Contrast still comes from the 2px outline, not the halo.
+   */
+  .fc-input:focus-visible {
+    border-color: var(--fc-color-accent-border);
+    outline-offset: 0;
+    box-shadow: 0 0 0 calc(var(--fc-border-width-focus) + var(--fc-space-1)) var(--fc-color-accent-bg-subtle);
+  }
+
+  .fc-input::placeholder {
+    color: var(--fc-color-text-subtle);
+    opacity: 1;
+  }
+
+  /*
+   * Invalid. `aria-invalid` is set by the application after it has validated;
+   * `:user-invalid` covers native constraint validation once the user has
+   * interacted. `:invalid` alone is deliberately not used: it would mark a
+   * required field red before anyone has typed in it.
+   */
+  .fc-input[aria-invalid="true"],
+  .fc-input:user-invalid {
+    border-color: var(--fc-color-danger-border);
+  }
+
+  .fc-input[aria-invalid="true"]:focus-visible,
+  .fc-input:user-invalid:focus-visible {
+    outline-color: var(--fc-color-danger-border);
+    box-shadow: 0 0 0 calc(var(--fc-border-width-focus) + var(--fc-space-1)) var(--fc-color-danger-bg-subtle);
+  }
+
+  .fc-input:disabled {
+    background-color: var(--fc-color-disabled-bg);
+    color: var(--fc-color-disabled-fg);
+    border-color: var(--fc-color-border-default);
+    cursor: not-allowed;
+  }
+
+  /*
+   * Read-only is not disabled: the value is still focusable, selectable, and
+   * submitted. It is drawn as a recessed surface without the interactive border
+   * so it does not invite typing.
+   */
+  .fc-input:read-only:not(select) {
+    background-color: var(--fc-color-bg-subtle);
+    border-color: var(--fc-color-border-default);
+  }
+
+  .fc-input--sm {
+    min-block-size: 2rem;
+    padding-block: var(--fc-space-1);
+    padding-inline: var(--fc-space-2);
+    font-size: var(--fc-font-size-sm);
+    border-radius: var(--fc-radius-md);
+  }
+
+  .fc-input--lg {
+    min-block-size: 3rem;
+    padding-inline: var(--fc-space-4);
+    font-size: var(--fc-font-size-lg);
+  }
+
+  /* :where() keeps this at one class, so --autosize below can still win. */
+  :where(textarea).fc-input {
+    min-block-size: 5lh;
+    resize: vertical;
+  }
+
+  /*
+   * `field-sizing: content` grows the box with what is typed, with no script and
+   * no measuring. The max keeps a pasted novel from pushing the submit button off
+   * screen; past it, the textarea scrolls.
+   */
+  .fc-input--autosize {
+    field-sizing: content;
+    min-block-size: 3lh;
+    max-block-size: 16lh;
+  }
+
+  /*
+   * Filled: a tinted field with an underline, Material's filled text field.
+   * Reads as a field among dense controls where a full outline would add a
+   * box to a page of boxes. The underline is the boundary that has to meet
+   * 3:1 (WCAG 1.4.11), declared against the fill in the contrast contract.
+   */
+  .fc-input--filled {
+    background-color: var(--fc-color-bg-subtle);
+    border-color: transparent;
+    border-block-end-color: var(--fc-color-border-interactive);
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  /* Not on an invalid or disabled field, whose own borders must survive hover. */
+  .fc-input--filled:hover:not([aria-invalid="true"], :user-invalid, :disabled) {
+    background-color: var(--fc-color-bg-muted);
+    border-color: transparent;
+    border-block-end-color: var(--fc-color-text-default);
+  }
+
+  .fc-input--filled:focus-visible:not([aria-invalid="true"], :user-invalid) {
+    border-block-end-color: var(--fc-color-accent-border);
+  }
+
+  /*
+   * The date and time inputs' picker button, dimmed until hovered so it reads
+   * as secondary to the value. The icon follows the token layer's
+   * `color-scheme`, so it inverts in dark mode on its own.
+   */
+  .fc-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.7;
+  }
+
+  .fc-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+
+  /*
+   * Native select. The chevron is two gradients rather than an inline SVG,
+   * because an SVG data URI would carry a literal colour that cannot follow the
+   * theme. `currentColor` keeps it in step with the text in every scheme.
+   */
+  select.fc-input {
+    appearance: none;
+    padding-inline-end: var(--fc-space-8);
+    background-image:
+      linear-gradient(45deg, transparent 50%, currentColor 50%),
+      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-size: 0.3125rem 0.3125rem, 0.3125rem 0.3125rem;
+    background-repeat: no-repeat;
+    /* background-position has no logical form, hence the RTL branch below. */
+    background-position:
+      calc(100% - 1.125rem) 50%,
+      calc(100% - 0.8125rem) 50%;
+    cursor: pointer;
+  }
+
+  select.fc-input:dir(rtl) {
+    background-position:
+      0.8125rem 50%,
+      1.125rem 50%;
+  }
+
+  /* ---- Input group ----------------------------------------------------- */
+
+  /*
+   * A control with leading or trailing adornments (a currency symbol, a unit, a
+   * button). The group draws the border and the focus ring so the adornments
+   * read as part of one control rather than three boxes touching.
+   */
+  .fc-input-group {
+    display: flex;
+    align-items: stretch;
+    min-block-size: var(--fc-size-target-comfortable);
+    background-color: var(--fc-color-bg-surface);
+    border: var(--fc-border-width-thin) solid var(--fc-color-border-interactive);
+    border-radius: var(--fc-radius-lg);
+    overflow: clip;
+    transition:
+      border-color var(--fc-duration-fast) var(--fc-easing-standard),
+      box-shadow var(--fc-duration-fast) var(--fc-easing-standard);
+  }
+
+  .fc-input-group:hover {
+    border-color: color-mix(in oklab, var(--fc-color-border-interactive), var(--fc-color-text-default) 40%);
+  }
+
+  /* The same halo as a focused `.fc-input`, so a group and a bare field focus
+     alike. The inner control still draws the 2px ring. */
+  .fc-input-group:focus-within {
+    border-color: var(--fc-color-accent-border);
+    box-shadow: 0 0 0 var(--fc-space-1) var(--fc-color-accent-bg-subtle);
+  }
+
+  .fc-input-group:has([aria-invalid="true"], :user-invalid) {
+    border-color: var(--fc-color-danger-border);
+  }
+
+  .fc-input-group:has(:disabled) {
+    background-color: var(--fc-color-disabled-bg);
+    border-color: var(--fc-color-border-default);
+  }
+
+  .fc-input-group__control {
+    flex: 1;
+    min-inline-size: 0;
+    padding-block: var(--fc-space-1-5);
+    padding-inline: var(--fc-space-3);
+    background-color: transparent;
+    color: var(--fc-color-text-default);
+    border: 0;
+    border-radius: 0;
+    font: inherit;
+    font-size: var(--fc-font-size-md);
+  }
+
+  /*
+   * The group clips its corners, which would clip an outside ring too, so the
+   * inner control draws its ring inset. Removing it instead would leave the
+   * keyboard user with only a border-colour change to find focus by.
+   */
+  .fc-input-group__control:focus-visible {
+    outline-offset: calc(var(--fc-border-width-focus) * -1);
+    box-shadow: none;
+  }
+
+  .fc-input-group__addon {
+    display: flex;
+    align-items: center;
+    padding-inline: var(--fc-space-3);
+    color: var(--fc-color-text-muted);
+    background-color: var(--fc-color-bg-subtle);
+    font-size: var(--fc-font-size-sm);
+    white-space: nowrap;
+  }
+
+  /* ---- Form-level error summary ---------------------------------------- */
+
+  /*
+   * Shown above the form after a failed submit, with focus moved to it
+   * (tabindex="-1" in the markup). Each entry links to the field it describes,
+   * so a keyboard user can jump straight to the problem rather than tabbing
+   * through every valid field to find it.
+   */
+  .fc-error-summary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fc-space-2);
+    padding: var(--fc-space-4);
+    background-color: var(--fc-color-danger-bg-subtle);
+    color: var(--fc-color-danger-text);
+    border: var(--fc-border-width-thin) solid var(--fc-color-danger-border);
+    border-inline-start-width: var(--fc-space-1);
+    border-radius: var(--fc-radius-lg);
+  }
+
+  .fc-error-summary__title {
+    margin: 0;
+    font-size: var(--fc-font-size-md);
+    font-weight: var(--fc-font-weight-semibold);
+  }
+
+  .fc-error-summary__list {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--fc-space-1);
+    padding-inline-start: var(--fc-space-5);
+    list-style: disc;
+  }
+
+  .fc-error-summary__link {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  /* ---- Forced colors --------------------------------------------------- */
+
+  @media (forced-colors: active) {
+    .fc-input,
+    .fc-input-group {
+      border-color: FieldText;
+    }
+
+    .fc-input[aria-invalid="true"],
+    .fc-input:user-invalid,
+    .fc-input-group:has([aria-invalid="true"], :user-invalid) {
+      /* A thicker edge restates "invalid" once the danger hue is discarded. */
+      border-width: var(--fc-border-width-thick);
+    }
+
+    .fc-input:disabled {
+      border-color: GrayText;
+      color: GrayText;
+    }
+
+    .fc-error-summary {
+      border-color: CanvasText;
+    }
+  }
+}
