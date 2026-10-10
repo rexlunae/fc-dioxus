@@ -147,6 +147,7 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Resizable", "splitter"),
     ("DatePicker", "datepicker"),
     ("TimePicker", "datepicker"),
+    ("Select", "select"),
 ];
 
 /// The examples that render every Divider state.
@@ -454,6 +455,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Routing",
         render: || rsx! { examples::routing::States {} },
         source: include_str!("examples/routing/states.rs"),
+    },
+    Example {
+        id: "select",
+        title: "Select",
+        render: || rsx! { examples::select::States {} },
+        source: include_str!("examples/select/states.rs"),
     },
 ];
 

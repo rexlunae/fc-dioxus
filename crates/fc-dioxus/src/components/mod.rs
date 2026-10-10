@@ -31,6 +31,7 @@ pub mod popover;
 pub mod reasoning;
 pub mod search;
 pub mod segmented;
+pub mod select;
 pub mod semantic;
 pub mod slider;
 pub mod spinner;

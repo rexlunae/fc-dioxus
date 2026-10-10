@@ -42,6 +42,7 @@ pub use crate::{
     components::reasoning::Reasoning,
     components::search::{Search, SearchView},
     components::segmented::{Segment, Segmented, Segments},
+    components::select::{Select, SelectChoice},
     components::semantic::{
         AgentStatus, Approval, DeviceAuth, Metric, Record, Transfer, UserPrompt,
     },

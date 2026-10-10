@@ -9,7 +9,6 @@ pending = [
 "git.css",
 "grid.css",
 "menu.css",
-"select.css",
 "terminal.css",
 "theme-picker.css",
 "webview.css",

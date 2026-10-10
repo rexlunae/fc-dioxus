@@ -410,6 +410,11 @@ const CASES: &[Case] = &[
         &["fc-timepicker", "fc-field"],
         || rsx! { fc_demo::examples::datepicker::States {} },
     ),
+    (
+        "select",
+        &["fc-select__value", "fc-select__chevron"],
+        || rsx! { fc_demo::examples::select::States {} },
+    ),
 ];
 
 #[test]

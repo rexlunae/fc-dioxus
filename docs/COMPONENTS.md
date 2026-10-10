@@ -20,7 +20,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `MessagePart`, `Tabs`, `Tab`, `TabPanel`, `Toolbar`, `ToolbarItem`, `ToolbarDivider`,
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
 `NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
-`Resizable`, `DatePicker`, and `TimePicker`, plus the
+`Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, and `Select`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -219,6 +219,15 @@ Current action/surface APIs refine the proposals below:
   library reads no clock, so `today` is passed in. Offer `Input { r#type:
   InputType::Date }` beside it for people who know the date. `TimePicker` is hour and
   minute fields with an optional AM/PM `Segmented`.
+- `Select` runs on upstream's `fc_select::Select` model (the same one its binding can
+  load as WASM): focus stays on the combobox and `aria-activedescendant` names the
+  highlight, arrows skip unavailable options, Home and End jump, typed characters
+  search within a 600 ms window, Enter, Space, a click, or Tab commit, and Escape
+  restores the previous value. The list is a manual popover placed under the invoker by
+  `DomBridge::place_below`, which ports upstream's flip-and-cap positioning. With no
+  options the control is `aria-disabled` and the list says "No matches". Upstream's
+  fixture and binding both use `fc-select__option-label`, which select.css does not
+  define, so labels render without that class; only the invoker's parts are compared.
 - **Routing.** With the `router` feature, every component that renders a link
   (`LinkButton`, `NavLink`, `Crumb`, `ListAction::Link`, `MastheadLink`, `NavbarItem`,
   pagination links, `Source`) resolves its `href` against the nearest `dioxus-router`

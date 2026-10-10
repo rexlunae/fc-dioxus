@@ -363,3 +363,24 @@ pub(crate) fn date_value_attribute(iso: Option<String>) -> Vec<Attribute> {
         .into_iter()
         .collect()
 }
+
+/// A select's machine-readable parts: the value an invoker or option stands for
+/// (`data-fc-value`), the highlighted option (`data-fc-active`), and a placeholder shown
+/// in place of a value (`data-fc-placeholder`). Values are app identifiers, not user text.
+pub(crate) fn value_attribute(value: &str) -> Attribute {
+    Attribute::new("data-fc-value", value.to_owned(), None, false)
+}
+pub(crate) fn active_attribute(active: bool) -> Vec<Attribute> {
+    if active {
+        vec![Attribute::new("data-fc-active", "true", None, false)]
+    } else {
+        Vec::new()
+    }
+}
+pub(crate) fn placeholder_attribute(placeholder: bool) -> Vec<Attribute> {
+    if placeholder {
+        vec![Attribute::new("data-fc-placeholder", "true", None, false)]
+    } else {
+        Vec::new()
+    }
+}

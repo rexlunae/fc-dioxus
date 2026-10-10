@@ -37,6 +37,7 @@ pub mod reasoning;
 pub mod routing;
 pub mod search;
 pub mod segmented;
+pub mod select;
 pub mod slider;
 pub mod spinner;
 pub mod split_button;

@@ -448,6 +448,35 @@ test("links and link buttons navigate in-app inside a router and track the curre
   assert.equal(await evaluate("location.href"), before, "no navigation left the page");
 });
 
+test("select keeps focus on its button, commits with Enter, and restores with Escape", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const invoker = "document.querySelector('#select [role=combobox]')";
+  const list = `document.getElementById(${invoker}.id + '-listbox')`;
+  const active = `document.getElementById(${invoker}.getAttribute('aria-activedescendant'))?.dataset.fcValue`;
+  await evaluate(`${invoker}.focus()`);
+  await press("ArrowDown", "ArrowDown", 40);
+  await until(`${invoker}.getAttribute('aria-expanded') === 'true' && ${list}.matches(':popover-open')`);
+  assert.equal(await evaluate(active), "opus", "opens on the committed value");
+  await press("ArrowDown", "ArrowDown", 40);
+  await until(`${active} === 'sonnet'`);
+  assert.equal(await evaluate(`document.activeElement === ${invoker}`), true, "focus stays on the combobox");
+  await press("Enter", "Enter", 13);
+  await until(`${invoker}.getAttribute('aria-expanded') === 'false' && ${invoker}.dataset.fcValue === 'sonnet'`);
+  await until("document.querySelector('#select [role=status]').textContent === 'Model: sonnet'");
+  await press("ArrowDown", "ArrowDown", 40);
+  await until(`${active} === 'sonnet'`);
+  await press("End", "End", 35);
+  await until(`${active} === 'haiku'`);
+  await press("Escape", "Escape", 27);
+  await until(`${invoker}.getAttribute('aria-expanded') === 'false'`);
+  assert.equal(await evaluate(`${invoker}.dataset.fcValue`), "sonnet", "Escape restores the previous value");
+  await press("ArrowDown", "ArrowDown", 40);
+  await press("o", "KeyO", 79);
+  await until(`${active} === 'opus'`);
+  await press("Enter", "Enter", 13);
+  await until(`${invoker}.dataset.fcValue === 'opus'`);
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

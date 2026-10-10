@@ -19,6 +19,25 @@ try {
     const max = node.scrollWidth - node.clientWidth;
     return `${offset <= 1} ${offset >= max - 1}`;
   }
+  if (operation === "place") {
+    // Upstream select.ts: under the invoker, flipping above when there is no room,
+    // with both block edges always written so a stale edge cannot stretch the list.
+    const invoker = document.getElementById(option);
+    if (!invoker) return "missing";
+    const anchor = invoker.getBoundingClientRect();
+    const below = window.innerHeight - anchor.bottom;
+    const above = anchor.top;
+    const GAP = 2;
+    const flip = below < 160 && above > below;
+    const style = node.style;
+    style.setProperty("inset-block-start", flip ? "auto" : `${anchor.bottom + GAP}px`);
+    style.setProperty("inset-block-end", flip ? `${above - GAP}px` : "auto");
+    style.setProperty("inset-inline-start", `${anchor.left}px`);
+    style.setProperty("min-inline-size", `${anchor.width}px`);
+    const available = (flip ? above : below) - GAP;
+    style.setProperty("max-block-size", `${Math.max(80, Math.min(available, 384))}px`);
+    return "ok";
+  }
   if (operation === "capture") {
     // Pointer capture keeps a drag's moves coming to the handle wherever the pointer goes.
     try { node.setPointerCapture(Number(option)); return "ok"; } catch { return "rejected"; }

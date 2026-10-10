@@ -133,6 +133,13 @@ impl DomBridge {
     pub async fn page(self, id: &Id, forward: bool) -> Result<(), DomError> {
         Self::send("page", id.as_str(), if forward { "next" } else { "prev" }).await
     }
+    /// Place a popup list under its invoker, or above it when there is no room below,
+    /// capped to the space available. Positioning needs layout, so it is the host's.
+    /// # Errors
+    /// Returns a host error when the target or API is unavailable.
+    pub async fn place_below(self, list: &Id, invoker: &Id) -> Result<(), DomError> {
+        Self::send("place", list.as_str(), invoker.as_str()).await
+    }
     /// Route a pointer's events to an element for the rest of a drag.
     /// # Errors
     /// Returns a host error when the target or API is unavailable.
