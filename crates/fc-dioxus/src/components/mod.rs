@@ -24,6 +24,7 @@ pub mod pagination;
 pub mod popover;
 pub mod search;
 pub mod segmented;
+pub mod semantic;
 pub mod spinner;
 pub mod split_button;
 pub mod toast;

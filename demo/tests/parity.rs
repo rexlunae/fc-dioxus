@@ -107,6 +107,13 @@ fn tree_within(document: &Document, index: usize, hidden: bool) -> Option<Tree> 
         attrs.remove("aria-hidden");
     }
     let hidden = hidden || node.attr("aria-hidden") == Some("true");
+    // Accessible names and the runtime record (id, order, time) are content, not
+    // structure: compare that they are present, not what they say.
+    for name in ["aria-label", "data-fc-id", "data-fc-seq", "data-fc-ts"] {
+        if let Some(value) = attrs.get_mut(name) {
+            "*".clone_into(value);
+        }
+    }
     // Generated ids differ from the fixture's, so a reference is compared by what it
     // points at: the referenced element's tag and classes.
     for name in [
@@ -294,6 +301,36 @@ const CASES: &[Case] = &[
         "toast",
         &["fc-toaster__list"],
         || rsx! { fc_demo::examples::toast::States {} },
+    ),
+    (
+        "agent-status",
+        &["fc-agent-status"],
+        || rsx! { fc_demo::examples::agent_status::States {} },
+    ),
+    (
+        "metric",
+        &["fc-metric"],
+        || rsx! { fc_demo::examples::metric::States {} },
+    ),
+    (
+        "transfer",
+        &["fc-transfer"],
+        || rsx! { fc_demo::examples::transfer::States {} },
+    ),
+    (
+        "approval",
+        &["fc-approval"],
+        || rsx! { fc_demo::examples::approval::States {} },
+    ),
+    (
+        "user-prompt",
+        &["fc-user-prompt"],
+        || rsx! { fc_demo::examples::user_prompt::States {} },
+    ),
+    (
+        "device-auth",
+        &["fc-device-auth"],
+        || rsx! { fc_demo::examples::device_auth::States {} },
     ),
 ];
 

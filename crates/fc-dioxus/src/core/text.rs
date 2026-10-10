@@ -13,6 +13,16 @@ use std::fmt;
 pub struct AccessibleName(String);
 
 impl AccessibleName {
+    /// Backs [`name!`](crate::name), which has already rejected a blank literal at
+    /// compile time. Not for direct use.
+    #[doc(hidden)]
+    #[must_use]
+    pub fn from_checked_literal(text: &'static str) -> Self {
+        let trimmed = text.trim();
+        // The compile-time check sees ASCII whitespace only; a literal of other Unicode
+        // spaces keeps its text rather than becoming empty.
+        Self(if trimmed.is_empty() { text } else { trimmed }.to_owned())
+    }
     /// The validated name.
     #[must_use]
     pub fn as_str(&self) -> &str {
@@ -142,4 +152,42 @@ impl Clipped {
             ClipMode::Chars(limit) => self.full.chars().count() > limit,
         }
     }
+}
+
+/// Whether a literal has no visible text, for [`name!`](crate::name)'s compile-time check.
+#[doc(hidden)]
+#[must_use]
+pub const fn is_blank(text: &str) -> bool {
+    let mut rest = text.as_bytes();
+    while let [first, tail @ ..] = rest {
+        if !first.is_ascii_whitespace() {
+            return false;
+        }
+        rest = tail;
+    }
+    true
+}
+
+/// An [`AccessibleName`] from a string literal, checked when the program compiles.
+///
+/// ```
+/// use fc_dioxus::{name, prelude::*};
+/// let close: AccessibleName = name!("Close");
+/// assert_eq!(close.as_str(), "Close");
+/// ```
+///
+/// A blank literal does not compile:
+///
+/// ```compile_fail
+/// let _ = fc_dioxus::name!("  ");
+/// ```
+#[macro_export]
+macro_rules! name {
+    ($text:literal) => {{
+        const _: () = assert!(
+            !$crate::core::text::is_blank($text),
+            "accessible names must contain text"
+        );
+        $crate::core::text::AccessibleName::from_checked_literal($text)
+    }};
 }

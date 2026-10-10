@@ -105,6 +105,12 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Toast", "toast"),
     ("ToastList", "toast"),
     ("Toaster", "toast"),
+    ("AgentStatus", "agent-status"),
+    ("Metric", "metric"),
+    ("Transfer", "transfer"),
+    ("Approval", "approval"),
+    ("UserPrompt", "user-prompt"),
+    ("DeviceAuth", "device-auth"),
 ];
 
 /// The examples that render every Divider state.
@@ -286,6 +292,42 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Toasts",
         render: || rsx! { examples::toast::States {} },
         source: include_str!("examples/toast/states.rs"),
+    },
+    Example {
+        id: "agent-status",
+        title: "Agent status",
+        render: || rsx! { examples::agent_status::States {} },
+        source: include_str!("examples/agent_status/states.rs"),
+    },
+    Example {
+        id: "metric",
+        title: "Metrics",
+        render: || rsx! { examples::metric::States {} },
+        source: include_str!("examples/metric/states.rs"),
+    },
+    Example {
+        id: "transfer",
+        title: "Transfers",
+        render: || rsx! { examples::transfer::States {} },
+        source: include_str!("examples/transfer/states.rs"),
+    },
+    Example {
+        id: "approval",
+        title: "Approvals",
+        render: || rsx! { examples::approval::States {} },
+        source: include_str!("examples/approval/states.rs"),
+    },
+    Example {
+        id: "user-prompt",
+        title: "User prompts",
+        render: || rsx! { examples::user_prompt::States {} },
+        source: include_str!("examples/user_prompt/states.rs"),
+    },
+    Example {
+        id: "device-auth",
+        title: "Device sign-in",
+        render: || rsx! { examples::device_auth::States {} },
+        source: include_str!("examples/device_auth/states.rs"),
     },
 ];
 

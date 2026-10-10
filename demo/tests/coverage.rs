@@ -26,6 +26,44 @@ fn css_classes(css: &str) -> BTreeSet<String> {
         .collect()
 }
 
+/// Component stylesheets with a wrapper; everything else is in coverage-pending.toml.
+const IMPLEMENTED: &[&str] = &[
+    "divider.css",
+    "button.css",
+    "card.css",
+    "badge.css",
+    "alert.css",
+    "avatar.css",
+    "spinner.css",
+    "loading.css",
+    "breadcrumb.css",
+    "empty-state.css",
+    "description-list.css",
+    "list.css",
+    "check.css",
+    "field.css",
+    "form-variants.css",
+    "disclosure.css",
+    "button-group.css",
+    "control-group.css",
+    "segmented.css",
+    "split-button.css",
+    "fab.css",
+    "masthead.css",
+    "navbar.css",
+    "pagination.css",
+    "search.css",
+    "dialog.css",
+    "popover.css",
+    "toast.css",
+    "agent-status.css",
+    "metric.css",
+    "transfer.css",
+    "approval.css",
+    "user-prompt.css",
+    "device-auth.css",
+];
+
 #[test]
 fn inventory_and_rendered_classes_cannot_silently_drift() -> Result<(), Box<dyn std::error::Error>>
 {
@@ -50,36 +88,7 @@ fn inventory_and_rendered_classes_cannot_silently_drift() -> Result<(), Box<dyn 
         "unknown classes: {:?}",
         emitted.difference(&all).collect::<Vec<_>>()
     );
-    let implemented_files = [
-        "divider.css",
-        "button.css",
-        "card.css",
-        "badge.css",
-        "alert.css",
-        "avatar.css",
-        "spinner.css",
-        "loading.css",
-        "breadcrumb.css",
-        "empty-state.css",
-        "description-list.css",
-        "list.css",
-        "check.css",
-        "field.css",
-        "form-variants.css",
-        "disclosure.css",
-        "button-group.css",
-        "control-group.css",
-        "segmented.css",
-        "split-button.css",
-        "fab.css",
-        "masthead.css",
-        "navbar.css",
-        "pagination.css",
-        "search.css",
-        "dialog.css",
-        "popover.css",
-        "toast.css",
-    ];
+    let implemented_files = IMPLEMENTED;
     for filename in implemented_files {
         let implemented = css_classes(&fs::read_to_string(
             root.join("crates/fc-dioxus/assets/components")
@@ -115,7 +124,7 @@ fn inventory_and_rendered_classes_cannot_silently_drift() -> Result<(), Box<dyn 
     let mut expected = pending;
     for filename in implemented_files {
         assert!(
-            expected.insert(filename.to_owned()),
+            expected.insert((*filename).to_owned()),
             "{filename} must be removed from pending"
         );
     }

@@ -1,6 +1,8 @@
 //! Compiled source examples, shared with the demo's visible snippets.
 
+pub mod agent_status;
 pub mod alert;
+pub mod approval;
 pub mod avatar;
 pub mod badge;
 pub mod breadcrumb;
@@ -10,6 +12,7 @@ pub mod card;
 pub mod check;
 pub mod control_group;
 pub mod description_list;
+pub mod device_auth;
 pub mod dialog;
 pub mod disclosure;
 pub mod divider;
@@ -20,6 +23,7 @@ pub mod future_css;
 pub mod list;
 pub mod loading;
 pub mod masthead;
+pub mod metric;
 pub mod navbar;
 pub mod pagination;
 pub mod popover;
@@ -28,3 +32,25 @@ pub mod segmented;
 pub mod spinner;
 pub mod split_button;
 pub mod toast;
+pub mod transfer;
+pub mod user_prompt;
+
+use fc_dioxus::prelude::{Id, Lifecycle, Record, Timestamp};
+
+/// The runtime record the lifecycle examples mirror into `data-fc-*`.
+pub(crate) fn record(kind: &str, state: Lifecycle, index: usize) -> Record {
+    Record {
+        id: Id::try_from(format!("{kind}-{}", index + 1)).ok(),
+        seq: u64::try_from(index).ok(),
+        state: Some(state),
+        ts: Timestamp::iso8601("2026-10-09T12:00:00Z").ok(),
+    }
+}
+
+/// A path long enough to test wrapping in every card.
+pub(crate) fn long_path() -> String {
+    format!(
+        "workspace/{}README.md",
+        "very-long-directory-name-".repeat(20)
+    )
+}

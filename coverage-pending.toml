@@ -1,8 +1,6 @@
 # Pending wrappers, not coverage exclusions. Remove an entry only when its component,
 # every state, parity checks, and showcase are implemented. New files fail inventory.
 pending = [
-"agent-status.css",
-"approval.css",
 "carousel.css",
 "chat.css",
 "citation.css",
@@ -10,13 +8,11 @@ pending = [
 "composer.css",
 "context-strip.css",
 "datepicker.css",
-"device-auth.css",
 "diff.css",
 "editor.css",
 "git.css",
 "grid.css",
 "menu.css",
-"metric.css",
 "multiselect.css",
 "nav.css",
 "reasoning.css",
@@ -30,7 +26,5 @@ pending = [
 "theme-picker.css",
 "tool-call.css",
 "toolbar.css",
-"transfer.css",
-"user-prompt.css",
 "webview.css",
 ]

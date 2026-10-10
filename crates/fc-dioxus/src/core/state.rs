@@ -63,6 +63,25 @@ pub enum Lifecycle {
     Error,
 }
 impl Lifecycle {
+    /// Every state, in lifecycle order.
+    pub const ALL: &'static [Self] = &[
+        Self::Pending,
+        Self::Queued,
+        Self::Streaming,
+        Self::Running,
+        Self::Complete,
+        Self::Aborted,
+        Self::Denied,
+        Self::Error,
+    ];
+    /// Whether the work has finished, one way or another.
+    #[must_use]
+    pub const fn is_settled(self) -> bool {
+        matches!(
+            self,
+            Self::Complete | Self::Aborted | Self::Denied | Self::Error
+        )
+    }
     /// The upstream attribute value.
     #[must_use]
     pub const fn as_str(self) -> &'static str {

@@ -1,6 +1,5 @@
 //! The supported API for applications using `use fc_dioxus::prelude::*`.
 
-pub use crate::fc_modifier;
 pub use crate::{
     components::alert::{Alert, AlertIcon, AlertTone, Dismiss, Urgency},
     components::avatar::{Avatar, AvatarGroup, AvatarSize},
@@ -33,6 +32,9 @@ pub use crate::{
     components::popover::{Popover, Tooltip},
     components::search::{Search, SearchView},
     components::segmented::{Segment, Segmented, Segments},
+    components::semantic::{
+        AgentStatus, Approval, DeviceAuth, Metric, Record, Transfer, UserPrompt,
+    },
     components::spinner::{
         ShimmerText, Spinner, SpinnerKind, SpinnerLabel, SpinnerSize, SpinnerTone,
     },
@@ -51,4 +53,5 @@ pub use crate::{
     },
     theme::{Brand, Design, Direction, FutureCss, FutureCssProps, Palette, Stylesheets, Theme},
 };
+pub use crate::{fc_modifier, name};
 pub use dioxus::prelude::*;

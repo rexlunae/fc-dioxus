@@ -14,7 +14,8 @@ where Dioxus forces a change, this file changes in the same commit.
 `ControlGroup`, `ControlLabel`, `Segmented`, `Segment`, `SplitButton`, `Fab`, `FabMenu`,
 `FabMenuItem`, `Masthead`, `MastheadLink`, `Navbar`, `NavbarItem`, `Pagination`,
 `Search`, `SearchView`, `Dialog`, `RadioScope`, `Popover`, `Tooltip`, `Toast`,
-`ToastList`, and `Toaster` (with `use_toasts`), plus the
+`ToastList`, `Toaster` (with `use_toasts`), `AgentStatus`, `Metric`, `Transfer`,
+`Approval`, `UserPrompt`, and `DeviceAuth`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -138,6 +139,16 @@ Current action/surface APIs refine the proposals below:
   `DomBridge::delay`, so hosts without a script runtime keep toasts until dismissed.
   Returning focus to where the user came from after dismissing a focused toast is not
   yet implemented. `Toast` and `ToastList` draw static toasts.
+- The agent cards (`Metric`, `Transfer`, `Approval`, `UserPrompt`, `DeviceAuth`) take a
+  required `label`, a `Record { id, seq, state, ts }` mirrored into `data-fc-*`, an
+  optional `status` line above the title, and `region: true` for a standalone
+  `<section>` instead of an `<article>` in a stream. `Metric::value` is the
+  machine-readable number in `<data value>` (or `None` with `display` saying why);
+  `DeviceAuth::code` is rendered as text only, never as an attribute. `UserPrompt` is a
+  `<form>` unless it is a `region`. `AgentStatus` takes a `Lifecycle` and a polite live
+  label. `Lifecycle::ALL` and `Lifecycle::is_settled` support state-driven UI.
+- `name!("…")` builds an `AccessibleName` from a literal, rejecting a blank one at
+  compile time.
 - `Timestamp::iso8601` accepts validated UTC instants alongside epoch milliseconds, and
   `Kind` now covers every upstream kind.
 - `Clipped` (in `core::text`) holds the full value of any shortened text;
