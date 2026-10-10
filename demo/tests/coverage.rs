@@ -85,6 +85,7 @@ const IMPLEMENTED: &[&str] = &[
     "git.css",
     "grid.css",
     "terminal.css",
+    "webview.css",
 ];
 
 #[test]

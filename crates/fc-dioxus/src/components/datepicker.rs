@@ -216,7 +216,7 @@ pub fn DatePicker(
                 button { class: nav_class.clone(), r#type: "button", aria_label: "{names.previous}",
                     aria_disabled: prev_disabled.then_some("true"),
                     onclick: move |_| if !prev_disabled { page(-1); },
-                    ..vec![datepicker_nav_attribute(false)],
+                    ..crate::spread![datepicker_nav_attribute(false)],
                     span { class: ClassList::new(CHEVRON.block()).with_modifier(CHEVRON, ChevronSide::Prev).to_string(), aria_hidden: "true" }
                 }
                 // Announces the new month when the buttons or Page keys change it.
@@ -224,7 +224,7 @@ pub fn DatePicker(
                 button { class: nav_class, r#type: "button", aria_label: "{names.next}",
                     aria_disabled: next_disabled.then_some("true"),
                     onclick: move |_| if !next_disabled { page(1); },
-                    ..vec![datepicker_nav_attribute(true)],
+                    ..crate::spread![datepicker_nav_attribute(true)],
                     span { class: ClassList::new(CHEVRON.block()).with_modifier(CHEVRON, ChevronSide::Next).to_string(), aria_hidden: "true" }
                 }
             }
@@ -265,7 +265,7 @@ pub fn DatePicker(
                                                             pending.set(true);
                                                         }
                                                     },
-                                                    ..vec![date_attribute(&iso)],
+                                                    ..crate::spread![date_attribute(&iso)],
                                                     "{date.day()}"
                                                 }
                                             }

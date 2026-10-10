@@ -21,7 +21,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
 `NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
 `Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, `Select`, `Menu`, `MenuButton`,
-`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, `DiffView`, `GitSurface`, `DataGrid`, and `Terminal`, plus the
+`ContextMenuArea`, `ContextStrip`, `Composer`, `CodeBlock`, `DiffView`, `GitSurface`, `DataGrid`, `Terminal`, and `Webview`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -1285,16 +1285,30 @@ plain `<textarea>` over the same document model) rather than nothing.
 ### Embedded browser (`webview.css`)
 
 ```rust
-#[component] fn Webview(label: AccessibleName, url: ReadSignal<String>,
-    onnavigate: EventHandler<String>, #[props(default)] tabs: Vec<WebviewTab>,
-    #[props(default)] state: LoadState,        // Idle, Loading, Loaded, Error(String)
-    #[props(default)] sandbox: Sandbox) -> Element;
+#[component] fn Webview(title: AccessibleName,        // the frame's title
+    src: String,                                       // a change navigates
+    #[props(default)] tabs: Vec<String>, #[props(default)] selected_tab: usize,
+    #[props(default)] ontab: Option<EventHandler<usize>>,
+    #[props(default = "allow-scripts allow-forms allow-popups")] sandbox: String,
+    #[props(default)] error: Option<String>,           // the overlay's message
+    #[props(default)] onnavigate: Option<EventHandler<String>>,
+    #[props(default)] onstate: Option<EventHandler<WebviewState>>) -> Element;
+pub enum WebviewState { Idle, Loading, Loaded, Error }   // data-fc-state on the root
+pub fn behavior::url::frame_url(&str) -> Result<String, Refusal>;   // Empty, Scheme
+pub fn behavior::url::is_secure(&str) -> Option<bool>;
 ```
 
-`isSafeFrameUrl` from `webview.ts` is ported as `behavior::url::is_safe_frame_url` with a
-parity test, and `url` is checked before it reaches `src`. An insecure origin renders
-`data-fc-state="insecure"` and the `__secure` indicator in its warning form.
-`Sandbox` is a set of allowed tokens with an empty default.
+Chrome, not a browser: the frame is sandboxed (upstream's default tokens, so the page runs
+in an opaque origin without `allow-same-origin`), sends `strict-origin-when-cross-origin`
+referrers, and gets an empty `allow`. History is the control's own, since a cross-origin
+frame's is out of reach; Back, Forward, and Reload disable rather than hide. The address
+bar is a real `role="search"` form. Every address passes `frame_url`, a port of
+`isSafeFrameUrl` with tests: an `http`, `https`, and `about` allowlist checked after the
+URL standard's cleaning, so `java\nscript:` is caught. Beyond upstream, a bare host gets
+`https://`. A refused address never reaches the frame and raises the error overlay
+(`role="alert"`) with Retry. An `http` page shows the `__secure` indicator as
+`data-fc-state="insecure"` with "Not secure" in text; `https` shows a lock with a visually
+hidden "Secure". Tabs rove with arrows in the writing direction and activate on focus.
 
 ---
 

@@ -152,14 +152,14 @@ fn line_view(line: &model::DiffLine, hidden: bool) -> Element {
         model::DiffKind::Add => (
             "+",
             Some(format!("Added: {}", line.text)),
-            vec![diff_attribute("add")],
+            crate::spread![diff_attribute("add")],
         ),
         model::DiffKind::Remove => (
             "−",
             Some(format!("Removed: {}", line.text)),
-            vec![diff_attribute("remove")],
+            crate::spread![diff_attribute("remove")],
         ),
-        model::DiffKind::Equal => (" ", None, Vec::new()),
+        model::DiffKind::Equal => (" ", None, Spread::default()),
     };
     let old = line.old_line.map(|n| n.to_string()).unwrap_or_default();
     let new = line.new_line.map(|n| n.to_string()).unwrap_or_default();

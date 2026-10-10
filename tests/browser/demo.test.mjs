@@ -684,3 +684,36 @@ test("the terminal runs commands, recalls history, follows output, and disables 
   assert.equal(await evaluate(`${dropped}.querySelector('.fc-terminal__input').disabled`), true);
   assert.equal(await evaluate(`${dropped}.querySelectorAll('.fc-terminal__cursor').length`), 0, "no cursor in a dropped session");
 });
+
+test("the webview sandboxes its frame, keeps its own history, and refuses unsafe addresses", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const view = "document.querySelector('#webview .fc-webview')";
+  const address = `${view}.querySelector('.fc-webview__address-input')`;
+  const tabs = `[...${view}.querySelectorAll('[role=tab]')]`;
+  const button = name => `${view}.querySelector('.fc-webview__toolbar [aria-label=${name}]')`;
+  const frame = `${view}.querySelector('iframe')`;
+  assert.equal(await evaluate(`${frame}.getAttribute('sandbox')`), "allow-scripts allow-forms allow-popups");
+  assert.equal(await evaluate(`${frame}.referrerPolicy`), "strict-origin-when-cross-origin");
+  assert.equal(await evaluate(`${address}.value`), "https://example.com/");
+  assert.equal(await evaluate(`${view}.querySelector('.fc-webview__secure').textContent`), "\u{1f512}Secure");
+  assert.equal(await evaluate(`${button("Back")}.disabled`), true, "nothing behind the first page");
+  await evaluate(`${tabs}[0].focus()`);
+  await press("ArrowRight", "ArrowRight", 39);
+  await until(`document.activeElement === ${tabs}[1] && ${tabs}[1].getAttribute('aria-selected') === 'true' && ${address}.value === 'https://example.org/'`);
+  await until(`!${button("Back")}.disabled`);
+  await evaluate(`${button("Back")}.click()`);
+  await until(`${address}.value === 'https://example.com/' && ${button("Back")}.disabled && !${button("Forward")}.disabled`);
+  await evaluate(`(() => { const i = ${address}; i.value = 'java\\nscript:alert(1)'; i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await evaluate(`${address}.focus()`);
+  await press("Enter", "Enter", 13);
+  await until(`${view}.dataset.fcState === 'error' && !${view}.querySelector('.fc-webview__overlay').hidden`);
+  assert.equal(await evaluate(`${frame}.getAttribute('src')`), "https://example.com/", "the refused address never reaches the frame");
+  await until("document.querySelector('#webview [role=status]').textContent === 'Refused or failed to load'");
+  await evaluate(`${view}.querySelector('.fc-webview__overlay button').click()`);
+  await until(`${view}.dataset.fcState !== 'error' && ${view}.querySelector('.fc-webview__overlay').hidden`);
+  const plain = "document.querySelectorAll('#webview .fc-webview')[1]";
+  assert.equal(await evaluate(`${plain}.querySelector('.fc-webview__secure').dataset.fcState`), "insecure");
+  const refused = "document.querySelectorAll('#webview .fc-webview')[2]";
+  assert.equal(await evaluate(`${refused}.querySelector('iframe').getAttribute('src')`), "", "a refused first page loads nothing");
+  assert.equal(await evaluate(`${refused}.querySelector('[role=alert]').textContent.startsWith('This page could not be loaded.')`), true);
+});

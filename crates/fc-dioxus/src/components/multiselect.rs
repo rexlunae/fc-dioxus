@@ -172,7 +172,7 @@ pub fn MultiSelect(
             ..attributes,
             summary { class: BEM.element("summary"), onmounted: move |event| summary_node.set(Some(event.data())),
                 onclick: move |event| { event.prevent_default(); expanded.toggle(); },
-                {label} " · " span { ..vec![multiselect_part(MultiselectPart::Summary)], "{text}" }
+                {label} " · " span { ..crate::spread![multiselect_part(MultiselectPart::Summary)], "{text}" }
             }
             div { class: BEM.element("panel"),
                 if let Some(filter_label) = filter_label {
@@ -180,14 +180,14 @@ pub fn MultiSelect(
                         span { class: LABEL.block(), "{filter_label}" }
                         input { class: INPUT.block(), r#type: "search", placeholder: filter_placeholder,
                             value: query(), oninput: move |event| query.set(event.value()),
-                            ..vec![multiselect_part(MultiselectPart::Filter)] }
+                            ..crate::spread![multiselect_part(MultiselectPart::Filter)] }
                     }
                 }
                 div { class: BEM.element("actions"),
                     button { class: ClassList::new(BTN.block()).with(BTN.modifier_raw("secondary")).with(BTN.modifier_raw("sm")).to_string(),
-                        r#type: "button", onclick: select_all, ..vec![multiselect_part(MultiselectPart::SelectAll)], "Select visible" }
+                        r#type: "button", onclick: select_all, ..crate::spread![multiselect_part(MultiselectPart::SelectAll)], "Select visible" }
                     button { class: ClassList::new(BTN.block()).with(BTN.modifier_raw("tertiary")).with(BTN.modifier_raw("sm")).to_string(),
-                        r#type: "button", onclick: clear, ..vec![multiselect_part(MultiselectPart::Clear)], "Clear" }
+                        r#type: "button", onclick: clear, ..crate::spread![multiselect_part(MultiselectPart::Clear)], "Clear" }
                 }
                 fieldset { class: BEM.element("options"),
                     legend { {legend} }
@@ -195,7 +195,7 @@ pub fn MultiSelect(
                         {option_view(option, shown, chosen.contains(&option.value), &name, toggle)}
                     }
                 }
-                p { hidden: !none_visible, ..vec![multiselect_part(MultiselectPart::Empty)], "No matches. Existing selections are kept." }
+                p { hidden: !none_visible, ..crate::spread![multiselect_part(MultiselectPart::Empty)], "No matches. Existing selections are kept." }
             }
         }
     }
@@ -212,7 +212,7 @@ fn option_view(
     let state = availability_attributes(&option.availability);
     let value = option.value.clone();
     rsx! {
-        label { key: "{option.value}", class: BEM.element("option"), hidden: !shown, ..vec![selected_attribute(checked)],
+        label { key: "{option.value}", class: BEM.element("option"), hidden: !shown, ..crate::spread![selected_attribute(checked)],
             input { class: CHECK.block(), r#type: "checkbox", name: "{name}", value: "{option.value}", checked,
                 onclick: move |event| if blocked { event.prevent_default(); },
                 onchange: move |event| if !blocked { toggle(value.clone(), event.checked()); },

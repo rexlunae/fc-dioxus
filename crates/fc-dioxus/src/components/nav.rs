@@ -119,7 +119,9 @@ pub fn NavLink(
     let rail = try_consume_context::<Rail>().is_some_and(|rail| *rail.0.read());
     let blocked = availability != Availability::Enabled;
     let state = match &availability {
-        Availability::Disabled => vec![Attribute::new("aria-disabled", "true", None, false)],
+        Availability::Disabled => {
+            crate::spread![Attribute::new("aria-disabled", "true", None, false)]
+        }
         other => availability_attributes(other),
     };
     let link = crate::core::link::use_link(href.filter(|_| !blocked));

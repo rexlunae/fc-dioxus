@@ -237,7 +237,7 @@ pub fn Split(
             hidden: size <= 0.0,
             role: primary_label.as_ref().map(|_| "region"), aria_label: primary_label.as_ref().map(ToString::to_string),
             tabindex: primary_label.as_ref().map(|_| "0"),
-            ..vec![custom_property(CustomProperty::SplitSize, format!("{size}%"))],
+            ..crate::spread![custom_property(CustomProperty::SplitSize, format!("{size}%"))],
             {primary}
         }
     };

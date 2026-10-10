@@ -94,7 +94,7 @@ pub fn ContextStrip(
             }
             // Dimmed, never removed: a row that reflows when the model changes makes the
             // strip jump, and a missing control is not announced at all.
-            div { class: BEM.element("field"), ..vec![applicable_attribute(reasoning)],
+            div { class: BEM.element("field"), ..crate::spread![applicable_attribute(reasoning)],
                 span { class: BEM.element("label"), "Effort" }
                 Select { label: crate::name!("Effort"), options: effort_options, placeholder: "n/a",
                     value: ReadSignal::from(effort_value),

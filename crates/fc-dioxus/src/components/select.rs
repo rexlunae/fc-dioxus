@@ -303,7 +303,7 @@ fn option_view(
     mut close: impl FnMut(bool) + 'static,
 ) -> Element {
     let disabled = choice.disabled;
-    let mut data = vec![value_attribute(&choice.value)];
+    let mut data = crate::spread![value_attribute(&choice.value)];
     data.extend(active_attribute(active));
     rsx! {
         div { class: BEM.element("option"), role: "option", id, aria_selected: selected.then_some("true"),

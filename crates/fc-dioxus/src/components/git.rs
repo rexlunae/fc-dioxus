@@ -233,7 +233,7 @@ fn row_view(
             onselect.call(path);
         }
     };
-    let data = vec![
+    let data = crate::spread![
         GitData::Path.attribute(&entry.path),
         GitData::Selected.attribute(&on),
     ];
@@ -282,7 +282,7 @@ fn row_view(
                         onclick: { let path = entry.path.clone(); move |event: MouseEvent| { event.stop_propagation(); if let Some(onstage) = onstage { onstage.call(path.clone()); } } },
                         // The row's keys would cancel the button's own Enter and Space.
                         onkeydown: move |event: KeyboardEvent| event.stop_propagation(),
-                        ..vec![GitData::StagePath.attribute(&entry.path)],
+                        ..crate::spread![GitData::StagePath.attribute(&entry.path)],
                         "Stage"
                     }
                 }
@@ -310,7 +310,7 @@ fn badge(side: &'static str, state: FileState, conflicted: bool) -> Element {
     };
     // The side is in the title too: "modified" alone does not say whether it is staged.
     let title = format!("{} ({place})", shown.as_str());
-    let data = vec![
+    let data = crate::spread![
         GitData::Stage.attribute(&side),
         GitData::State.attribute(&shown.as_str()),
         GitData::Glyph.attribute(&shown.glyph()),

@@ -33,7 +33,7 @@ pub struct Record {
     pub ts: Option<Timestamp>,
 }
 impl Record {
-    fn attributes(&self, kind: Kind) -> Vec<Attribute> {
+    fn attributes(&self, kind: Kind) -> Spread {
         FcData {
             kind: Some(kind),
             id: self.id.clone(),
@@ -53,7 +53,7 @@ fn shell(
     record: &Record,
     class: Option<&str>,
     attributes: Vec<Attribute>,
-) -> Vec<Attribute> {
+) -> Spread {
     let mut attributes = component_attributes(
         attributes,
         ClassList::new(bem.block()).extend(class),
@@ -315,7 +315,7 @@ pub fn DeviceAuth(
 
 /// `<section>` for a card that stands alone as a named region (an empty state, a single
 /// expanded view), `<article>` for one item in a stream of them.
-fn card(region: bool, attributes: Vec<Attribute>, body: Element) -> Element {
+fn card(region: bool, attributes: Spread, body: Element) -> Element {
     if region {
         rsx! { section { ..attributes, {body} } }
     } else {

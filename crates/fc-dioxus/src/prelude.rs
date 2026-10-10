@@ -74,8 +74,9 @@ pub use crate::{
     },
     components::tool_call::{ToolCall, ToolProgress},
     components::toolbar::{Toolbar, ToolbarDivider, ToolbarItem, ToolbarLabel, ToolbarSurface},
+    components::webview::{Webview, WebviewState},
     core::{
-        attrs::{FcData, InvalidTimestamp, Kind, Timestamp},
+        attrs::{FcData, InvalidTimestamp, Kind, Spread, Timestamp},
         class::{Bem, ClassList, Modifier},
         controlled::{use_controllable, Controllable},
         id::{use_id, Id},

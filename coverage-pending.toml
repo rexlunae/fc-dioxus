@@ -3,5 +3,4 @@
 pending = [
 "editor.css",
 "theme-picker.css",
-"webview.css",
 ]

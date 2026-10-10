@@ -51,6 +51,7 @@ pub mod terminal;
 pub mod toast;
 pub mod tool_call;
 pub mod toolbar;
+pub mod webview;
 
 use crate::core::state::HeadingLevel;
 use dioxus::prelude::*;
@@ -123,10 +124,11 @@ pub(crate) fn nav_target(
     onclick: Option<EventHandler<MouseEvent>>,
     current: bool,
     availability: &crate::core::state::Availability,
-    extra: Vec<Attribute>,
+    extra: impl Into<crate::core::attrs::Spread>,
     children: Element,
 ) -> Element {
     use crate::core::{attrs::availability_attributes, state::Availability};
+    let extra = extra.into();
     let blocked = *availability != Availability::Enabled;
     if href.is_none() && onclick.is_some() {
         let state = availability_attributes(availability);
@@ -138,7 +140,9 @@ pub(crate) fn nav_target(
         };
     }
     let state = match availability {
-        Availability::Disabled => vec![Attribute::new("aria-disabled", "true", None, false)],
+        Availability::Disabled => {
+            crate::spread![Attribute::new("aria-disabled", "true", None, false)]
+        }
         other => availability_attributes(other),
     };
     let link = crate::core::link::use_link(href.filter(|_| !blocked));

@@ -276,7 +276,7 @@ pub fn DataGrid(
                             let editing = edit() == Some(at);
                             let is_active = current() == at;
                             let name = format!("{} {}", columns.get(c).map_or("", |col| col.label.as_str()), first_row + r + 1);
-                            let mut data = Vec::new();
+                            let mut data = Spread::default();
                             if is_active { data.push(GridData::Active.attribute("true")); }
                             if cell.dirty { data.push(GridData::Dirty.attribute("true")); }
                             let classes = ClassList::new(&BEM.element("cell"))

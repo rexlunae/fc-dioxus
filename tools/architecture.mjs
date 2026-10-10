@@ -17,6 +17,9 @@ for (const path of sources) {
     const withoutBem = source.replace(/Bem::new\("fc-[^"]+"\)/g, "");
     assert.doesNotMatch(withoutBem, /"fc-[^"]*"/, `${name}: class prefix belongs in the BEM declaration`);
     assert.doesNotMatch(source, /\bstyle\s*:/, `${name}: no local inline CSS`);
+    // Dioxus diffs a spread as a name-sorted merge and never sorts it; `Spread` sorts on
+    // the way in. A raw Vec spread mis-diffs when its membership changes.
+    assert.doesNotMatch(source, /\.\.\s*vec!|-> Vec<Attribute>|let mut \w+(?:: Vec<Attribute>)? = Vec::new\(\);\s*\n[^\n]*\.attribute\(/, `${name}: build spread attributes as Spread, not Vec`);
   }
 }
 for (const path of files(root).filter(p => !p.includes("/target/") && !p.includes("/node_modules/") && !p.includes("/.git/"))) {

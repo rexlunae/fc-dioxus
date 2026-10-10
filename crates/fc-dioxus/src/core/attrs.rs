@@ -147,6 +147,71 @@ impl Kind {
     }
 }
 
+/// Attributes headed for an rsx spread (`..list`), kept sorted by name on the way in.
+///
+/// Dioxus diffs a spread as a merge of two name-sorted lists, but passes a spread
+/// through as given. An unsorted list mis-diffs whenever its membership changes: an
+/// icon button that became enabled lost `aria-label` along with `disabled`, because
+/// the merge walked past it. rsx calls `into_boxed_slice` on every spread, so sorting
+/// there covers every list built from this type.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct Spread(Vec<Attribute>);
+impl Spread {
+    /// The list as rsx consumes it: sorted by name, stably, so a later duplicate still
+    /// follows an earlier one.
+    #[must_use]
+    pub fn into_boxed_slice(mut self) -> Box<[Attribute]> {
+        self.0.sort_by(|a, b| a.name.cmp(b.name));
+        self.0.into_boxed_slice()
+    }
+}
+impl std::ops::Deref for Spread {
+    type Target = Vec<Attribute>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl std::ops::DerefMut for Spread {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+impl From<Vec<Attribute>> for Spread {
+    fn from(list: Vec<Attribute>) -> Self {
+        Self(list)
+    }
+}
+impl From<Spread> for Vec<Attribute> {
+    fn from(list: Spread) -> Self {
+        list.0
+    }
+}
+impl FromIterator<Attribute> for Spread {
+    fn from_iter<I: IntoIterator<Item = Attribute>>(iter: I) -> Self {
+        Self(iter.into_iter().collect())
+    }
+}
+impl Extend<Attribute> for Spread {
+    fn extend<I: IntoIterator<Item = Attribute>>(&mut self, iter: I) {
+        self.0.extend(iter);
+    }
+}
+impl IntoIterator for Spread {
+    type Item = Attribute;
+    type IntoIter = std::vec::IntoIter<Attribute>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
+/// A [`Spread`] from attributes, as `vec!` makes a `Vec`.
+#[macro_export]
+macro_rules! spread {
+    ($($attribute:expr),* $(,)?) => {
+        $crate::core::attrs::Spread::from(::std::vec![$($attribute),*])
+    };
+}
+
 /// Machine-readable state. There are no free-form payload fields.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct FcData {
@@ -166,8 +231,8 @@ pub struct FcData {
 impl FcData {
     /// Render only present values; absence is not serialized as an empty string.
     #[must_use]
-    pub fn attributes(&self) -> Vec<Attribute> {
-        let mut attrs = Vec::new();
+    pub fn attributes(&self) -> Spread {
+        let mut attrs = Spread::default();
         for (name, value) in [
             ("data-fc-kind", self.kind.map(|v| v.as_str().to_owned())),
             ("data-fc-id", self.id.as_ref().map(ToString::to_string)),
@@ -189,8 +254,8 @@ pub(crate) fn theme_attributes(
     brand: Option<&'static str>,
     design: Option<&'static str>,
     palette: Option<&'static str>,
-) -> Vec<Attribute> {
-    let mut attrs = vec![Attribute::new(
+) -> Spread {
+    let mut attrs = crate::spread![Attribute::new(
         "data-fc-version",
         super::assets::CSS_VERSION,
         None,
@@ -216,7 +281,7 @@ pub(crate) fn component_attributes(
     attributes: Vec<Attribute>,
     mut classes: super::class::ClassList,
     protected: &[&str],
-) -> Vec<Attribute> {
+) -> Spread {
     for attr in &attributes {
         if attr.name == "class" {
             if let dioxus::core::AttributeValue::Text(value) = &attr.value {
@@ -224,7 +289,7 @@ pub(crate) fn component_attributes(
             }
         }
     }
-    let mut attributes: Vec<_> = attributes
+    let mut attributes: Spread = attributes
         .into_iter()
         .filter(|attr| attr.name != "class" && !protected.contains(&attr.name))
         .collect();
@@ -232,12 +297,12 @@ pub(crate) fn component_attributes(
     attributes
 }
 
-pub(crate) fn availability_attributes(availability: &super::state::Availability) -> Vec<Attribute> {
+pub(crate) fn availability_attributes(availability: &super::state::Availability) -> Spread {
     use super::state::Availability;
     match availability {
-        Availability::Enabled => Vec::new(),
-        Availability::Disabled => vec![Attribute::new("disabled", true, None, false)],
-        Availability::Unavailable { reason } => vec![
+        Availability::Enabled => Spread::default(),
+        Availability::Disabled => crate::spread![Attribute::new("disabled", true, None, false)],
+        Availability::Unavailable { reason } => crate::spread![
             Attribute::new("aria-disabled", "true", None, false),
             Attribute::new("aria-describedby", reason.to_string(), None, false),
         ],
@@ -245,58 +310,58 @@ pub(crate) fn availability_attributes(availability: &super::state::Availability)
 }
 
 /// Declare truncation and keep the full value reachable, as upstream's contract requires.
-pub(crate) fn clipped_attributes(text: &super::text::Clipped) -> Vec<Attribute> {
+pub(crate) fn clipped_attributes(text: &super::text::Clipped) -> Spread {
     let mut attributes = truncated_attribute(text);
     attributes.extend(full_text_title(text));
     attributes
 }
 
 /// `data-fc-truncated`, for the element that represents the whole record.
-pub(crate) fn truncated_attribute(text: &super::text::Clipped) -> Vec<Attribute> {
+pub(crate) fn truncated_attribute(text: &super::text::Clipped) -> Spread {
     if text.is_truncated() {
-        vec![Attribute::new("data-fc-truncated", "true", None, false)]
+        crate::spread![Attribute::new("data-fc-truncated", "true", None, false)]
     } else {
-        Vec::new()
+        Spread::default()
     }
 }
 
 /// The full value as a `title`, for the element showing the shortened text.
-pub(crate) fn full_text_title(text: &super::text::Clipped) -> Vec<Attribute> {
+pub(crate) fn full_text_title(text: &super::text::Clipped) -> Spread {
     if text.is_truncated() {
-        vec![Attribute::new(
+        crate::spread![Attribute::new(
             "title",
             text.full_text().to_owned(),
             None,
             false,
         )]
     } else {
-        Vec::new()
+        Spread::default()
     }
 }
 
 /// Hold a disclosure-like region open or closed regardless of focus; absent leaves it to
 /// the CSS (`data-fc-open`).
-pub(crate) fn open_attribute(open: Option<bool>) -> Vec<Attribute> {
+pub(crate) fn open_attribute(open: Option<bool>) -> Spread {
     open.map(|open| Attribute::new("data-fc-open", open.to_string(), None, false))
         .into_iter()
         .collect()
 }
 
 /// Mark an element that is animating out before removal (`data-fc-leaving`).
-pub(crate) fn leaving_attribute(leaving: bool) -> Vec<Attribute> {
+pub(crate) fn leaving_attribute(leaving: bool) -> Spread {
     if leaving {
-        vec![Attribute::new("data-fc-leaving", "true", None, false)]
+        crate::spread![Attribute::new("data-fc-leaving", "true", None, false)]
     } else {
-        Vec::new()
+        Spread::default()
     }
 }
 
 /// A tooltip dismissed with Escape until the pointer or focus leaves (`data-fc-dismissed`).
-pub(crate) fn dismissed_attribute(dismissed: bool) -> Vec<Attribute> {
+pub(crate) fn dismissed_attribute(dismissed: bool) -> Spread {
     if dismissed {
-        vec![Attribute::new("data-fc-dismissed", "true", None, false)]
+        crate::spread![Attribute::new("data-fc-dismissed", "true", None, false)]
     } else {
-        Vec::new()
+        Spread::default()
     }
 }
 
@@ -358,7 +423,7 @@ pub(crate) fn datepicker_nav_attribute(next: bool) -> Attribute {
         false,
     )
 }
-pub(crate) fn date_value_attribute(iso: Option<String>) -> Vec<Attribute> {
+pub(crate) fn date_value_attribute(iso: Option<String>) -> Spread {
     iso.map(|iso| Attribute::new("data-fc-value", iso, None, false))
         .into_iter()
         .collect()
@@ -370,29 +435,25 @@ pub(crate) fn date_value_attribute(iso: Option<String>) -> Vec<Attribute> {
 pub(crate) fn value_attribute(value: &str) -> Attribute {
     Attribute::new("data-fc-value", value.to_owned(), None, false)
 }
-pub(crate) fn active_attribute(active: bool) -> Vec<Attribute> {
+pub(crate) fn active_attribute(active: bool) -> Spread {
     if active {
-        vec![Attribute::new("data-fc-active", "true", None, false)]
+        crate::spread![Attribute::new("data-fc-active", "true", None, false)]
     } else {
-        Vec::new()
+        Spread::default()
     }
 }
-pub(crate) fn placeholder_attribute(placeholder: bool) -> Vec<Attribute> {
+pub(crate) fn placeholder_attribute(placeholder: bool) -> Spread {
     if placeholder {
-        vec![Attribute::new("data-fc-placeholder", "true", None, false)]
+        crate::spread![Attribute::new("data-fc-placeholder", "true", None, false)]
     } else {
-        Vec::new()
+        Spread::default()
     }
 }
 
 /// The context strip's resolved state on its root (`data-fc-provider`, `-model`,
 /// `-effort`), and whether a field applies (`data-fc-applicable`). Ids, not user text.
-pub(crate) fn context_attributes(
-    provider: &str,
-    model: &str,
-    effort: Option<&str>,
-) -> Vec<Attribute> {
-    let mut attrs = vec![
+pub(crate) fn context_attributes(provider: &str, model: &str, effort: Option<&str>) -> Spread {
+    let mut attrs = crate::spread![
         Attribute::new("data-fc-provider", provider.to_owned(), None, false),
         Attribute::new("data-fc-model", model.to_owned(), None, false),
     ];
@@ -416,19 +477,19 @@ pub(crate) fn applicable_attribute(applicable: bool) -> Attribute {
 pub(crate) fn composer_state_attribute(state: &'static str) -> Attribute {
     Attribute::new("data-fc-state", state, None, false)
 }
-pub(crate) fn dragging_attribute(dragging: bool) -> Vec<Attribute> {
+pub(crate) fn dragging_attribute(dragging: bool) -> Spread {
     if dragging {
-        vec![Attribute::new("data-fc-dragging", "true", None, false)]
+        crate::spread![Attribute::new("data-fc-dragging", "true", None, false)]
     } else {
-        Vec::new()
+        Spread::default()
     }
 }
 /// An item that failed (`data-fc-state="error"`), e.g. an attachment that could not be read.
-pub(crate) fn error_state_attribute(error: bool) -> Vec<Attribute> {
+pub(crate) fn error_state_attribute(error: bool) -> Spread {
     if error {
-        vec![Attribute::new("data-fc-state", "error", None, false)]
+        crate::spread![Attribute::new("data-fc-state", "error", None, false)]
     } else {
-        Vec::new()
+        Spread::default()
     }
 }
 
@@ -509,9 +570,9 @@ impl GridData {
     }
 }
 
-/// The terminal's connection state and its last command's outcome. Terminal states are
-/// upstream's own vocabulary (`connected`, `disconnected`) on the root and the shared
-/// lifecycle (`complete`, `error`) on the exit badge.
-pub(crate) fn terminal_state_attribute(value: &'static str) -> Attribute {
+/// `data-fc-state` in a component's own upstream vocabulary rather than the shared
+/// lifecycle: a terminal's `connected` and `disconnected`, a webview's `idle`,
+/// `loading`, `loaded`, and `error`, or an address bar's `insecure`.
+pub(crate) fn named_state_attribute(value: &'static str) -> Attribute {
     Attribute::new("data-fc-state", value, None, false)
 }

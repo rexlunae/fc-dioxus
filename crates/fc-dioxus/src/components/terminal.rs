@@ -7,7 +7,7 @@
 use crate::{
     core::{
         assets,
-        attrs::{component_attributes, terminal_state_attribute},
+        attrs::{component_attributes, named_state_attribute},
     },
     prelude::*,
     theme::use_stylesheets,
@@ -299,7 +299,7 @@ pub fn Terminal(
         ClassList::new(BEM.block()).extend(class.as_deref()),
         &[],
     );
-    attributes.push(terminal_state_attribute(if disconnected {
+    attributes.push(named_state_attribute(if disconnected {
         "disconnected"
     } else {
         "connected"
@@ -377,7 +377,7 @@ pub fn Terminal(
                     span { "{session.clone().unwrap_or_default()}" }
                     span { class: BEM.element("status-end"),
                         if let Some(code) = exit {
-                            span { class: BEM.element("exit"), ..vec![terminal_state_attribute(if code == 0 { "complete" } else { "error" })],
+                            span { class: BEM.element("exit"), ..crate::spread![named_state_attribute(if code == 0 { "complete" } else { "error" })],
                                 "exit {code}"
                             }
                         }

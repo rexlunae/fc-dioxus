@@ -58,6 +58,7 @@ pub mod tool_call;
 pub mod toolbar;
 pub mod transfer;
 pub mod user_prompt;
+pub mod webview;
 
 use fc_dioxus::prelude::{Id, Lifecycle, Record, Timestamp};
 

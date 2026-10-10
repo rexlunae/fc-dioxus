@@ -81,7 +81,7 @@ pub fn ToolCall(
                                 let width = custom_property(CustomProperty::ToolProgress, format!("{percent}%"));
                                 rsx! {
                                     div { class: BEM.element("progress-bar"), role: "progressbar", aria_label: "{name} progress",
-                                        aria_valuemin: "0", aria_valuemax: "100", aria_valuenow: "{percent}", ..vec![width] }
+                                        aria_valuemin: "0", aria_valuemax: "100", aria_valuenow: "{percent}", ..crate::spread![width] }
                                 }
                             }
                         }

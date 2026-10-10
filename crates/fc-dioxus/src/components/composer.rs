@@ -196,7 +196,7 @@ pub fn Composer(
                 button { r#type: "button", class: send_class, disabled: !running && empty,
                     aria_label: if running { "Stop generating" } else { "Send message" },
                     onclick: move |_| if running { if let Some(onstop) = onstop { onstop.call(()); } } else { submit_click(); },
-                    ..vec![composer_state_attribute(phase)],
+                    ..crate::spread![composer_state_attribute(phase)],
                     if running { "Stop" } else { "Send" }
                 }
             }

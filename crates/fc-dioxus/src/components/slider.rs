@@ -74,7 +74,7 @@ pub fn Slider(
                 oninput: move |event| if let Ok(value) = event.value().parse::<f64>() { state.set(value); },
                 ..input,
             }
-            if show_value { output { class: BEM.element("value"), ..vec![Attribute::new("for", id.to_string(), None, false)], "{current}" } }
+            if show_value { output { class: BEM.element("value"), ..crate::spread![Attribute::new("for", id.to_string(), None, false)], "{current}" } }
             if !marks.is_empty() {
                 ol { class: BEM.element("marks"), aria_hidden: "true",
                     for mark in marks { li { "{mark}" } }

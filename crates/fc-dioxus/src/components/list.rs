@@ -88,7 +88,9 @@ pub fn ListItem(
     let blocked = availability != Availability::Enabled;
     // Links have no disabled attribute, so both kinds of unavailability are ARIA there.
     let link_state = match &availability {
-        Availability::Disabled => vec![Attribute::new("aria-disabled", "true", None, false)],
+        Availability::Disabled => {
+            crate::spread![Attribute::new("aria-disabled", "true", None, false)]
+        }
         state => availability_attributes(state),
     };
     let button_state = availability_attributes(&availability);

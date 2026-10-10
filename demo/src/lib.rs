@@ -158,6 +158,7 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("GitSurface", "git"),
     ("DataGrid", "grid"),
     ("Terminal", "terminal"),
+    ("Webview", "webview"),
 ];
 
 /// The examples that render every Divider state.
@@ -519,6 +520,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Terminal",
         render: || rsx! { examples::terminal::States {} },
         source: include_str!("examples/terminal/states.rs"),
+    },
+    Example {
+        id: "webview",
+        title: "Embedded browser",
+        render: || rsx! { examples::webview::States {} },
+        source: include_str!("examples/webview/states.rs"),
     },
 ];
 

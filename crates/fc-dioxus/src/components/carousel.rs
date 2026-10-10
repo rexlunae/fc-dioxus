@@ -86,12 +86,12 @@ pub fn Carousel(
                 button { class: control_class(), r#type: "button", aria_label: "Previous",
                     aria_disabled: start.then_some("true"),
                     onclick: { let id = id.clone(); move |_| { let id = id.clone(); async move { if !start { let _ = DomBridge.page(&id, false).await; } } } },
-                    ..vec![carousel_control_attribute(false)], "‹"
+                    ..crate::spread![carousel_control_attribute(false)], "‹"
                 }
                 button { class: control_class(), r#type: "button", aria_label: "Next",
                     aria_disabled: end.map(|end| end.to_string()),
                     onclick: { let id = id.clone(); move |_| { let id = id.clone(); async move { if end != Some(true) { let _ = DomBridge.page(&id, true).await; } } } },
-                    ..vec![carousel_control_attribute(true)], "›"
+                    ..crate::spread![carousel_control_attribute(true)], "›"
                 }
             }
             ul { class: BEM.element("track"), id: "{id}", tabindex: "0", aria_label: "{label_text}",
