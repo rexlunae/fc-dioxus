@@ -8,6 +8,108 @@ use crate::core::{
 };
 use dioxus::prelude::*;
 
+/// A stock visual preset from the pinned upstream theme stylesheet.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum Design {
+    /// Upstream future preset.
+    #[default]
+    Future,
+    /// Upstream clarity preset.
+    Clarity,
+    /// Upstream helix preset.
+    Helix,
+    /// Upstream forest preset.
+    Forest,
+    /// Upstream editorial preset.
+    Editorial,
+    /// Upstream graphite preset.
+    Graphite,
+    /// Upstream ocean preset.
+    Ocean,
+    /// Upstream ember preset.
+    Ember,
+    /// Upstream parchment preset.
+    Parchment,
+    /// Upstream blueprint preset.
+    Blueprint,
+    /// Upstream candy preset.
+    Candy,
+    /// Upstream nocturne preset.
+    Nocturne,
+    /// Upstream aurora preset.
+    Aurora,
+    /// Upstream solar preset.
+    Solar,
+    /// Upstream bloom preset.
+    Bloom,
+    /// Upstream garnet preset.
+    Garnet,
+    /// Upstream origami preset.
+    Origami,
+    /// Upstream arcade preset.
+    Arcade,
+    /// Upstream bubble preset.
+    Bubble,
+    /// Upstream sundown preset.
+    Sundown,
+    /// Upstream pride preset.
+    Pride,
+}
+impl Design {
+    /// Every stock preset supported by this pin.
+    pub const ALL: &'static [Self] = &[
+        Self::Future,
+        Self::Clarity,
+        Self::Helix,
+        Self::Forest,
+        Self::Editorial,
+        Self::Graphite,
+        Self::Ocean,
+        Self::Ember,
+        Self::Parchment,
+        Self::Blueprint,
+        Self::Candy,
+        Self::Nocturne,
+        Self::Aurora,
+        Self::Solar,
+        Self::Bloom,
+        Self::Garnet,
+        Self::Origami,
+        Self::Arcade,
+        Self::Bubble,
+        Self::Sundown,
+        Self::Pride,
+    ];
+    /// The upstream attribute value.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Future => "future",
+            Self::Clarity => "clarity",
+            Self::Helix => "helix",
+            Self::Forest => "forest",
+            Self::Editorial => "editorial",
+            Self::Graphite => "graphite",
+            Self::Ocean => "ocean",
+            Self::Ember => "ember",
+            Self::Parchment => "parchment",
+            Self::Blueprint => "blueprint",
+            Self::Candy => "candy",
+            Self::Nocturne => "nocturne",
+            Self::Aurora => "aurora",
+            Self::Solar => "solar",
+            Self::Bloom => "bloom",
+            Self::Garnet => "garnet",
+            Self::Origami => "origami",
+            Self::Arcade => "arcade",
+            Self::Bubble => "bubble",
+            Self::Sundown => "sundown",
+            Self::Pride => "pride",
+        }
+    }
+}
+
 /// Upstream's supported schemes. System inherits the user's preference.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 #[non_exhaustive]
@@ -82,6 +184,9 @@ pub(crate) fn use_stylesheets() -> bool {
 /// Props for the root theme and CSS provider.
 #[derive(Props, Clone, PartialEq)]
 pub struct FutureCssProps {
+    /// Optional stock visual preset; absence inherits the surrounding design.
+    #[props(default)]
+    pub design: Option<Design>,
     /// Scheme, inherited when omitted.
     #[props(default)]
     pub theme: Theme,
@@ -115,6 +220,7 @@ pub fn FutureCss(props: FutureCssProps) -> Element {
         props.brand.map(|brand| match brand {
             Brand::Forest => "forest",
         }),
+        props.design.map(Design::as_str),
     );
     rsx! {
         if props.stylesheets == Stylesheets::Automatic {

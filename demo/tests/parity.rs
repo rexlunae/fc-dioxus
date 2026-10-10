@@ -72,3 +72,97 @@ fn divider_markup_matches_every_upstream_reference_state() {
     );
     assert_eq!(actual, expected);
 }
+
+#[derive(Debug, PartialEq, Eq)]
+struct Tree {
+    tag: String,
+    attrs: BTreeMap<String, String>,
+    children: Vec<Self>,
+}
+
+fn tree(document: &Document, index: usize) -> Option<Tree> {
+    let node = document.nodes.get(index)?;
+    let (tag, mut attrs) = signature(node);
+    // IDs differ per render. The Dioxus API also requires explanatory text for
+    // unavailable controls; fc-a11y separately verifies these added references.
+    attrs.remove("aria-describedby");
+    for name in ["type", "disabled", "checked"] {
+        if let Some(value) = node.attr(name) {
+            attrs.insert(
+                name.to_owned(),
+                if name == "type" {
+                    value.to_owned()
+                } else {
+                    String::new()
+                },
+            );
+        }
+    }
+    let children = document
+        .nodes
+        .iter()
+        .enumerate()
+        .filter(|(_, child)| child.parent == Some(index))
+        .filter_map(|(child, _)| tree(document, child))
+        .collect();
+    Some(Tree {
+        tag,
+        attrs,
+        children,
+    })
+}
+
+#[test]
+fn styled_components_match_every_upstream_reference_subtree() {
+    let upstream = Document::parse(include_str!("../../upstream/fixtures.html"));
+    for (fixture, classes, render) in [
+        (
+            "button",
+            &["fc-btn"][..],
+            (|| rsx! { fc_demo::examples::button::States {} }) as fn() -> Element,
+        ),
+        (
+            "card",
+            &["fc-card"][..],
+            (|| rsx! { fc_demo::examples::card::States {} }) as fn() -> Element,
+        ),
+        (
+            "badge",
+            &["fc-badge", "fc-tag", "fc-kbd"][..],
+            (|| rsx! { fc_demo::examples::badge::States {} }) as fn() -> Element,
+        ),
+        (
+            "alert",
+            &["fc-alert"][..],
+            (|| rsx! { fc_demo::examples::alert::States {} }) as fn() -> Element,
+        ),
+    ] {
+        let ours = Document::parse(&dioxus_ssr::render_element(
+            rsx! { FutureCss { stylesheets: Stylesheets::External, {render()} } },
+        ));
+        let actual: Vec<_> = ours
+            .nodes
+            .iter()
+            .enumerate()
+            .filter(|(_, node)| classes.iter().any(|class| node.has_class(class)))
+            .filter_map(|(index, _)| tree(&ours, index))
+            .collect();
+        let expected: Vec<_> = upstream
+            .nodes
+            .iter()
+            .enumerate()
+            .filter(|(_, node)| {
+                classes.iter().any(|class| node.has_class(class))
+                    && inside_fixture(&upstream, node, fixture)
+            })
+            .filter_map(|(index, _)| tree(&upstream, index))
+            .collect();
+        assert!(!expected.is_empty(), "missing upstream fixture {fixture}");
+        for signature in expected {
+            assert!(
+                actual.contains(&signature),
+                "{fixture} is missing upstream subtree {signature:#?}"
+            );
+        }
+    }
+}

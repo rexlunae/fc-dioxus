@@ -50,14 +50,24 @@ fn inventory_and_rendered_classes_cannot_silently_drift() -> Result<(), Box<dyn 
         "unknown classes: {:?}",
         emitted.difference(&all).collect::<Vec<_>>()
     );
-    let implemented = css_classes(&fs::read_to_string(
-        root.join("crates/fc-dioxus/assets/components/divider.css"),
-    )?);
-    assert!(
-        implemented.is_subset(&emitted),
-        "unexercised Divider classes: {:?}",
-        implemented.difference(&emitted).collect::<Vec<_>>()
-    );
+    let implemented_files = [
+        "divider.css",
+        "button.css",
+        "card.css",
+        "badge.css",
+        "alert.css",
+    ];
+    for filename in implemented_files {
+        let implemented = css_classes(&fs::read_to_string(
+            root.join("crates/fc-dioxus/assets/components")
+                .join(filename),
+        )?);
+        assert!(
+            implemented.is_subset(&emitted),
+            "unexercised {filename} classes: {:?}",
+            implemented.difference(&emitted).collect::<Vec<_>>()
+        );
+    }
     let states: BTreeSet<_> = doc
         .nodes
         .iter()
@@ -80,10 +90,12 @@ fn inventory_and_rendered_classes_cannot_silently_drift() -> Result<(), Box<dyn 
         .map(str::to_owned)
         .collect();
     let mut expected = pending;
-    assert!(
-        expected.insert("divider.css".to_owned()),
-        "Divider must be removed from pending"
-    );
+    for filename in implemented_files {
+        assert!(
+            expected.insert(filename.to_owned()),
+            "{filename} must be removed from pending"
+        );
+    }
     let actual: BTreeSet<_> = fs::read_dir(root.join("crates/fc-dioxus/assets/components"))?
         .map(|entry| entry.map(|e| e.file_name().to_string_lossy().into_owned()))
         .collect::<Result<_, _>>()?;

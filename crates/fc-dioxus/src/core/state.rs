@@ -104,3 +104,22 @@ impl MessageRole {
         }
     }
 }
+
+/// A semantic HTML heading rank.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum HeadingLevel {
+    /// Level 1 heading.
+    H1,
+    /// Level 2 heading.
+    H2,
+    /// Level 3 heading.
+    #[default]
+    H3,
+    /// Level 4 heading.
+    H4,
+    /// Level 5 heading.
+    H5,
+    /// Level 6 heading.
+    H6,
+}

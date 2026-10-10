@@ -39,7 +39,7 @@ async function load(query, width = 320) {
   await send("Page.navigate", { url: "about:blank" });
   await until("location.href === 'about:blank'");
   await send("Page.navigate", { url: `${server.origin}/?${query}` });
-  await until("document.querySelectorAll('.fc-divider').length === 6 && [...document.styleSheets].some(s => s.href?.includes('divider'))");
+  await until("document.querySelectorAll('.fc-divider').length === 6 && ['tokens','themes','button','card','badge','alert','divider'].every(name => [...document.styleSheets].some(s => s.href?.includes('/'+name+'-'))) ");
   await evaluate("document.fonts.ready.then(() => true)");
   await evaluate(axe);
 }
@@ -101,6 +101,7 @@ for (const theme of ["light", "dark"]) for (const dir of ["ltr", "rtl"]) {
 
 test("theme controls, direction, source disclosure, focus visibility and copy feedback work", async () => {
   await load("fixtures=false&theme=light&dir=ltr", 1200);
+  assert.equal(await evaluate("document.getElementById('design').value"), "helix", "the initial control reflects the applied preset");
   await evaluate("document.getElementById('theme').value='dark'; document.getElementById('theme').dispatchEvent(new Event('change',{bubbles:true}))");
   await until("document.querySelector('[data-fc-version]').dataset.fcTheme === 'dark'");
   await evaluate("document.getElementById('direction').value='rtl'; document.getElementById('direction').dispatchEvent(new Event('change',{bubbles:true}))");
@@ -129,4 +130,64 @@ test("forced colors retain separator borders", async () => {
   await load("fixtures=true&theme=light&dir=ltr");
   assert.ok(await evaluate("[...document.querySelectorAll('.fc-divider')].every(n => { const c=getComputedStyle(n); return parseFloat(c.borderInlineStartWidth)+parseFloat(c.borderBlockStartWidth)>0; })"));
   await send("Emulation.setEmulatedMedia", { features: [] });
+});
+
+test("every upstream preset changes rendered styling in light and dark and passes axe", async () => {
+  await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+  await load("fixtures=false&theme=light&design=helix", 1200);
+  const presets = await evaluate("[...document.getElementById('design').options].map(o => o.value)");
+  const upstream = readFileSync("crates/fc-dioxus/assets/themes.css", "utf8");
+  const expected = [...new Set([...upstream.matchAll(/data-fc-design=\"([^\"]+)\"/g)].map(match => match[1]))];
+  assert.deepEqual([...presets].sort(), expected.sort());
+  for (const scheme of ["light", "dark"]) {
+    await evaluate(`document.getElementById('theme').value=${JSON.stringify(scheme)}; document.getElementById('theme').dispatchEvent(new Event('change',{bubbles:true}))`);
+    const appearances = new Set();
+    for (const preset of presets) {
+      await evaluate(`document.getElementById('design').value=${JSON.stringify(preset)}; document.getElementById('design').dispatchEvent(new Event('change',{bubbles:true}))`);
+      await until(`document.querySelector('[data-fc-version]').dataset.fcDesign === ${JSON.stringify(preset)}`);
+      await evaluate("new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))");
+      const appearance = await evaluate(`(() => {
+        const root = document.querySelector('[data-fc-version]');
+        const card = getComputedStyle(root.querySelector('.fc-card--feature'));
+        const button = getComputedStyle(root.querySelector('#button .fc-btn--primary'));
+        return { preset: document.getElementById('design').value, scheme: root.dataset.fcTheme,
+          appearance: [card.backgroundColor, card.backgroundImage, card.borderRadius, card.borderWidth, card.boxShadow, card.fontFamily, button.backgroundColor, button.borderRadius],
+          overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1 };
+      })()`);
+      assert.equal(appearance.preset, preset);
+      assert.equal(appearance.scheme, scheme);
+      assert.equal(appearance.overflow, false, `${preset}/${scheme} overflows`);
+      appearances.add(JSON.stringify(appearance.appearance));
+      const violations = await evaluate("axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})))");
+      assert.deepEqual(violations, [], `${preset}/${scheme} accessibility`);
+    }
+    assert.equal(appearances.size, presets.length, "each stock design must have a distinct computed appearance");
+  }
+  await send("Emulation.setEmulatedMedia", { features: [] });
+});
+
+test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const enter = async () => {
+    await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
+    await send("Input.dispatchKeyEvent", { type: "char", text: "\r", unmodifiedText: "\r", key: "Enter", windowsVirtualKeyCode: 13 });
+    await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
+  };
+  await evaluate("document.querySelector('#button .fc-btn--primary').focus()");
+  await enter();
+  await until("document.querySelector('[data-activations]').textContent.includes('1 times')");
+  for (const selector of ['#button [aria-disabled=true]', '#button [aria-busy=true]']) {
+    await evaluate(`document.querySelector(${JSON.stringify(selector)}).focus()`);
+    await enter();
+    await evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);
+    assert.match(await evaluate("document.querySelector('[data-activations]').textContent"), /1 times/);
+  }
+  await evaluate("[...document.querySelectorAll('#badge button')].find(n=>n.textContent==='Rust').focus()");
+  await send("Input.dispatchKeyEvent", { type: "rawKeyDown", key: " ", code: "Space", windowsVirtualKeyCode: 32 });
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key: " ", code: "Space", windowsVirtualKeyCode: 32 });
+  await until("[...document.querySelectorAll('#badge button')].find(n=>n.textContent==='Rust').getAttribute('aria-pressed')==='true'");
+  await evaluate("document.querySelector('#alert [aria-label=\"Dismiss warning\"]').focus()");
+  await enter();
+  await until("document.querySelector('#alert [role=status]').textContent.includes('Warning acknowledged')");
+  assert.deepEqual(exceptions, []);
 });

@@ -2,14 +2,10 @@
 # every state, parity checks, and showcase are implemented. New files fail inventory.
 pending = [
 "agent-status.css",
-"alert.css",
 "approval.css",
 "avatar.css",
-"badge.css",
 "breadcrumb.css",
 "button-group.css",
-"button.css",
-"card.css",
 "carousel.css",
 "chat.css",
 "check.css",

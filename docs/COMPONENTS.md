@@ -5,9 +5,10 @@ Signatures are the design target, written against Dioxus 0.7. Phase 0 of
 [PLAN.md](PLAN.md) confirms them against the real API before the first component lands;
 where Dioxus forces a change, this file changes in the same commit.
 
-**Implemented now:** `FutureCss`, `Divider`, and the shared types re-exported by
-`fc_dioxus::prelude`. All other component signatures below are planned. The
-coverage inventory includes 60 upstream component stylesheets; 59 wrappers remain
+**Implemented now:** `FutureCss`, `Divider`, `Button`, `Card` and its parts,
+`Badge`, `Tag`, `Kbd`, and `Alert`, plus the shared types re-exported by
+`fc_dioxus::prelude`. Other component signatures below are planned. The
+coverage inventory includes 60 upstream component stylesheets; 55 wrappers remain
 explicitly pending in `coverage-pending.toml` (including newer upstream files not
 yet expanded in this design catalogue).
 
@@ -20,7 +21,32 @@ replace its semantics. All six orientation/inset combinations are in the demo.
 `AccessibleName::try_from(&str)` and `try_from(String)` both validate; there is no
 infallible literal conversion. `FcData` uses typed `Kind`, `Id`, lifecycle, role,
 sequence, and epoch-millisecond timestamp fields. Truncation is not implemented.
-`FutureCss` currently takes the documented theme/brand/direction/stylesheet props;
+`FutureCss` also accepts `design: Option<Design>` for all 21 stock upstream visual
+presets. Absence inherits a surrounding design. The demo starts with Helix and
+provides independent design and color-scheme controls. No custom design CSS is authored.
+
+Current action/surface APIs refine the proposals below:
+
+- `Button` includes the upstream `Ok`, `Cancel`, and `Tertiary` aliases; `icon_label:
+  Option<AccessibleName>` selects icon-only mode, so that mode always has a name.
+  Native button type, size, full width, pressed, busy, disabled, and focusable
+  unavailable states are supported. Busy and unavailable buttons suppress activation
+  and form submission. `LinkButton` remains planned.
+- `Card` is a composable native container (`CardTag` includes `Label` for selectable
+  cards). `CardVariant::Feature` exposes upstream's themed feature surface. All
+  documented parts are available; `CardTitle` uses `Option<HeadingLevel>` (`None`
+  emits a span for label cards), and `CardSubtitle` supports `inline` for the same
+  case. `CardMedia` takes required `Alt` and optional `src`; an omitted source emits
+  the decorative media placeholder used by upstream's fixture.
+- `BadgeTone::Solid` remains the checked accent fill. Separate typed outline, square,
+  count, and clipped-label options cover the other classes. `Tag` is controlled via
+  `pressed`/`onchange` or removable through `TagRemove` with a required name. `Kbd`
+  accepts visible children; platform key-name translation remains planned.
+- `AlertTone` mirrors exactly the neutral/info/success/warning/danger CSS vocabulary.
+  Alerts default to static content, support explicit `Urgency`, optional icons, banner,
+  actions, and `Dismiss` with a required name. Titles use the fixture's native paragraph.
+
+`FutureCss` takes the documented theme/brand/direction/stylesheet props;
 `use_theme`, additional shared types, and automatic debug audits remain planned.
 
 Conventions that apply to every entry, stated once here so they are not repeated:

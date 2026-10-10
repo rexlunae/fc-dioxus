@@ -81,6 +81,7 @@ impl FcData {
 pub(crate) fn theme_attributes(
     theme: Option<&'static str>,
     brand: Option<&'static str>,
+    design: Option<&'static str>,
 ) -> Vec<Attribute> {
     let mut attrs = vec![Attribute::new(
         "data-fc-version",
@@ -94,5 +95,41 @@ pub(crate) fn theme_attributes(
     if let Some(brand) = brand {
         attrs.push(Attribute::new("data-fc-brand", brand, None, false));
     }
+    if let Some(design) = design {
+        attrs.push(Attribute::new("data-fc-design", design, None, false));
+    }
     attrs
+}
+
+// Consumer classes are additive; native semantics and state remain component-owned.
+pub(crate) fn component_attributes(
+    attributes: Vec<Attribute>,
+    mut classes: super::class::ClassList,
+    protected: &[&str],
+) -> Vec<Attribute> {
+    for attr in &attributes {
+        if attr.name == "class" {
+            if let dioxus::core::AttributeValue::Text(value) = &attr.value {
+                classes = classes.with(value);
+            }
+        }
+    }
+    let mut attributes: Vec<_> = attributes
+        .into_iter()
+        .filter(|attr| attr.name != "class" && !protected.contains(&attr.name))
+        .collect();
+    attributes.push(Attribute::new("class", classes.to_string(), None, false));
+    attributes
+}
+
+pub(crate) fn availability_attributes(availability: &super::state::Availability) -> Vec<Attribute> {
+    use super::state::Availability;
+    match availability {
+        Availability::Enabled => Vec::new(),
+        Availability::Disabled => vec![Attribute::new("disabled", true, None, false)],
+        Availability::Unavailable { reason } => vec![
+            Attribute::new("aria-disabled", "true", None, false),
+            Attribute::new("aria-describedby", reason.to_string(), None, false),
+        ],
+    }
 }
