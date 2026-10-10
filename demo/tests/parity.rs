@@ -429,6 +429,11 @@ const CASES: &[Case] = &[
         &["fc-context-strip__label"],
         || rsx! { fc_demo::examples::context_strip::States {} },
     ),
+    (
+        "composer",
+        &["fc-composer__attachments"],
+        || rsx! { fc_demo::examples::composer::States {} },
+    ),
 ];
 
 #[test]

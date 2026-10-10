@@ -21,7 +21,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
 `NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, `MultiSelect`, `Split`,
 `Resizable`, `DatePicker`, `TimePicker`, `LinkButton`, `Select`, `Menu`, `MenuButton`,
-`ContextMenuArea`, and `ContextStrip`, plus the
+`ContextMenuArea`, `ContextStrip`, and `Composer`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -246,6 +246,16 @@ Current action/surface APIs refine the proposals below:
   reasoning models, defaults to medium, is dimmed (`data-fc-applicable="false"`) with a
   status note rather than removed, and is kept when a model ignores it. The resolved
   state is mirrored as `data-fc-provider`, `-model`, and `-effort`.
+- `Composer` ports `composer.ts`: a `<textarea>` (so input methods, undo, and
+  Shift+Enter are native) where Enter sends unless an input method is composing; the
+  send button turns into Stop while `running` without being replaced, the field is
+  read-only rather than disabled, Stop keeps the draft, and the draft clears only after
+  `onsubmit`. `data-fc-state` is the composer's own `idle`/`ready`/`running`, as
+  upstream writes it, not the message lifecycle. Attachments are controlled
+  (`attachments`, `onremove`), each remove button names its file, failed files carry
+  `data-fc-state="error"`, and dropped files arrive through `onfiles`. Upstream's
+  binding writes an `fc-composer__attachment-size` class that composer.css does not
+  define, so sizes appear in the status line instead.
 - **Routing.** With the `router` feature, every component that renders a link
   (`LinkButton`, `NavLink`, `Crumb`, `ListAction::Link`, `MastheadLink`, `NavbarItem`,
   pagination links, `Source`) resolves its `href` against the nearest `dioxus-router`

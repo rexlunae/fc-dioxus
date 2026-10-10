@@ -410,3 +410,24 @@ pub(crate) fn context_attributes(
 pub(crate) fn applicable_attribute(applicable: bool) -> Attribute {
     Attribute::new("data-fc-applicable", applicable.to_string(), None, false)
 }
+
+/// A composer's own lifecycle (`data-fc-state` of `idle`, `ready`, or `running`), and
+/// whether a file is being dragged over it (`data-fc-dragging`).
+pub(crate) fn composer_state_attribute(state: &'static str) -> Attribute {
+    Attribute::new("data-fc-state", state, None, false)
+}
+pub(crate) fn dragging_attribute(dragging: bool) -> Vec<Attribute> {
+    if dragging {
+        vec![Attribute::new("data-fc-dragging", "true", None, false)]
+    } else {
+        Vec::new()
+    }
+}
+/// An item that failed (`data-fc-state="error"`), e.g. an attachment that could not be read.
+pub(crate) fn error_state_attribute(error: bool) -> Vec<Attribute> {
+    if error {
+        vec![Attribute::new("data-fc-state", "error", None, false)]
+    } else {
+        Vec::new()
+    }
+}

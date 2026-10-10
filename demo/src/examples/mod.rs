@@ -13,6 +13,7 @@ pub mod carousel;
 pub mod chat;
 pub mod check;
 pub mod citation;
+pub mod composer;
 pub mod context_strip;
 pub mod control_group;
 pub mod datepicker;

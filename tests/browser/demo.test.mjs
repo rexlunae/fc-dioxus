@@ -533,6 +533,27 @@ test("the context strip resolves models by provider and dims effort instead of d
   await until(`${strip}.dataset.fcModel === 'sonnet' && ${strip}.dataset.fcEffort === 'medium'`);
 });
 
+test("the composer sends on Enter, keeps Shift+Enter, becomes Stop, and names each remove button", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const root = "document.querySelector('#composer .fc-composer')";
+  const input = `${root}.querySelector('textarea')`;
+  const sendButton = `${root}.querySelector('.fc-composer__send')`;
+  assert.equal(await evaluate(`${root}.dataset.fcState`), "ready");
+  assert.deepEqual(await evaluate(`[...${root}.querySelectorAll('.fc-composer__attachment-remove')].map(b => b.getAttribute('aria-label'))`),
+    ["Remove notes.md", "Remove a-very-long-file-name-that-is-truncated.pdf"]);
+  await evaluate(`${input}.focus()`);
+  await send("Input.dispatchKeyEvent", { type: "keyDown", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, modifiers: 8, text: "\r" });
+  await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, modifiers: 8 });
+  await until(`${input}.value.includes('\\n')`);
+  assert.equal(await evaluate(`${root}.dataset.fcState`), "ready", "Shift+Enter does not send");
+  await press("Enter", "Enter", 13);
+  await until(`${root}.dataset.fcState === 'running' && ${sendButton}.textContent === 'Stop' && ${input}.readOnly`);
+  assert.equal(await evaluate(`${sendButton}.getAttribute('aria-label')`), "Stop generating");
+  assert.equal(await evaluate(`${input}.value`), "", "the accepted draft is cleared");
+  await evaluate(`${sendButton}.click()`);
+  await until(`${root}.dataset.fcState === 'idle' && ${sendButton}.disabled`);
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {
