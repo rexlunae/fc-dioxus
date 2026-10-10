@@ -110,6 +110,8 @@ fn tree_within(document: &Document, index: usize, hidden: bool) -> Option<Tree> 
     // Upstream's fixtures are the markup before its bindings run; these are what the
     // bindings add (tabs.ts pairs tabs and panels), so the static reference lacks them.
     attrs.remove("aria-controls");
+    // multiselect.ts marks each option's state as it syncs.
+    attrs.remove("data-fc-selected");
     if attrs.get("role").map(String::as_str) == Some("tabpanel") {
         attrs.remove("aria-labelledby");
     }
@@ -387,6 +389,16 @@ const CASES: &[Case] = &[
         "table",
         &["fc-table__empty"],
         || rsx! { fc_demo::examples::table::States {} },
+    ),
+    (
+        "nav",
+        &["fc-nav"],
+        || rsx! { fc_demo::examples::nav::States {} },
+    ),
+    (
+        "multiselect",
+        &["fc-multiselect"],
+        || rsx! { fc_demo::examples::multiselect::States {} },
     ),
 ];
 

@@ -27,6 +27,8 @@ pub mod list;
 pub mod loading;
 pub mod masthead;
 pub mod metric;
+pub mod multiselect;
+pub mod nav;
 pub mod navbar;
 pub mod pagination;
 pub mod popover;

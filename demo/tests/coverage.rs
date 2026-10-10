@@ -72,6 +72,8 @@ const IMPLEMENTED: &[&str] = &[
     "slider.css",
     "carousel.css",
     "table.css",
+    "nav.css",
+    "multiselect.css",
 ];
 
 #[test]

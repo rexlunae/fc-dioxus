@@ -134,6 +134,14 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Carousel", "carousel"),
     ("Slide", "carousel"),
     ("Table", "table"),
+    ("NavSidebar", "nav"),
+    ("NavHeading", "nav"),
+    ("NavList", "nav"),
+    ("NavLink", "nav"),
+    ("NavIcon", "nav"),
+    ("NavGroup", "nav"),
+    ("NavFooter", "nav"),
+    ("MultiSelect", "multiselect"),
 ];
 
 /// The examples that render every Divider state.
@@ -411,6 +419,18 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Tables",
         render: || rsx! { examples::table::States {} },
         source: include_str!("examples/table/states.rs"),
+    },
+    Example {
+        id: "nav",
+        title: "Navigation sidebar",
+        render: || rsx! { examples::nav::States {} },
+        source: include_str!("examples/nav/states.rs"),
+    },
+    Example {
+        id: "multiselect",
+        title: "Multiselect",
+        render: || rsx! { examples::multiselect::States {} },
+        source: include_str!("examples/multiselect/states.rs"),
     },
 ];
 

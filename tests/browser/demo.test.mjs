@@ -349,6 +349,29 @@ test("tables sort by one column at a time and keep row state", async () => {
   assert.equal(await evaluate(`${table}.querySelector('tr[aria-selected=true]').cells[0].textContent`), "Refactor parser", "selection follows its row");
 });
 
+test("the sidebar collapses to a titled rail and the multiselect filters, bulk-selects, and closes on Escape", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const nav = "document.querySelector('#nav .fc-nav')";
+  const toggle = `${nav}.querySelector('.fc-nav__toggle')`;
+  assert.equal(await evaluate(`${toggle}.getAttribute('aria-expanded')`), "true");
+  await evaluate(`${toggle}.click()`);
+  await until(`${toggle}.getAttribute('aria-expanded') === 'false' && ${nav}.querySelector('.fc-nav__link').title === 'Current page'`);
+  await evaluate(`${toggle}.click()`);
+  await until(`${toggle}.getAttribute('aria-expanded') === 'true' && !${nav}.querySelector('.fc-nav__link').hasAttribute('title')`);
+
+  const ms = "document.querySelector('#multiselect details')";
+  await evaluate(`(() => { const q = ${ms}.querySelector('[data-fc-filter]'); q.value = 'grace'; q.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await until(`[...${ms}.querySelectorAll('.fc-multiselect__option')].filter(o => !o.hidden).length === 1`);
+  await evaluate(`${ms}.querySelector('[data-fc-selection-action=all]').click()`);
+  await until(`${ms}.querySelector('[data-fc-selection-summary]').textContent === '2 selected'`);
+  await evaluate(`${ms}.querySelector('[data-fc-selection-action=clear]').click()`);
+  await until(`${ms}.querySelector('[data-fc-selection-summary]').textContent === 'None selected'`);
+  assert.equal(await evaluate(`${ms}.querySelector('input[value=alan]').checked`), false, "unavailable options keep their state");
+  await evaluate(`${ms}.querySelector('[data-fc-filter]').focus()`);
+  await press("Escape", "Escape", 27);
+  await until(`!${ms}.open && document.activeElement === ${ms}.querySelector('summary')`);
+});
+
 test("native keyboard activation, unavailable guards, toggle tags, and dismiss callbacks work", async () => {
   await load("fixtures=false&theme=light", 1200);
   const enter = async () => {

@@ -124,6 +124,8 @@ pub enum Kind {
     Transfer,
     /// A question put to the user.
     UserPrompt,
+    /// A multiple-choice picker.
+    Multiselect,
 }
 impl Kind {
     const fn as_str(self) -> &'static str {
@@ -140,6 +142,7 @@ impl Kind {
             Self::Toast => "toast",
             Self::Transfer => "transfer",
             Self::UserPrompt => "user-prompt",
+            Self::Multiselect => "multiselect",
         }
     }
 }
@@ -305,4 +308,38 @@ pub(crate) fn carousel_control_attribute(next: bool) -> Attribute {
         None,
         false,
     )
+}
+
+/// Markers upstream's multiselect markup uses to find its parts (`data-fc-*` flags).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum MultiselectPart {
+    /// The live summary of what is chosen.
+    Summary,
+    /// The filter input.
+    Filter,
+    /// The "no matches" message.
+    Empty,
+    /// "Select visible".
+    SelectAll,
+    /// "Clear".
+    Clear,
+}
+pub(crate) fn multiselect_part(part: MultiselectPart) -> Attribute {
+    match part {
+        MultiselectPart::Summary => Attribute::new("data-fc-selection-summary", "", None, false),
+        MultiselectPart::Filter => Attribute::new("data-fc-filter", "", None, false),
+        MultiselectPart::Empty => Attribute::new("data-fc-empty", "", None, false),
+        MultiselectPart::SelectAll => {
+            Attribute::new("data-fc-selection-action", "all", None, false)
+        }
+        MultiselectPart::Clear => Attribute::new("data-fc-selection-action", "clear", None, false),
+    }
+}
+
+/// Whether an option is chosen (`data-fc-selected`), and how many are (`data-fc-count`).
+pub(crate) fn selected_attribute(selected: bool) -> Attribute {
+    Attribute::new("data-fc-selected", selected.to_string(), None, false)
+}
+pub(crate) fn count_attribute(count: usize) -> Attribute {
+    Attribute::new("data-fc-count", count.to_string(), None, false)
 }

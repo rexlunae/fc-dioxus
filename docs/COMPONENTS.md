@@ -18,7 +18,8 @@ where Dioxus forces a change, this file changes in the same commit.
 `Approval`, `UserPrompt`, `DeviceAuth`, `Reasoning`, `Cite`, `Sources`, `Source`,
 `Suggestions`, `Suggestion`, `ToolCall`, `Chat`, `ChatGroup`, `Message`, `MessageAction`,
 `MessagePart`, `Tabs`, `Tab`, `TabPanel`, `Toolbar`, `ToolbarItem`, `ToolbarDivider`,
-`ToolbarLabel`, `Slider`, `Carousel`, `Slide`, and `Table`, plus the
+`ToolbarLabel`, `Slider`, `Carousel`, `Slide`, `Table`, `NavSidebar`, `NavHeading`,
+`NavList`, `NavLink`, `NavIcon`, `NavGroup`, `NavFooter`, and `MultiSelect`, plus the
 shared types re-exported by `fc_dioxus::prelude`. Other component signatures below
 are planned. `coverage-pending.toml` lists every upstream component stylesheet that
 still has no wrapper (including newer upstream files not yet expanded in this design
@@ -187,6 +188,17 @@ Current action/surface APIs refine the proposals below:
   locale-sensitive columns explicit keys. `SortMode::Manual` only reports the request.
   Upstream's table fixture marks two headers sorted at once, contradicting its own
   binding, so only the empty-state rows are compared structurally.
+- `NavSidebar` collapses to an icon rail through its toggle's `aria-expanded`, which the
+  stylesheet also reads; in the rail each `NavLink` takes its label as `title`. Links
+  are `NavCurrent::Page` or `Section` (`aria-current="page"`/`"true"`); `NavIcon` draws
+  the 20-unit stroke icon upstream uses.
+- `MultiSelect` keeps native checkboxes in a `<details>`, so choosing works without
+  script. Filtering (`matches`), "Select visible", and "Clear" skip unavailable
+  options; the summary uses `default_summary` unless given one; Escape closes it and
+  returns focus to the summary. The open state is controlled through the summary,
+  because browsers fire a toggle event for a details that starts open. It does not
+  write upstream's `data-fc-values`, which would put app values in an attribute;
+  `fc_id` adds kind, id, state, and `data-fc-count`.
 - `name!("…")` builds an `AccessibleName` from a literal, rejecting a blank one at
   compile time.
 - `Timestamp::iso8601` accepts validated UTC instants alongside epoch milliseconds, and
