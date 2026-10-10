@@ -9,7 +9,9 @@ const AFTER: &str = "const a = 1;\nconst c = 3;\nexport { a, c }; // a long trai
 #[component]
 pub fn States() -> Element {
     const STACK: Bem = Bem::new("fc-stack");
-    let long_before: String = (1..=30).map(|n| format!("line {n}\n")).collect();
+    let long_before: String = (1..=30_u32)
+        .map(|n| "line ".to_owned() + &n.to_string() + "\n")
+        .collect();
     let long_after = long_before.replace("line 15\n", "line fifteen\n");
     rsx! {
         div { class: STACK.block(),

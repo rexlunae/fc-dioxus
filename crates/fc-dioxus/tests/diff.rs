@@ -19,7 +19,7 @@ fn every_change_carries_a_glyph_a_label_and_data_fc_diff() {
 
 #[test]
 fn folded_lines_stay_in_the_dom() {
-    let before: String = (1..=20).map(|n| format!("{n}\n")).collect();
+    let before: String = (1..=20).map(|n| n.to_string() + "\n").collect();
     let after = before.replace("10\n", "ten\n");
     let html = dioxus_ssr::render_element(rsx! {
         FutureCss { stylesheets: Stylesheets::External,
@@ -27,5 +27,9 @@ fn folded_lines_stay_in_the_dom() {
         }
     });
     assert!(html.contains("unchanged lines"), "{html}");
-    assert_eq!(html.matches("fc-diff__line").count(), 21, "every line is still rendered");
+    assert_eq!(
+        html.matches("fc-diff__line").count(),
+        21,
+        "every line is still rendered"
+    );
 }
