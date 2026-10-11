@@ -15,7 +15,6 @@ const CONTAINER: Bem = Bem::new("fc-container");
 const STACK: Bem = Bem::new("fc-stack");
 const CLUSTER: Bem = Bem::new("fc-cluster");
 const PAD: Bem = Bem::new("fc-u-p-6");
-const SOURCE: Bem = Bem::new("fc-u-prewrap");
 const GRID: Bem = Bem::new("fc-grid-auto");
 const WIDE_GRID: Bem = Bem::new("fc-grid-auto--wide");
 const SPACED: Bem = Bem::new("fc-stack--8");
@@ -770,7 +769,7 @@ fn Source(props: SourceProps) -> Element {
     rsx! {
         details {
             summary { "Rust source" }
-            pre { class: SOURCE.block(), code { "{source}" } }
+            CodeBlock { source: CodeSource::highlighted(source, "rust"), lang: "rust" }
             Button { variant: ButtonVariant::Secondary, size: ButtonSize::Sm, "data-copy": props.name,
                 onclick: move |_| async move {
                     message.set(match DomBridge.copy_text(source).await {

@@ -1,9 +1,10 @@
 //! Source code for reading, from code.css.
 //!
-//! Upstream highlights with a JavaScript tokenizer (`highlight.ts`) that has no Rust
-//! crate yet, and this library does not reimplement upstream logic (AGENTS.md, rule
-//! 10), so a [`CodeBlock`] draws spans it is given: from any highlighter, or none.
-//! Every span sits in one `<code>`, so its text is byte-identical to the source.
+//! A [`CodeBlock`] draws spans it is given. [`CodeSource::highlighted`] makes them with
+//! upstream's `fc-highlight`, the Rust twin of `highlight.ts`, so a block tokenizes the
+//! same way on every renderer as it does in the browser; any other highlighter's spans
+//! work too. Every span sits in one `<code>`, so its text is byte-identical to the
+//! source.
 use crate::{
     core::{
         assets,
@@ -128,11 +129,57 @@ pub enum CodeSource {
     Spans(Vec<SyntaxSpan>),
 }
 impl CodeSource {
+    /// `source` tokenized by upstream's highlighter, or plain text when it knows no
+    /// language by this name or alias (see [`CodeSource::supports`]).
+    #[must_use]
+    pub fn highlighted(source: &str, lang: &str) -> Self {
+        if !Self::supports(lang) {
+            return Self::Plain(source.to_owned());
+        }
+        Self::Spans(
+            fc_highlight::highlight(source, lang)
+                .into_iter()
+                .map(|span| SyntaxSpan::new(role(span.role), span.text))
+                .collect(),
+        )
+    }
+
+    /// Whether upstream's highlighter knows `lang`, as a name ("rust") or an alias
+    /// ("rs"). A block of any other language sets `unsupported`.
+    #[must_use]
+    pub fn supports(lang: &str) -> bool {
+        fc_highlight::Language::resolve(lang).is_some()
+    }
+
     fn text(&self) -> String {
         match self {
             Self::Plain(text) => text.clone(),
             Self::Spans(spans) => spans.iter().map(|s| s.text.as_str()).collect(),
         }
+    }
+}
+
+/// The upstream role's twin. Both enums mirror `highlight.ts`'s `SyntaxRole`.
+const fn role(role: fc_highlight::Role) -> SyntaxRole {
+    use fc_highlight::Role as R;
+    match role {
+        R::Fg => SyntaxRole::Fg,
+        R::Comment => SyntaxRole::Comment,
+        R::Keyword => SyntaxRole::Keyword,
+        R::String => SyntaxRole::String,
+        R::Number => SyntaxRole::Number,
+        R::Function => SyntaxRole::Function,
+        R::Type => SyntaxRole::Type,
+        R::Operator => SyntaxRole::Operator,
+        R::Punctuation => SyntaxRole::Punctuation,
+        R::Property => SyntaxRole::Property,
+        R::Constant => SyntaxRole::Constant,
+        R::Tag => SyntaxRole::Tag,
+        R::Attribute => SyntaxRole::Attribute,
+        R::Regexp => SyntaxRole::Regexp,
+        R::Heading => SyntaxRole::Heading,
+        R::Link => SyntaxRole::Link,
+        R::Invalid => SyntaxRole::Invalid,
     }
 }
 

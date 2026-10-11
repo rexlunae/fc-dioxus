@@ -692,7 +692,7 @@ demo compiles that file and renders it, and shows the same file's text through
 `include_str!`, with a marker comment fencing off the imports it trims for display.
 There is no second copy of the snippet to fall out of date: if the shown code would not
 compile, the demo does not build. Snippets are highlighted with the library's own
-`CodeBlock` once upstream's highlighter port lands, and shown plain until then.
+`CodeBlock`, through upstream's `fc-highlight`.
 
 The same example files feed the fixture page and the tests, so writing an example once
 gives the showcase entry, the fixture state, the parity check, and the a11y check.

@@ -15,7 +15,7 @@ function pinValue(key) {
 export const pin = { repo: pinValue("repo"), rev: pinValue("rev"), version: pinValue("css-version") };
 /** Upstream bindings shipped as JavaScript: the editor and the modules it imports. */
 export const bindings = ["editor", "selection", "urls", "toolbar"];
-export const models = ["fc-core", "fc-model", "fc-rich-text", "fc-select", "fc-context-menu", "fc-grid", "fc-diff", "fc-git"];
+export const models = ["fc-core", "fc-model", "fc-rich-text", "fc-select", "fc-context-menu", "fc-grid", "fc-diff", "fc-git", "fc-highlight"];
 if (!/^[0-9a-f]{40}$/.test(pin.rev) || pin.repo !== "https://github.com/rexlunae/future-css") {
   throw new Error("upstream must use the canonical repository and a full commit SHA");
 }

@@ -259,9 +259,10 @@ Current action/surface APIs refine the proposals below:
 - `CodeBlock` draws `CodeSource::Plain` text or `CodeSource::Spans` of `SyntaxSpan`s,
   all inside one `<code>` so its text equals the source, with `CodeLayout::Wrap`,
   `Numbered` (a gutter of one number per logical line), or `Scroll(name)` (a focusable,
-  named region). It does not tokenize: upstream's highlighter is JavaScript with no
-  Rust crate yet, and rule 10 keeps that logic upstream, so an `fc-highlight` crate is
-  waiting on upstream and any highlighter's spans can be passed in meanwhile. Upstream's
+  named region). `CodeSource::highlighted(source, lang)` tokenizes with upstream's
+  `fc-highlight`, the parity-tested Rust twin of `highlight.ts`, and falls back to plain
+  text for a language it does not know (`CodeSource::supports` says which); spans from
+  any other highlighter draw the same way. Upstream's
   renderer also writes a bare `fc-code__tok` class that code.css does not define; only
   the role classes are emitted here.
 - `DiffView` diffs two texts with upstream's `fc_diff` (Myers' O(ND)) and shows the
@@ -1222,8 +1223,7 @@ rather than by parity.
     #[props(default)] toolbar: Option<Element>) -> Element; // __bar, e.g. a copy button
 ```
 
-Tokens come from `fc-highlight` (the planned upstream Rust port of `highlight.ts`,
-parity-tested; see [Waiting on upstream](#waiting-on-upstream)),
+Tokens come from `fc-highlight` (upstream's Rust port of `highlight.ts`, parity-tested),
 rendered as `__tok--{role}` spans for every `SyntaxRole`. An unknown language renders
 `--unsupported` with plain text rather than guessing.
 
@@ -1612,8 +1612,6 @@ pub enum ResizeUnit { Percent, Px }   // % of the split; CSS px for edge handles
 
 ## Waiting on upstream
 
-- **A Rust highlighter crate.** `CodeBlock` takes spans until upstream ships
-  `highlight.ts`'s tokenizer as a model crate, as it did for diff and select.
 - **Fixture and binding fixes** found while wrapping, listed with each component above:
   `fc-select__option-label`, `fc-composer__attachment-size`, `fc-code__tok`, and
   `fc-diff__body` are written but not defined, as is the terminal fixture's
@@ -1633,7 +1631,6 @@ its issue link, and gets an API entry above only once upstream has shipped its C
 | Need | Kind | Blocks | Upstream issue |
 | --- | --- | --- | --- |
 | `fc-calendar`: date and time values, month grid, `add_months`, first day of week, parity with `datepicker.ts` | New model crate | `DatePicker`, `TimePicker` | To be filed |
-| `fc-highlight`: Rust port of `highlight.ts`, parity-tested | New model crate | Highlighting in `CodeBlock` | To be filed |
 | `fc-markdown`: Rust port of `markdown.ts`, with a plain-text output for announcements | New model crate | `StreamingText { markdown: true }`, Markdown in `Message` | To be filed |
 | `fc-ansi`: ANSI SGR parsing into terminal runs, with a TypeScript twin for upstream's demo | New model crate | Raw ANSI input to `Terminal` | [future-css#53](https://github.com/rexlunae/future-css/issues/53) |
 | `fc-theme`: custom theme validation (schema, SemVer, contrast pairs), TOML parse and serialize, design overrides, as in `theme-picker.ts` and `theme-toml.ts` | New model crate | The `ThemePicker` custom-theme editor | [future-css#54](https://github.com/rexlunae/future-css/issues/54) |
