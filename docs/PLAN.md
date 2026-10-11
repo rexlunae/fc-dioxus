@@ -170,7 +170,7 @@ is in the pinned revision:
 
 1. `fc-calendar` upstream, then `DatePicker` and `TimePicker`.
 2. `fc-highlight` upstream, then highlighting in `CodeBlock` and in the demo's own
-   snippets.
+   snippets. Done: `CodeSource::highlighted` uses the pinned crate.
 3. `fc-ansi` upstream, then `Terminal`.
 4. `fc-markdown` upstream, then Markdown in `StreamingText` and `Message`.
 5. `DataGrid` over `fc-grid`, with virtualization from `Viewport`.
