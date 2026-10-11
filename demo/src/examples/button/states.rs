@@ -22,7 +22,7 @@ pub fn States() -> Element {
                 for size in [ButtonSize::Sm, ButtonSize::Md, ButtonSize::Lg] {
                     Button { variant: ButtonVariant::Primary, size, onclick: move |_| activations += 1, "{size:?} action" }
                 }
-                Button { variant: ButtonVariant::Secondary, icon_label: refresh, onclick: move |_| activations += 1, "↻" }
+                Button { variant: ButtonVariant::Secondary, icon_label: refresh, onclick: move |_| activations += 1, Icon { name: IconName::Refresh } }
             }
             div { class: CLUSTER.block(),
                 for variant in [ButtonVariant::Primary, ButtonVariant::Secondary, ButtonVariant::Ghost, ButtonVariant::Subtle, ButtonVariant::Danger] {

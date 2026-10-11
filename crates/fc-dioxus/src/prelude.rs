@@ -38,6 +38,7 @@ pub use crate::{
     },
     components::git::{FileState, GitEntry, GitSurface},
     components::grid::{DataGrid, GridCell, GridColumn, GridEdit},
+    components::icon::{Icon, IconButton, IconSize},
     components::list::{List, ListAction, ListItem},
     components::loading::{
         Loading, Progress, ProgressRing, ProgressValue, RingSize, Skeleton, SkeletonShape,
@@ -81,6 +82,7 @@ pub use crate::{
         attrs::{FcData, InvalidTimestamp, Kind, Spread, Timestamp},
         class::{Bem, ClassList, Modifier},
         controlled::{use_controllable, Controllable},
+        icons::IconName,
         id::{use_id, Id},
         measure::Percent,
         platform::{Edge, MenuPoint},

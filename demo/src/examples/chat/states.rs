@@ -25,7 +25,7 @@ pub fn States() -> Element {
                     Message { role: MessageRole::Assistant, state: Lifecycle::Complete, author: rsx! { "Assistant" }, sent: sent(),
                         persistent_actions: true,
                         actions: rsx! {
-                            MessageAction { icon_label: name!("Copy"), "⧉" }
+                            MessageAction { icon_label: name!("Copy"), Icon { name: IconName::Copy } }
                             MessageAction { icon_label: name!("Good response"), pressed: rating() == Some(true), onclick: move |_| rating.set(Some(true)), "👍" }
                             MessageAction { icon_label: name!("Bad response"), pressed: rating() == Some(false), onclick: move |_| rating.set(Some(false)), "👎" }
                             MessageAction { availability: Availability::Unavailable { reason: reason.clone() }, "↻ Retry" }

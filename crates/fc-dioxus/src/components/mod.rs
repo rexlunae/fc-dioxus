@@ -27,6 +27,7 @@ pub mod fab;
 pub mod field;
 pub mod git;
 pub mod grid;
+pub mod icon;
 pub mod list;
 pub mod loading;
 pub mod masthead;

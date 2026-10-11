@@ -11,14 +11,20 @@ fn highlighted_rust_draws_role_spans_that_rebuild_the_source() {
         CodeSource::Plain(_) => Vec::new(),
     };
     assert!(!spans.is_empty(), "rust is a supported language");
-    assert_eq!(spans.iter().map(|s| s.text.as_str()).collect::<String>(), source);
+    assert_eq!(
+        spans.iter().map(|s| s.text.as_str()).collect::<String>(),
+        source
+    );
     let html = dioxus_ssr::render_element(rsx! {
         FutureCss { stylesheets: Stylesheets::External,
             CodeBlock { source: CodeSource::Spans(spans), lang: "rust" }
         }
     });
     for role in ["keyword", "function", "string", "number", "comment"] {
-        assert!(html.contains(&format!("fc-code__tok--{role}")), "{role}: {html}");
+        assert!(
+            html.contains(&format!("fc-code__tok--{role}")),
+            "{role}: {html}"
+        );
     }
 }
 

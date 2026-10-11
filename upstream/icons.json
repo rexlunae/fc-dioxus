@@ -1,0 +1,270 @@
+{
+  "viewBox": "0 0 24 24",
+  "strokeWidth": 2,
+  "icons": {
+    "copy": {
+      "d": "M11 9h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2zM15 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4",
+      "mirror": false
+    },
+    "check": {
+      "d": "M5 12.5l4.5 4.5L19 7.5",
+      "mirror": false
+    },
+    "close": {
+      "d": "M6 6l12 12M18 6L6 18",
+      "mirror": false
+    },
+    "plus": {
+      "d": "M12 5v14M5 12h14",
+      "mirror": false
+    },
+    "minus": {
+      "d": "M5 12h14",
+      "mirror": false
+    },
+    "search": {
+      "d": "M11 4.5a6.5 6.5 0 1 0 0 13a6.5 6.5 0 1 0 0-13zM15.6 15.6L20 20",
+      "mirror": false
+    },
+    "edit": {
+      "d": "M4 20h4L19 9a2.83 2.83 0 0 0-4-4L4 16zM13.5 6.5l4 4",
+      "mirror": false
+    },
+    "trash": {
+      "d": "M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3",
+      "mirror": false
+    },
+    "download": {
+      "d": "M12 4v11M7 10l5 5 5-5M5 20h14",
+      "mirror": false
+    },
+    "upload": {
+      "d": "M12 16V5M7 10l5-5 5 5M5 20h14",
+      "mirror": false
+    },
+    "share": {
+      "d": "M18 2.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5zM6 9.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5zM18 16.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5zM8.2 10.8l7.6-4.5M8.2 13.2l7.6 4.5",
+      "mirror": false
+    },
+    "link": {
+      "d": "M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1",
+      "mirror": false
+    },
+    "external-link": {
+      "d": "M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5",
+      "mirror": true
+    },
+    "refresh": {
+      "d": "M20 12a8 8 0 1 1-2.34-5.66M20 4v4h-4",
+      "mirror": false
+    },
+    "undo": {
+      "d": "M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3",
+      "mirror": true
+    },
+    "redo": {
+      "d": "M15 14l5-5-5-5M20 9H10a6 6 0 0 0 0 12h3",
+      "mirror": true
+    },
+    "filter": {
+      "d": "M3 5h18l-7 8v6l-4 2v-8z",
+      "mirror": false
+    },
+    "settings": {
+      "d": "M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1M15 4v4M9 10v4M17 16v4",
+      "mirror": false
+    },
+    "maximize": {
+      "d": "M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7",
+      "mirror": false
+    },
+    "minimize": {
+      "d": "M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7",
+      "mirror": false
+    },
+    "menu": {
+      "d": "M4 6h16M4 12h16M4 18h16",
+      "mirror": false
+    },
+    "more-horizontal": {
+      "d": "M5 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2zM12 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2zM19 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2z",
+      "mirror": false
+    },
+    "more-vertical": {
+      "d": "M12 4a1 1 0 1 0 0 2a1 1 0 1 0 0-2zM12 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2zM12 18a1 1 0 1 0 0 2a1 1 0 1 0 0-2z",
+      "mirror": false
+    },
+    "chevron-up": {
+      "d": "M6 15l6-6 6 6",
+      "mirror": false
+    },
+    "chevron-down": {
+      "d": "M6 9l6 6 6-6",
+      "mirror": false
+    },
+    "chevron-start": {
+      "d": "M15 6l-6 6 6 6",
+      "mirror": true
+    },
+    "chevron-end": {
+      "d": "M9 6l6 6-6 6",
+      "mirror": true
+    },
+    "arrow-up": {
+      "d": "M12 19V5M6 11l6-6 6 6",
+      "mirror": false
+    },
+    "arrow-down": {
+      "d": "M12 5v14M6 13l6 6 6-6",
+      "mirror": false
+    },
+    "arrow-start": {
+      "d": "M19 12H5M11 6l-6 6 6 6",
+      "mirror": true
+    },
+    "arrow-end": {
+      "d": "M5 12h14M13 6l6 6-6 6",
+      "mirror": true
+    },
+    "home": {
+      "d": "M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5",
+      "mirror": false
+    },
+    "sidebar": {
+      "d": "M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM9 4v16",
+      "mirror": true
+    },
+    "info": {
+      "d": "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM12 11v5M12 8h.01",
+      "mirror": false
+    },
+    "success": {
+      "d": "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM8 12.5l2.5 2.5L16 9.5",
+      "mirror": false
+    },
+    "warning": {
+      "d": "M10.3 4.2L2.8 17.5a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01",
+      "mirror": false
+    },
+    "error": {
+      "d": "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM12 7.5v5M12 16h.01",
+      "mirror": false
+    },
+    "help": {
+      "d": "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01",
+      "mirror": false
+    },
+    "lock": {
+      "d": "M6 11h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1zM8 11V7a4 4 0 0 1 8 0v4",
+      "mirror": false
+    },
+    "eye": {
+      "d": "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z",
+      "mirror": false
+    },
+    "eye-off": {
+      "d": "M10.6 5.1A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.2 3.2M6.6 6.6A16.6 16.6 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18",
+      "mirror": false
+    },
+    "bell": {
+      "d": "M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4",
+      "mirror": false
+    },
+    "star": {
+      "d": "M12 3L14.5 9.1L21 9.6L16 13.8L17.6 20.2L12 16.7L6.4 20.2L8 13.8L3 9.6L9.5 9.1z",
+      "mirror": false
+    },
+    "clock": {
+      "d": "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM12 7v5l3 2",
+      "mirror": false
+    },
+    "send": {
+      "d": "M21 3L10 14M21 3l-7 18-4-7-7-4z",
+      "mirror": true
+    },
+    "stop": {
+      "d": "M8 6h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z",
+      "mirror": false
+    },
+    "play": {
+      "d": "M7 4.5v15l12-7.5z",
+      "mirror": false
+    },
+    "pause": {
+      "d": "M8 5v14M16 5v14",
+      "mirror": false
+    },
+    "mic": {
+      "d": "M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3",
+      "mirror": false
+    },
+    "attach": {
+      "d": "M20 11.5l-8 8a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7L9.7 17.2a1.7 1.7 0 0 1-2.4-2.4L15 7",
+      "mirror": false
+    },
+    "thumbs-up": {
+      "d": "M7 11v10M7 11l4-8a2 2 0 0 1 2.5 2v4h5.3a2 2 0 0 1 2 2.4l-1.4 6A2 2 0 0 1 17.4 21H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1z",
+      "mirror": false
+    },
+    "thumbs-down": {
+      "d": "M7 13V3M7 13l4 8a2 2 0 0 0 2.5-2v-4h5.3a2 2 0 0 0 2-2.4l-1.4-6A2 2 0 0 0 17.4 3H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1z",
+      "mirror": false
+    },
+    "sparkles": {
+      "d": "M11 3l1.8 5.2L18 10l-5.2 1.8L11 17l-1.8-5.2L4 10l5.2-1.8zM19 15v5M16.5 17.5h5",
+      "mirror": false
+    },
+    "user": {
+      "d": "M12 4a4 4 0 1 0 0 8a4 4 0 1 0 0-8zM4 20a8 6 0 0 1 16 0",
+      "mirror": false
+    },
+    "mail": {
+      "d": "M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM3 7l9 6 9-6",
+      "mirror": false
+    },
+    "file": {
+      "d": "M6 3h8l5 5v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5",
+      "mirror": false
+    },
+    "folder": {
+      "d": "M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z",
+      "mirror": false
+    },
+    "image": {
+      "d": "M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM9 8a1.5 1.5 0 1 0 0 3a1.5 1.5 0 1 0 0-3zM20 15l-5-5L5 20",
+      "mirror": false
+    },
+    "code": {
+      "d": "M9 7l-5 5 5 5M15 7l5 5-5 5",
+      "mirror": false
+    },
+    "terminal": {
+      "d": "M4 6l6 6-6 6M12 18h8",
+      "mirror": false
+    },
+    "git-branch": {
+      "d": "M6 3v12M18 3a3 3 0 1 0 0 6a3 3 0 1 0 0-6zM6 15a3 3 0 1 0 0 6a3 3 0 1 0 0-6zM18 9a9 9 0 0 1-9 9",
+      "mirror": false
+    },
+    "calendar": {
+      "d": "M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM4 10h16M8 3v4M16 3v4",
+      "mirror": false
+    },
+    "bookmark": {
+      "d": "M6 3h12v18l-6-4-6 4z",
+      "mirror": false
+    },
+    "globe": {
+      "d": "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM3 12h18M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18z",
+      "mirror": false
+    },
+    "sun": {
+      "d": "M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
+      "mirror": false
+    },
+    "moon": {
+      "d": "M20 14A8 8 0 1 1 10 4a6.5 6.5 0 0 0 10 10z",
+      "mirror": false
+    }
+  }
+}
