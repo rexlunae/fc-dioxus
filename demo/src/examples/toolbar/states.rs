@@ -16,7 +16,7 @@ pub fn States() -> Element {
                 ToolbarItem { pressed: bold(), onclick: move |_| bold.toggle(), "Bold" }
                 ToolbarItem { pressed: italic(), onclick: move |_| italic.toggle(), "Italic" }
                 ToolbarDivider {}
-                ToolbarItem { icon_label: name!("Copy"), "⧉" }
+                ToolbarItem { icon_label: name!("Copy"), Icon { name: IconName::Copy } }
                 ToolbarItem { icon_label: name!("Paste"), availability: Availability::Unavailable { reason: reason.clone() }, "📋" }
                 ToolbarItem { icon_label: name!("Undo"), availability: Availability::Disabled, "↶" }
             }

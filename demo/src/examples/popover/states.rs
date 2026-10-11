@@ -18,7 +18,7 @@ pub fn States() -> Element {
                 footer: rsx! { Button { variant: ButtonVariant::Primary, size: ButtonSize::Sm, popovertarget: "{sampling}", popovertargetaction: "hide", "Done" } },
                 p { "Temperature 0.7" }
             }
-            Tooltip { tip: rsx! { "Copy to clipboard" }, Button { variant: ButtonVariant::Ghost, icon_label: copy, "⧉" } }
+            Tooltip { tip: rsx! { "Copy to clipboard" }, Button { variant: ButtonVariant::Ghost, icon_label: copy, Icon { name: IconName::Copy } } }
             Tooltip { tip: rsx! { "Share link" }, below: true, Button { variant: ButtonVariant::Ghost, icon_label: share, "↗" } }
             Tooltip { tip: rsx! { "Pin chat" }, dismissed: true, Button { variant: ButtonVariant::Ghost, icon_label: pin, "★" } }
         }

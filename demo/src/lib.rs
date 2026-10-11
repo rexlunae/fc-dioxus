@@ -38,6 +38,8 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("FutureCss", "future-css"),
     ("Divider", "divider"),
     ("Button", "button"),
+    ("Icon", "icon"),
+    ("IconButton", "icon"),
     ("LinkButton", "routing"),
     ("Badge", "badge"),
     ("Tag", "badge"),
@@ -192,6 +194,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Buttons & actions",
         render: || rsx! { examples::button::States {} },
         source: include_str!("examples/button/states.rs"),
+    },
+    Example {
+        id: "icon",
+        title: "Icons & icon buttons",
+        render: || rsx! { examples::icon::States {} },
+        source: include_str!("examples/icon/states.rs"),
     },
     Example {
         id: "card",
@@ -761,6 +769,7 @@ struct SourceProps {
 #[component]
 fn Source(props: SourceProps) -> Element {
     let mut message = use_signal(String::new);
+    let mut copied = use_signal(|| None::<bool>);
     let source = props
         .text
         .split_once("// example:start\n")
@@ -770,14 +779,18 @@ fn Source(props: SourceProps) -> Element {
         details {
             summary { "Rust source" }
             CodeBlock { source: CodeSource::highlighted(source, "rust"), lang: "rust" }
-            Button { variant: ButtonVariant::Secondary, size: ButtonSize::Sm, "data-copy": props.name,
+            // The icon confirms the outcome; the status line below announces it.
+            IconButton { variant: ButtonVariant::Ghost, size: ButtonSize::Sm, "data-copy": props.name,
+                icon: match copied() { Some(true) => IconName::Check, Some(false) => IconName::Close, None => IconName::Copy },
+                label: name!("Copy source"),
                 onclick: move |_| async move {
-                    message.set(match DomBridge.copy_text(source).await {
+                    let result = DomBridge.copy_text(source).await;
+                    copied.set(Some(result.is_ok()));
+                    message.set(match result {
                         Ok(()) => "Copied Rust source.".to_owned(),
                         Err(_) => "Copy is unavailable here. Select the source above to copy it.".to_owned(),
                     });
                 },
-                "Copy source"
             }
             p { role: "status", "{message}" }
         }

@@ -5,6 +5,8 @@ pub mod assets;
 pub mod attrs;
 pub mod class;
 pub mod controlled;
+/// Upstream's icon set, generated from its `dist/icons.json`.
+pub mod icons;
 pub mod id;
 pub(crate) mod link;
 pub mod measure;

@@ -30,6 +30,7 @@ fn css_classes(css: &str) -> BTreeSet<String> {
 const IMPLEMENTED: &[&str] = &[
     "divider.css",
     "button.css",
+    "icon.css",
     "card.css",
     "badge.css",
     "alert.css",

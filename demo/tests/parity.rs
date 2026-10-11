@@ -186,6 +186,11 @@ const CASES: &[Case] = &[
         || rsx! { fc_demo::examples::button::States {} },
     ),
     (
+        "icon",
+        &["fc-btn", "fc-icon"],
+        || rsx! { fc_demo::examples::icon::States {} },
+    ),
+    (
         "card",
         &["fc-card"],
         || rsx! { fc_demo::examples::card::States {} },
