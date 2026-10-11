@@ -8,7 +8,9 @@
 use crate::{
     core::{
         assets,
-        attrs::{component_attributes, theme_attributes, FcData, Kind, ThemePickerData},
+        attrs::{
+            component_attributes, theme_attributes, theme_pairs, FcData, Kind, ThemePickerData,
+        },
         controlled::use_controllable,
         platform::{DomBridge, MediaPreference},
         state::Lifecycle,
@@ -230,7 +232,7 @@ pub fn ThemePicker(
                     // Each card wears its own design and palette, so the preview is the
                     // theme itself rather than a picture of it.
                     label { key: "{design.as_str()}", class: BEM.element("option"),
-                        ..theme_attributes(Some(preview_theme), None, Some(design.as_str()), Some(design.palette().as_str())),
+                        ..theme_attributes(&theme_pairs(Some(preview_theme), None, Some(design.as_str()), Some(design.palette().as_str()))),
                         input { r#type: "radio", class: CHECK.element("input"), name: "{group}", value: design.as_str(),
                             checked: choice.design == design,
                             onchange: move |_| state.set(ThemeChoice { design, palette: design.palette(), ..state.get() }),

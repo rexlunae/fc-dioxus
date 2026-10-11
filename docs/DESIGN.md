@@ -539,9 +539,17 @@ pub fn FutureCss(
 pub fn use_theme() -> ThemeHandle; // read and switch at runtime
 ```
 
-`Theme` renders `data-fc-theme` on the root wrapper and never on `<html>` by default,
-so two themed regions can coexist. `Theme::System` renders no attribute and lets
-`prefers-color-scheme` decide.
+`Theme` renders `data-fc-theme` on the root wrapper, so two themed regions can coexist.
+`Theme::System` renders no attribute and lets `prefers-color-scheme` decide.
+
+The outermost root also mirrors its `data-fc-theme`, `data-fc-brand`, `data-fc-design`
+and `data-fc-palette` onto `<html>` after mount, where upstream expects them. A scheme on
+the wrapper cannot reach `<html>` or `<body>`, so without the mirror the page canvas
+around and beyond the content stays on the OS scheme: a light theme under a dark OS
+leaves a dark page behind light components. Nested roots never touch `<html>`. A root
+removes only a value it wrote that is still there, so an attribute the application set
+on `<html>` itself, or one a sibling root wrote later, survives it. Hosts without a
+document keep the theme on the wrapper alone.
 
 ---
 

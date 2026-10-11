@@ -2,7 +2,7 @@
 
 use crate::core::{
     assets,
-    attrs::theme_attributes,
+    attrs::{theme_attributes, theme_pairs},
     id::IdAllocator,
     platform::{Capabilities, DomBridge},
 };
@@ -408,6 +408,9 @@ pub struct FutureCssProps {
 /// Provide the pinned stylesheets and theme without changing pre-mount structure.
 #[component]
 pub fn FutureCss(props: FutureCssProps) -> Element {
+    // Only the outermost root reaches <html>; checked before this root provides its own
+    // direction context, which is what a nested root finds.
+    let outermost = use_hook(|| try_consume_context::<Signal<DirectionContext>>().is_none());
     use_context_provider(IdAllocator::new);
     // A root without a direction inherits the one around it.
     let inherited = use_direction();
@@ -424,7 +427,7 @@ pub fn FutureCss(props: FutureCssProps) -> Element {
     let capabilities = use_signal(Capabilities::default);
     use_context_provider(|| capabilities);
     let mut capabilities = capabilities;
-    let attrs = theme_attributes(
+    let pairs = theme_pairs(
         props.theme.attribute(),
         props.brand.map(|brand| match brand {
             Brand::Forest => "forest",
@@ -437,6 +440,38 @@ pub fn FutureCss(props: FutureCssProps) -> Element {
             .or(props.design.map(Design::palette))
             .map(Palette::as_str),
     );
+    let attrs = theme_attributes(&pairs);
+    // The scheme on this root's element cannot reach <html> and <body>, whose canvas
+    // background then stays on the OS scheme around and beyond the content. Upstream
+    // expects these attributes on <html>, as its own theme picker sets them.
+    let mut mirrored = use_signal(Vec::<(&'static str, &'static str)>::new);
+    use_effect(use_reactive!(|pairs| {
+        if !outermost {
+            return;
+        }
+        spawn(async move {
+            let owned = mirrored.peek().clone();
+            if DomBridge
+                .mirror_document_theme(&pairs, &owned)
+                .await
+                .is_ok()
+            {
+                mirrored.set(
+                    pairs
+                        .iter()
+                        .filter_map(|(name, value)| value.map(|value| (*name, value)))
+                        .collect(),
+                );
+            }
+        });
+    }));
+    use_drop(move || {
+        if let Ok(owned) = mirrored.try_peek() {
+            if !owned.is_empty() {
+                DomBridge.release_document_theme(&owned);
+            }
+        }
+    });
     rsx! {
         if props.stylesheets == Stylesheets::Automatic {
             document::Stylesheet { href: assets::LAYERS_CSS }

@@ -252,29 +252,34 @@ impl FcData {
     }
 }
 
-pub(crate) fn theme_attributes(
+/// A root's theme attributes by name, absent ones included so a mirror can clear them.
+pub(crate) type ThemePairs = [(&'static str, Option<&'static str>); 4];
+
+pub(crate) fn theme_pairs(
     theme: Option<&'static str>,
     brand: Option<&'static str>,
     design: Option<&'static str>,
     palette: Option<&'static str>,
-) -> Spread {
+) -> ThemePairs {
+    [
+        ("data-fc-theme", theme),
+        ("data-fc-brand", brand),
+        ("data-fc-design", design),
+        ("data-fc-palette", palette),
+    ]
+}
+
+pub(crate) fn theme_attributes(pairs: &ThemePairs) -> Spread {
     let mut attrs = crate::spread![Attribute::new(
         "data-fc-version",
         super::assets::CSS_VERSION,
         None,
         false,
     )];
-    if let Some(theme) = theme {
-        attrs.push(Attribute::new("data-fc-theme", theme, None, false));
-    }
-    if let Some(brand) = brand {
-        attrs.push(Attribute::new("data-fc-brand", brand, None, false));
-    }
-    if let Some(design) = design {
-        attrs.push(Attribute::new("data-fc-design", design, None, false));
-    }
-    if let Some(palette) = palette {
-        attrs.push(Attribute::new("data-fc-palette", palette, None, false));
+    for (name, value) in pairs {
+        if let Some(value) = value {
+            attrs.push(Attribute::new(name, *value, None, false));
+        }
     }
     attrs
 }
