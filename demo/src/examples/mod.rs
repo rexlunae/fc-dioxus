@@ -32,6 +32,7 @@ pub mod future_css;
 pub mod git;
 pub mod grid;
 pub mod icon;
+pub mod input_group;
 pub mod list;
 pub mod loading;
 pub mod masthead;

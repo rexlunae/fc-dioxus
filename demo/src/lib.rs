@@ -40,6 +40,7 @@ pub const COMPONENTS: &[(&str, &str)] = &[
     ("Button", "button"),
     ("Icon", "icon"),
     ("IconButton", "icon"),
+    ("InputAction", "input-group"),
     ("LinkButton", "routing"),
     ("Badge", "badge"),
     ("Tag", "badge"),
@@ -200,6 +201,12 @@ pub const COMPONENT_EXAMPLES: &[Example] = &[
         title: "Icons & icon buttons",
         render: || rsx! { examples::icon::States {} },
         source: include_str!("examples/icon/states.rs"),
+    },
+    Example {
+        id: "input-group",
+        title: "Input groups & inline actions",
+        render: || rsx! { examples::input_group::States {} },
+        source: include_str!("examples/input_group/states.rs"),
     },
     Example {
         id: "card",

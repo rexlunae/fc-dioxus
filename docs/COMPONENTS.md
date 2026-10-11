@@ -10,7 +10,7 @@ where Dioxus forces a change, this file changes in the same commit.
 `Loading`, `Skeleton`, `Progress`, `ProgressRing`, `Breadcrumb`, `Crumb`, `EmptyState`,
 `DescriptionList`, `DescriptionItem`, `List`, `ListItem`, `Checkbox`, `CheckGroup`,
 `Radio`, `Switch`, `SwitchRow`, `Field`, `Input`, `Textarea`, `NativeSelect`,
-`InputGroup`, `InputAddon`, `ErrorSummary`, `Choice`, `Disclosure`, `ButtonGroup`,
+`InputGroup`, `InputAddon`, `InputAction`, `ErrorSummary`, `Choice`, `Disclosure`, `ButtonGroup`,
 `ControlGroup`, `ControlLabel`, `Segmented`, `Segment`, `SplitButton`, `Fab`, `FabMenu`,
 `FabMenuItem`, `Masthead`, `MastheadLink`, `Navbar`, `NavbarItem`, `Pagination`,
 `Search`, `SearchView`, `Dialog`, `RadioScope`, `Popover`, `Tooltip`, `Toast`,
@@ -324,6 +324,7 @@ Shared types (`Availability`, `Lifecycle`, `MessageRole`, `Tone`, `Orientation`,
 | `type.css` | `typography` | `Text`, `Heading` |
 | `utilities.css` | `utilities` | `VisuallyHidden`, `Bdi`, `Utility` enum for the rest |
 | `button.css` | `button` | `Button`, `LinkButton` |
+| `input-group.css` | `field` | `InputGroup`, `InputAddon`, `InputAction` |
 | `icon.css` | `icon` | `Icon`, `IconButton`, `IconName` (generated from upstream's `dist/icons.json`) |
 | `button-group.css` | `button_group` | `ButtonGroup`, `ButtonGroupItem` |
 | `segmented.css` | `segmented` | `Segmented`, `SegmentedItem` |
@@ -538,6 +539,9 @@ fc_modifier! { pub enum IconSize for "fc-icon" { #[default] Md => None, Sm => "s
 - `IconButton` requires its `label`, which becomes the button's `aria-label`; the icon
   stays decorative. It is a `Button` with `icon_label` set, so every button state applies;
   busy shows the spinner in place of the icon.
+- `InputAction { icon, label, pressed, availability, onclick }` is an icon button inside
+  an `InputGroup`'s border. Before the `Input` it sits at the inline start, after it at
+  the end. Use `pressed` for a toggle such as show password and keep the label fixed.
 
 ### Connected button group (`button-group.css`)
 

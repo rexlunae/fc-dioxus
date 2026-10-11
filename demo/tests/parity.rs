@@ -191,6 +191,11 @@ const CASES: &[Case] = &[
         || rsx! { fc_demo::examples::icon::States {} },
     ),
     (
+        "input-group",
+        &["fc-input-group"],
+        || rsx! { fc_demo::examples::input_group::States {} },
+    ),
+    (
         "card",
         &["fc-card"],
         || rsx! { fc_demo::examples::card::States {} },
@@ -247,7 +252,7 @@ const CASES: &[Case] = &[
     ),
     (
         "field",
-        &["fc-field", "fc-input", "fc-input-group", "fc-error-summary"],
+        &["fc-field", "fc-input", "fc-error-summary"],
         || rsx! { fc_demo::examples::field::States {} },
     ),
     (

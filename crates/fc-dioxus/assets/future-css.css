@@ -5236,8 +5236,87 @@
       1.125rem 50%;
   }
 
-  /* ---- Input group ----------------------------------------------------- */
+  /* ---- Form-level error summary ---------------------------------------- */
 
+  /*
+   * Shown above the form after a failed submit, with focus moved to it
+   * (tabindex="-1" in the markup). Each entry links to the field it describes,
+   * so a keyboard user can jump straight to the problem rather than tabbing
+   * through every valid field to find it.
+   */
+  .fc-error-summary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fc-space-2);
+    padding: var(--fc-space-4);
+    background-color: var(--fc-color-danger-bg-subtle);
+    color: var(--fc-color-danger-text);
+    border: var(--fc-border-width-thin) solid var(--fc-color-danger-border);
+    border-inline-start-width: var(--fc-space-1);
+    border-radius: var(--fc-radius-lg);
+  }
+
+  .fc-error-summary__title {
+    margin: 0;
+    font-size: var(--fc-font-size-md);
+    font-weight: var(--fc-font-weight-semibold);
+  }
+
+  .fc-error-summary__list {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--fc-space-1);
+    padding-inline-start: var(--fc-space-5);
+    list-style: disc;
+  }
+
+  .fc-error-summary__link {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  /* ---- Forced colors --------------------------------------------------- */
+
+  @media (forced-colors: active) {
+    .fc-input {
+      border-color: FieldText;
+    }
+
+    .fc-input[aria-invalid="true"],
+    .fc-input:user-invalid {
+      /* A thicker edge restates "invalid" once the danger hue is discarded. */
+      border-width: var(--fc-border-width-thick);
+    }
+
+    .fc-input:disabled {
+      border-color: GrayText;
+      color: GrayText;
+    }
+
+    .fc-error-summary {
+      border-color: CanvasText;
+    }
+  }
+}
+
+/*!
+ * future-css -- input group
+ *
+ * One box around a text control and what sits beside it inside the border: a
+ * fixed addon (a currency symbol, a unit, a URL scheme) or an icon button
+ * (search, clear, show password, copy). Split from field.css, which holds the
+ * bare controls, when the icon actions took field.css past its size budget.
+ *
+ *   <div class="fc-input-group">
+ *     <button type="button" class="fc-input-group__action" aria-label="Search">...</button>
+ *     <input class="fc-input-group__control" type="search" aria-label="Search chats">
+ *     <button type="button" class="fc-input-group__action" aria-label="Clear search">...</button>
+ *   </div>
+ */
+
+@layer fc.components {
   /*
    * A control with leading or trailing adornments (a currency symbol, a unit, a
    * button). The group draws the border and the focus ring so the adornments
@@ -5309,69 +5388,99 @@
     white-space: nowrap;
   }
 
-  /* ---- Form-level error summary ---------------------------------------- */
-
   /*
-   * Shown above the form after a failed submit, with focus moved to it
-   * (tabindex="-1" in the markup). Each entry links to the field it describes,
-   * so a keyboard user can jump straight to the problem rather than tabbing
-   * through every valid field to find it.
+   * An icon button inside the box: clear, reveal a password, copy, search.
+   * Placed before the control it sits at the inline start, after it at the
+   * end, so it follows the reading direction with no modifier.
+   *
+   * Inset from the group's edge by its margin rather than filling the box, so
+   * its hover tint reads as a button inside the field, not a segment of it.
+   * The margin is also what keeps the focus ring visible: the group clips its
+   * corners, and an outline drawn past its edge would be cut off.
    */
-  .fc-error-summary {
-    display: flex;
-    flex-direction: column;
-    gap: var(--fc-space-2);
-    padding: var(--fc-space-4);
-    background-color: var(--fc-color-danger-bg-subtle);
-    color: var(--fc-color-danger-text);
-    border: var(--fc-border-width-thin) solid var(--fc-color-danger-border);
-    border-inline-start-width: var(--fc-space-1);
-    border-radius: var(--fc-radius-lg);
-  }
-
-  .fc-error-summary__title {
-    margin: 0;
+  .fc-input-group__action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    align-self: center;
+    /* The small button's 2rem, which leaves a margin inside the comfortable
+       2.5rem field and stays above the 24px minimum target. */
+    inline-size: var(--fc-space-8);
+    block-size: var(--fc-space-8);
+    margin-inline: var(--fc-space-1);
+    padding: 0;
+    background-color: transparent;
+    color: var(--fc-color-text-muted);
+    border: 0;
+    border-radius: var(--fc-radius-md);
+    font: inherit;
     font-size: var(--fc-font-size-md);
-    font-weight: var(--fc-font-weight-semibold);
+    cursor: pointer;
+    touch-action: manipulation;
+    transition:
+      background-color var(--fc-duration-fast) var(--fc-easing-standard),
+      color var(--fc-duration-fast) var(--fc-easing-standard);
   }
 
-  .fc-error-summary__list {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--fc-space-1);
-    padding-inline-start: var(--fc-space-5);
-    list-style: disc;
+  /* An action beside the control replaces that side's padding, so the text
+     does not sit a full gutter away from the button. */
+  .fc-input-group__action + .fc-input-group__control {
+    padding-inline-start: var(--fc-space-1);
   }
 
-  .fc-error-summary__link {
-    color: inherit;
-    text-decoration: underline;
-    text-underline-offset: 0.15em;
+  .fc-input-group__control:has(+ .fc-input-group__action) {
+    padding-inline-end: var(--fc-space-1);
+  }
+
+  @media (hover: hover) {
+    .fc-input-group__action:hover {
+      background-color: color-mix(in oklab, currentColor calc(var(--fc-opacity-hover-overlay) * 100%), transparent);
+      color: var(--fc-color-text-default);
+    }
+  }
+
+  .fc-input-group__action:active {
+    background-color: color-mix(in oklab, currentColor calc(var(--fc-opacity-pressed-overlay) * 100%), transparent);
+  }
+
+  /* Inside the margin, so the clipped group cannot cut the ring off. */
+  .fc-input-group__action:focus-visible {
+    outline-offset: 0;
+    color: var(--fc-color-text-default);
+  }
+
+  /* A toggle (show password) says it is on in colour as well as by its icon. */
+  .fc-input-group__action[aria-pressed="true"] {
+    color: var(--fc-color-accent-text);
+  }
+
+  .fc-input-group__action:disabled,
+  .fc-input-group__action[aria-disabled="true"] {
+    background-color: transparent;
+    color: var(--fc-color-disabled-fg);
+    cursor: not-allowed;
+  }
+
+  .fc-input-group__action[aria-disabled="true"] {
+    pointer-events: none;
   }
 
   /* ---- Forced colors --------------------------------------------------- */
 
   @media (forced-colors: active) {
-    .fc-input,
     .fc-input-group {
       border-color: FieldText;
     }
 
-    .fc-input[aria-invalid="true"],
-    .fc-input:user-invalid,
+    /* A thicker edge restates "invalid" once the danger hue is discarded. */
     .fc-input-group:has([aria-invalid="true"], :user-invalid) {
-      /* A thicker edge restates "invalid" once the danger hue is discarded. */
       border-width: var(--fc-border-width-thick);
     }
 
-    .fc-input:disabled {
-      border-color: GrayText;
+    .fc-input-group__action:disabled,
+    .fc-input-group__action[aria-disabled="true"] {
       color: GrayText;
-    }
-
-    .fc-error-summary {
-      border-color: CanvasText;
     }
   }
 }

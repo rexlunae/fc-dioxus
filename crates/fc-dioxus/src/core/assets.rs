@@ -67,6 +67,8 @@ pub const COMPONENTS_GIT_CSS: Asset = asset!("/assets/components/git.css");
 pub const COMPONENTS_GRID_CSS: Asset = asset!("/assets/components/grid.css");
 /// Upstream's components/icon.css stylesheet.
 pub const COMPONENTS_ICON_CSS: Asset = asset!("/assets/components/icon.css");
+/// Upstream's components/input-group.css stylesheet.
+pub const COMPONENTS_INPUT_GROUP_CSS: Asset = asset!("/assets/components/input-group.css");
 /// Upstream's components/list.css stylesheet.
 pub const COMPONENTS_LIST_CSS: Asset = asset!("/assets/components/list.css");
 /// Upstream's components/loading.css stylesheet.

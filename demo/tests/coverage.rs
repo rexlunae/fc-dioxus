@@ -43,6 +43,7 @@ const IMPLEMENTED: &[&str] = &[
     "list.css",
     "check.css",
     "field.css",
+    "input-group.css",
     "form-variants.css",
     "disclosure.css",
     "button-group.css",

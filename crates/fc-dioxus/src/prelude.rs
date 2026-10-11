@@ -33,8 +33,8 @@ pub use crate::{
     components::empty_state::EmptyState,
     components::fab::{Fab, FabMenu, FabMenuItem, FabSize, FabTone},
     components::field::{
-        Choice, ErrorSummary, Field, FieldError, Input, InputAddon, InputGroup, InputSize,
-        InputType, InputVariant, NativeSelect, Necessity, Textarea,
+        Choice, ErrorSummary, Field, FieldError, Input, InputAction, InputAddon, InputGroup,
+        InputSize, InputType, InputVariant, NativeSelect, Necessity, Textarea,
     },
     components::git::{FileState, GitEntry, GitSurface},
     components::grid::{DataGrid, GridCell, GridColumn, GridEdit},

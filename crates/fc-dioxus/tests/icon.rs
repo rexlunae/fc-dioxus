@@ -71,3 +71,24 @@ fn icon_buttons_carry_the_name_on_the_button() {
         "the spinner replaces the icon: {busy}"
     );
 }
+
+#[test]
+fn input_actions_sit_inside_the_group_named_and_toggleable() {
+    let html = render(rsx! {
+        InputGroup {
+            InputAction { icon: IconName::Search, label: name!("Search") }
+            Input { aria_label: "Query" }
+            InputAction { icon: IconName::Eye, label: name!("Show password"), pressed: false }
+        }
+    });
+    assert_eq!(html.matches("fc-input-group__action").count(), 2, "{html}");
+    assert!(
+        html.contains(r#"aria-label="Show password""#) && html.contains(r#"aria-pressed="false""#),
+        "{html}"
+    );
+    assert!(
+        html.find("Search").unwrap_or(usize::MAX)
+            < html.find("fc-input-group__control").unwrap_or(0),
+        "the start action precedes the control: {html}"
+    );
+}

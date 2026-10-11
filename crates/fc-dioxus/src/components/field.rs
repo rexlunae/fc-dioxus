@@ -1,5 +1,5 @@
 //! Labelled form fields, inputs, input groups, choice cards, and the error summary, from
-//! field.css and form-variants.css.
+//! field.css, input-group.css, and form-variants.css.
 use crate::{
     core::{
         assets,
@@ -45,6 +45,7 @@ fn stylesheets() -> Element {
     rsx! {
         if use_stylesheets() {
             document::Stylesheet { href: assets::COMPONENTS_FIELD_CSS }
+            document::Stylesheet { href: assets::COMPONENTS_INPUT_GROUP_CSS }
             document::Stylesheet { href: assets::COMPONENTS_FORM_VARIANTS_CSS }
         }
     }
@@ -365,6 +366,49 @@ pub fn InputAddon(
     children: Element,
 ) -> Element {
     rsx! { span { class: GROUP.element("addon"), aria_hidden: decorative.then_some("true"), {children} } }
+}
+
+/// An icon button inside an [`InputGroup`]'s border: search, clear, show password, copy.
+///
+/// Place it before the [`Input`] for the inline start or after it for the end; the side
+/// follows the reading direction. The `label` names the button and the icon stays
+/// decorative. For a toggle such as show password, pass `pressed` and keep the label
+/// fixed ("Show password") while the icon changes, so the name does not shift under
+/// focus.
+#[component]
+pub fn InputAction(
+    icon: IconName,
+    label: AccessibleName,
+    #[props(default)] pressed: Option<bool>,
+    #[props(default)] availability: Availability,
+    #[props(default)] onclick: Option<EventHandler<MouseEvent>>,
+    #[props(extends = GlobalAttributes, extends = button)] attributes: Vec<Attribute>,
+) -> Element {
+    let blocked = availability != Availability::Enabled;
+    let mut attributes = component_attributes(
+        attributes,
+        ClassList::new(&GROUP.element("action")),
+        &[
+            "type",
+            "disabled",
+            "aria-disabled",
+            "aria-label",
+            "aria-pressed",
+            "onclick",
+        ],
+    );
+    attributes.extend(availability_attributes(&availability));
+    rsx! {
+        button { r#type: "button", aria_label: label.to_string(),
+            aria_pressed: pressed.map(|pressed| pressed.to_string()),
+            onclick: move |event: MouseEvent| {
+                if blocked { event.prevent_default(); }
+                else if let Some(handler) = onclick { handler.call(event); }
+            },
+            ..attributes,
+            super::icon::Icon { name: icon }
+        }
+    }
 }
 
 /// One problem listed in an [`ErrorSummary`].

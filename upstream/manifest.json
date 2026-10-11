@@ -1,11 +1,11 @@
 {
   "upstream": {
     "repo": "https://github.com/rexlunae/future-css",
-    "rev": "ad0bbf0c4b2a1612b4f27494ecfb9c1250db7028",
+    "rev": "276cc70df7c773824b2d232fc6223a267ba654eb",
     "version": "0.0.0"
   },
   "files": {
-    "crates/fc-dioxus/Cargo.toml": "8bebd6b3049a74b02fe2c0941aa390e6d2a588f46b0547838192b7b6bd07b29e",
+    "crates/fc-dioxus/Cargo.toml": "98f52e6763809136751e5f46afeda11622cb42a4df0b390ce8e77b860e6e3d8a",
     "crates/fc-dioxus/assets/base.css": "5e0afde2c459ccabf040b2613fcd4240496e05ce4e2a7b3690dcade53bd512d1",
     "crates/fc-dioxus/assets/components/agent-status.css": "02a82668d945c67c3e0b0c17a1f00a95cf51b269e2550e3f31ce46b26efb7238",
     "crates/fc-dioxus/assets/components/alert.css": "20077d89cdb942317af9eb0ff5bc9773d7c0c73309b441c6c024bad976cca307",
@@ -34,11 +34,12 @@
     "crates/fc-dioxus/assets/components/editor.css": "0e4760c7186c463638582e7f3cf3d632f93c08bd48d7cdfb3578c59ce3b1cefc",
     "crates/fc-dioxus/assets/components/empty-state.css": "16dbdcdfe4b1f69c609b28e6735cb720a3a8726c7801da8de772eca178c03897",
     "crates/fc-dioxus/assets/components/fab.css": "df88caac640548158b4a2cb08ec85d634d93bc1428a87ecadb2d64157ac5f983",
-    "crates/fc-dioxus/assets/components/field.css": "0f02ef34e83a2eb91b7c153c57671580ead0a50c8ba5dc558dafb9c83269eb58",
+    "crates/fc-dioxus/assets/components/field.css": "3788cab8ebb17b08c2a271d4a5ae28e1d12184b085c43f93c220cf00a8d50c92",
     "crates/fc-dioxus/assets/components/form-variants.css": "7d4d0fe3556f0519ff512b63247ac73919485a3fc79dff19b248e70bb9e34bc2",
     "crates/fc-dioxus/assets/components/git.css": "90db43dd6d33c0ab7f44a7185d22e5e305e4a3ccfaea4d7b93c198a5802d1068",
     "crates/fc-dioxus/assets/components/grid.css": "6c17d570d4786daeba6425f3a7f51b97290e2646340dd68a85f1d9e181b47a76",
     "crates/fc-dioxus/assets/components/icon.css": "1d89c3c7ad88b7c32bad6a5345dac77992949da6c37cadc3ce6aef4c9d3ca2cc",
+    "crates/fc-dioxus/assets/components/input-group.css": "56b78d13f4419cd6685969d858730f88811eb0ba89727a7a0df3f3158dd3eca5",
     "crates/fc-dioxus/assets/components/list.css": "d1378a33f5d16b223efb7219b1a4564083925b0dcec51aa2df33a9b879108ce9",
     "crates/fc-dioxus/assets/components/loading.css": "0812e87ff4889995f661e861c3587015f5345fd7cdd5151cb1d5bd10a3ed4d87",
     "crates/fc-dioxus/assets/components/masthead.css": "13818ea542531edc5bc4f230eef259326363479fb8799381d045ab252f706edc",
@@ -69,7 +70,7 @@
     "crates/fc-dioxus/assets/components/user-prompt.css": "993721c98b8cded03bacc951770851845ff1f598b898e3e65d2462ef4990db2d",
     "crates/fc-dioxus/assets/components/webview.css": "c24eb79ad79ffe378f71ba3799a995194610b41d79e3be9d99eb4eb0f673bc4b",
     "crates/fc-dioxus/assets/email.css": "f79e0d57172406303aa2adc73b5c9fe1f9a85068d1d5c08397bdbe11ac21c6cc",
-    "crates/fc-dioxus/assets/future-css.css": "d3004f8b7488f0a2c54a55e725aed3e83452e971c68bd9f6e38a5953037b8faa",
+    "crates/fc-dioxus/assets/future-css.css": "24534a7b4be8ad4084e4df7728843860d5657eccfb3a49d383cfbba0898e1623",
     "crates/fc-dioxus/assets/layers.css": "d32696cacee063bf5bd7c63f107d10ccbea1391b7971d55556f827654a58af86",
     "crates/fc-dioxus/assets/layout.css": "a2bf46d329446febb50e1de1cded7acffe318ac14f997a5584d3c2d7f75fcdd1",
     "crates/fc-dioxus/assets/print.css": "a4eadacc2aaced3bc616ee41f853e091d5115e9ee8f6cf084834a66a41126fb1",
@@ -81,7 +82,7 @@
     "crates/fc-dioxus/assets/wide-gamut.css": "4be63299ae4aec59dc7e454127889ead6413c6b45969280ca7a040b0514498e1",
     "upstream/tokens.json": "3c3ecb22efa773e8790c99ee2d19a08ad4f2a9a7a396002b026fdb61aacf6449",
     "upstream/icons.json": "a175708a55b6740ae08fd61c07b62bae4ddf198ae3c237aed2996886a091c373",
-    "upstream/fixtures.html": "9c9a4f260646b60f558d8001fc47ef09e7e5058c3117ce0a169bdd8efe482ebf",
+    "upstream/fixtures.html": "64bc2ad69aa4716e1bb2a3c6a65b4178f56a7b1074a82a1e2e01921a84b39248",
     "upstream/theme-presets.ts": "ce6f2e81d06cf5c9bcd6030e3e82aca5ad8aad082a8248feadfd2cf996f202c9",
     "upstream/webview.ts": "2b1d1b9e3dddc30e37222d76d5bb3b983916069ee190d0fa0e7dae7fb0f622a1",
     "upstream/LICENSE": "28253dc5801e1215701f7ea59022130473e7ebf1fb4d6ffa0b2b62ab68380050",
@@ -91,6 +92,6 @@
     "crates/fc-dioxus/assets/js/toolbar.js": "e24c286e1c294619f9b5d77551f8dcc7205c0c41ef043df2d6cc281b795ff0fd",
     "crates/fc-tokens/src/generated.rs": "855f5dd82d5464499f6f150b8c172473d3f66981c48d2cb0db06ca448bb1ecf5",
     "crates/fc-dioxus/src/core/icons.rs": "efebdc7307b5658bb49f0deab85a58e9112fd66920e0a4da9f00ca8433a007e0",
-    "crates/fc-dioxus/src/core/assets.rs": "037a4ca19dade23686a4ac6c38c79c957c3952b0c3b4f2fe6e7e5ab095341052"
+    "crates/fc-dioxus/src/core/assets.rs": "2fb5108ba33686ed45fa4c7886f9391db9b5dfa0483b56a94677311eea113ddc"
   }
 }
