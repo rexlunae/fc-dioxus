@@ -519,6 +519,12 @@ The CSS files are copied from upstream's build output at the pinned revision int
 must contain its assets), and a test fails when the committed copy differs from what that
 revision builds. The copy is never hand-edited; a change to it is an upstream change.
 
+The stylesheet assets opt out of dx's minifier. Upstream writes its glyphs as CSS escapes
+(`content: "\2713"`), which read the same under any charset; the minifier decodes them to
+raw UTF-8, and a host that serves the CSS into a page it does not decode as UTF-8 then
+draws the check mark as `âœ“`. `tests/encoding.rs` holds both halves: the vendored rules
+are ASCII, and every stylesheet asset keeps them that way.
+
 Consumers who already load `future-css.css` themselves set `FutureCss { stylesheets:
 Stylesheets::External }` and the components emit no stylesheet links.
 

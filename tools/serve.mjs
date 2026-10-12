@@ -7,7 +7,7 @@ import { root } from "./sync-upstream.mjs";
 export async function serve(port = 0) {
   const publicDir = join(root, "target/dx/fc-demo/debug/web/public");
   if (!existsSync(join(publicDir, "index.html"))) throw new Error("Build the web demo first: cargo xtask demo --renderer web --build-only");
-  const mime = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".wasm": "application/wasm", ".css": "text/css", ".json": "application/json" };
+  const mime = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".wasm": "application/wasm", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8" };
   const server = createServer((request, response) => {
     try {
       const url = new URL(request.url, "http://localhost");

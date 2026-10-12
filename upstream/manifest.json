@@ -91,6 +91,6 @@
     "crates/fc-dioxus/assets/js/toolbar.js": "e24c286e1c294619f9b5d77551f8dcc7205c0c41ef043df2d6cc281b795ff0fd",
     "crates/fc-tokens/src/generated.rs": "855f5dd82d5464499f6f150b8c172473d3f66981c48d2cb0db06ca448bb1ecf5",
     "crates/fc-dioxus/src/core/icons.rs": "efebdc7307b5658bb49f0deab85a58e9112fd66920e0a4da9f00ca8433a007e0",
-    "crates/fc-dioxus/src/core/assets.rs": "037a4ca19dade23686a4ac6c38c79c957c3952b0c3b4f2fe6e7e5ab095341052"
+    "crates/fc-dioxus/src/core/assets.rs": "184cb568ce18f06e8184d91a1c899bfcaf74faf30a76b956ca99fc5da4c2dbaf"
   }
 }
