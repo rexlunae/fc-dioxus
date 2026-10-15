@@ -207,12 +207,12 @@ generated, not written by hand, except for the manual mobile column.
 Coordinated with upstream's release phase, which decides the CSS package names and
 registry:
 
-- crates.io publishing for `fc-tokens`, `fc-a11y`, and `fc-dioxus`. Prepared: the names
-  are free, each crate carries a README and license, and the generated model
-  dependencies name upstream's crate version beside the git pin, so the published
-  manifest refers to crates.io. Blocked on upstream publishing its nine model crates
-  first ([future-css#58](https://github.com/rexlunae/future-css/pull/58)); the order is
-  then `fc-tokens`, `fc-a11y`, `fc-dioxus`.
+- crates.io publishing for `fc-tokens`, `fc-a11y`, and `fc-dioxus`. Published 0.1.1 on
+  2026-10-15, after upstream published its eleven model crates from the revision this
+  repository pins ([future-css#58](https://github.com/rexlunae/future-css/pull/58)); the
+  order was `fc-tokens`, `fc-a11y`, `fc-dioxus`. 0.1.1 replaces 0.1.0, whose
+  `ControlLabel` captured a raw identifier in a format string — a construct current
+  nightly rustc rejects, so 0.1.0 did not build on newer toolchains.
 - docs.rs builds with every feature (configured in the library manifest).
 - The demo's web build published per release, linked from the docs and the README.
 - A compatibility table between `fc-dioxus` versions, Dioxus versions, and future-css
