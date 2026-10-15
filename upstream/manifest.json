@@ -1,11 +1,11 @@
 {
   "upstream": {
     "repo": "https://github.com/rexlunae/future-css",
-    "rev": "ad0bbf0c4b2a1612b4f27494ecfb9c1250db7028",
+    "rev": "237fbe7765d16357e730e7aa6e1271c346d86f80",
     "version": "0.0.0"
   },
   "files": {
-    "crates/fc-dioxus/Cargo.toml": "8bebd6b3049a74b02fe2c0941aa390e6d2a588f46b0547838192b7b6bd07b29e",
+    "crates/fc-dioxus/Cargo.toml": "f847ecdc3fda7954063c57ccee4b6737ae36787603082a9a820d25e19b0b827b",
     "crates/fc-dioxus/assets/base.css": "5e0afde2c459ccabf040b2613fcd4240496e05ce4e2a7b3690dcade53bd512d1",
     "crates/fc-dioxus/assets/components/agent-status.css": "02a82668d945c67c3e0b0c17a1f00a95cf51b269e2550e3f31ce46b26efb7238",
     "crates/fc-dioxus/assets/components/alert.css": "20077d89cdb942317af9eb0ff5bc9773d7c0c73309b441c6c024bad976cca307",
@@ -85,7 +85,7 @@
     "upstream/theme-presets.ts": "ce6f2e81d06cf5c9bcd6030e3e82aca5ad8aad082a8248feadfd2cf996f202c9",
     "upstream/webview.ts": "2b1d1b9e3dddc30e37222d76d5bb3b983916069ee190d0fa0e7dae7fb0f622a1",
     "upstream/LICENSE": "28253dc5801e1215701f7ea59022130473e7ebf1fb4d6ffa0b2b62ab68380050",
-    "crates/fc-dioxus/assets/js/editor.js": "86b1330f973ea82c2788ef298b80c5c97adfa308588a39aaf979aa0ccdc93d4d",
+    "crates/fc-dioxus/assets/js/editor.js": "b11474fa41af24f8fae9a056988ff814a0e4f033dab6cc2a161be79738c776d5",
     "crates/fc-dioxus/assets/js/selection.js": "f754263b1a8b727e9e8a07bc7eb1e89a191871dc1a7d42ecafeb140f0e2ca0cd",
     "crates/fc-dioxus/assets/js/urls.js": "5880e7db39a9677fd50ce3d5a0abc12ecdd406253e083a29af5c0e46352ef078",
     "crates/fc-dioxus/assets/js/toolbar.js": "e24c286e1c294619f9b5d77551f8dcc7205c0c41ef043df2d6cc281b795ff0fd",
