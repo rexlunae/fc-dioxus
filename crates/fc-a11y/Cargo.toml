@@ -5,6 +5,11 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
+repository.workspace = true
+authors.workspace = true
+readme = "README.md"
+keywords = ["accessibility", "wcag", "a11y", "html", "audit"]
+categories = ["accessibility", "development-tools::testing", "web-programming"]
 
 [features]
 default = ["html"]
