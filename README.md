@@ -11,10 +11,15 @@ accessibility enforced by its types and checked by its own tooling.
 - **A demo that shows the Rust.** Every component appears in `fc-demo`, live and with the
   Rust source that renders it. A component is not complete until it is there.
 
-**Status: working initial workspace.** `FutureCss` and `Divider` are implemented,
-with a live demo, generated upstream assets and tokens, structural fixture parity,
-static accessibility checks, and a real Chrome suite. The rest of the component API
-is a roadmap, not yet an implemented library.
+**Status: pre-1.0, preparing a first crates.io release.** Every upstream CSS component
+has a typed Dioxus component, shown live in the demo with its source, except the theme
+picker, which `coverage-pending.toml` tracks. Component APIs may still change between
+minor versions.
+
+Add it to an application with `cargo add fc-dioxus` once published; until then, depend
+on this repository by git. Each published crate has its own README:
+[fc-dioxus](crates/fc-dioxus/README.md), [fc-tokens](crates/fc-tokens/README.md) and
+[fc-a11y](crates/fc-a11y/README.md).
 
 Start the demo:
 
@@ -44,8 +49,9 @@ the browser suite does not silently skip.
 The upstream pin currently includes the fixture ID fix in
 [future-css#46](https://github.com/rexlunae/future-css/pull/46) and the merged
 [bindgen feature gate](https://github.com/rexlunae/future-css/pull/44).
-All eight upstream model crates are available through `fc_dioxus::models` with
-their JavaScript glue disabled; components using those models are still planned.
+fc-dioxus pins nine upstream model crates with their JavaScript glue disabled.
+Eight are re-exported through `fc_dioxus::models`; `fc-highlight` stays internal
+to `CodeBlock`.
 See [the renderer build record](docs/RENDERERS.md) for the distinction between
 successful compilation and runtime verification.
 

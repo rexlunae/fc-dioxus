@@ -5,7 +5,7 @@
     "version": "0.0.0"
   },
   "files": {
-    "crates/fc-dioxus/Cargo.toml": "f847ecdc3fda7954063c57ccee4b6737ae36787603082a9a820d25e19b0b827b",
+    "crates/fc-dioxus/Cargo.toml": "973b21c7f520dcc716fa37613852922398995582b5f847e75b97494a639e7b7d",
     "crates/fc-dioxus/assets/base.css": "5e0afde2c459ccabf040b2613fcd4240496e05ce4e2a7b3690dcade53bd512d1",
     "crates/fc-dioxus/assets/components/agent-status.css": "02a82668d945c67c3e0b0c17a1f00a95cf51b269e2550e3f31ce46b26efb7238",
     "crates/fc-dioxus/assets/components/alert.css": "20077d89cdb942317af9eb0ff5bc9773d7c0c73309b441c6c024bad976cca307",

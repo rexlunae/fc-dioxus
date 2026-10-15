@@ -33,4 +33,10 @@ is pinned to 1.94.1 so formatter and Clippy output stay reproducible.
 
 Development/test profiles omit debug symbols and incremental caches to keep the
 seven renderer builds practical on a small disk. This changes neither checks nor
-release optimizations. Crate names and registry publishing remain Phase 7 work.
+release optimizations.
+
+Each generated model dependency names both the pinned git commit and the crate version
+upstream publishes from it. Cargo builds from git in this workspace and writes only the
+version into a published manifest, because crates.io rejects git dependencies. The
+upstream crates must therefore be on crates.io, at that version, before `fc-dioxus` can
+publish; see Phase 7 in [PLAN.md](PLAN.md).
