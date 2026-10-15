@@ -96,5 +96,8 @@ pub fn ControlGroup(
 /// A visible label for one control in a vertical [`ControlGroup`].
 #[component]
 pub fn ControlLabel(r#for: Id, children: Element) -> Element {
-    rsx! { label { class: CONTROLS.element("label"), r#for: "{r#for}", {children} } }
+    // Formatted explicitly: an inline capture of a raw identifier (`{r#for}`)
+    // is a hard error in the format-string parser of current nightlies, which
+    // breaks the crate for consumers on newer toolchains than the pinned one.
+    rsx! { label { class: CONTROLS.element("label"), r#for: format!("{}", r#for), {children} } }
 }
