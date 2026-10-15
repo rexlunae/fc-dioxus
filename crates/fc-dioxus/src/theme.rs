@@ -2,11 +2,16 @@
 
 use crate::core::{
     assets,
-    attrs::theme_attributes,
+    attrs::{theme_attributes, theme_pairs},
     id::IdAllocator,
     platform::{Capabilities, DomBridge},
 };
 use dioxus::prelude::*;
+use std::{
+    cell::Cell,
+    rc::Rc,
+    sync::atomic::{AtomicU64, Ordering},
+};
 
 // The two catalogs below mirror upstream's `src/js/theme-presets.ts` at the pin, in the
 // same order, so the demo lists them as upstream's own picker does. `tests/themes.rs`
@@ -405,9 +410,15 @@ pub struct FutureCssProps {
     pub children: Element,
 }
 
+// Names each outermost root to the document-side theme owner.
+static NEXT_ROOT: AtomicU64 = AtomicU64::new(0);
+
 /// Provide the pinned stylesheets and theme without changing pre-mount structure.
 #[component]
 pub fn FutureCss(props: FutureCssProps) -> Element {
+    // Only the outermost root reaches <html>; checked before this root provides its own
+    // direction context, which is what a nested root finds.
+    let outermost = use_hook(|| try_consume_context::<Signal<DirectionContext>>().is_none());
     use_context_provider(IdAllocator::new);
     // A root without a direction inherits the one around it.
     let inherited = use_direction();
@@ -424,7 +435,7 @@ pub fn FutureCss(props: FutureCssProps) -> Element {
     let capabilities = use_signal(Capabilities::default);
     use_context_provider(|| capabilities);
     let mut capabilities = capabilities;
-    let attrs = theme_attributes(
+    let pairs = theme_pairs(
         props.theme.attribute(),
         props.brand.map(|brand| match brand {
             Brand::Forest => "forest",
@@ -437,6 +448,31 @@ pub fn FutureCss(props: FutureCssProps) -> Element {
             .or(props.design.map(Design::palette))
             .map(Palette::as_str),
     );
+    let attrs = theme_attributes(&pairs);
+    // The scheme on this root's element cannot reach <html> and <body>, whose canvas
+    // background then stays on the OS scheme around and beyond the content. Upstream
+    // expects these attributes on <html>, as its own theme picker sets them.
+    // Tokens are unique per process, which covers every document a process hosts.
+    let token = use_hook(|| NEXT_ROOT.fetch_add(1, Ordering::Relaxed));
+    let generation = use_hook(|| Rc::new(Cell::new(0_u64)));
+    let next = generation.clone();
+    use_effect(use_reactive!(|pairs| {
+        if !outermost {
+            return;
+        }
+        next.set(next.get() + 1);
+        let generation = next.get();
+        spawn(async move {
+            let _ = DomBridge
+                .mirror_document_theme(token, generation, Some(&pairs))
+                .await;
+        });
+    }));
+    use_drop(move || {
+        if outermost {
+            DomBridge.release_document_theme(token, generation.get() + 1);
+        }
+    });
     rsx! {
         if props.stylesheets == Stylesheets::Automatic {
             document::Stylesheet { href: assets::LAYERS_CSS }

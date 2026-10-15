@@ -3,7 +3,7 @@
 //! Eval-capable hosts use a fixed script and a data channel. SSR and native hosts
 //! report `Unsupported`, allowing callers to keep their native markup fallback.
 
-use super::id::Id;
+use super::{attrs::ThemePairs, id::Id};
 use dioxus::prelude::*;
 use std::fmt;
 
@@ -310,6 +310,42 @@ impl DomBridge {
         );
         let started = eval.send(preference.query()).is_ok();
         PreferenceWatch { eval, started }
+    }
+    /// Mirror a root's theme attributes onto `<html>`, or release them with `None`.
+    /// `token` names the root and `generation` orders its updates, so the document side
+    /// can drop one that arrives late and restore what the page had once no root owns a
+    /// name. Hosts without a document keep the theme scoped to the root's own element.
+    /// # Errors
+    /// Returns `Unsupported` when the host cannot run script.
+    pub(crate) async fn mirror_document_theme(
+        self,
+        token: u64,
+        generation: u64,
+        pairs: Option<&ThemePairs>,
+    ) -> Result<(), DomError> {
+        let eval = Self::send_document_theme(token, generation, pairs)?;
+        match eval.join::<String>().await {
+            Ok(_) => Ok(()),
+            Err(_) => Err(DomError::Unsupported),
+        }
+    }
+    /// Release a root's attributes on `<html>` without waiting: this runs as the root
+    /// unmounts, when nothing is left to await it.
+    // A method like the rest of the bridge, so every host call reads `DomBridge.…`.
+    #[allow(clippy::unused_self)]
+    pub(crate) fn release_document_theme(self, token: u64, generation: u64) {
+        let _ = Self::send_document_theme(token, generation, None);
+    }
+    fn send_document_theme(
+        token: u64,
+        generation: u64,
+        pairs: Option<&ThemePairs>,
+    ) -> Result<document::Eval, DomError> {
+        // Names and values arrive through the channel, never as script text.
+        let eval = document::eval(include_str!("document-theme.js"));
+        eval.send((token, generation, pairs.map(|pairs| pairs.to_vec())))
+            .map_err(|_| DomError::Unsupported)?;
+        Ok(eval)
     }
     /// Detect available host APIs after mounting; SSR and native return defaults.
     pub async fn capabilities(self) -> Capabilities {
