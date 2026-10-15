@@ -7,6 +7,11 @@ use crate::core::{
     platform::{Capabilities, DomBridge},
 };
 use dioxus::prelude::*;
+use std::{
+    cell::Cell,
+    rc::Rc,
+    sync::atomic::{AtomicU64, Ordering},
+};
 
 // The two catalogs below mirror upstream's `src/js/theme-presets.ts` at the pin, in the
 // same order, so the demo lists them as upstream's own picker does. `tests/themes.rs`
@@ -405,6 +410,9 @@ pub struct FutureCssProps {
     pub children: Element,
 }
 
+// Names each outermost root to the document-side theme owner.
+static NEXT_ROOT: AtomicU64 = AtomicU64::new(0);
+
 /// Provide the pinned stylesheets and theme without changing pre-mount structure.
 #[component]
 pub fn FutureCss(props: FutureCssProps) -> Element {
@@ -444,32 +452,25 @@ pub fn FutureCss(props: FutureCssProps) -> Element {
     // The scheme on this root's element cannot reach <html> and <body>, whose canvas
     // background then stays on the OS scheme around and beyond the content. Upstream
     // expects these attributes on <html>, as its own theme picker sets them.
-    let mut mirrored = use_signal(Vec::<(&'static str, &'static str)>::new);
+    // Tokens are unique per process, which covers every document a process hosts.
+    let token = use_hook(|| NEXT_ROOT.fetch_add(1, Ordering::Relaxed));
+    let generation = use_hook(|| Rc::new(Cell::new(0_u64)));
+    let next = generation.clone();
     use_effect(use_reactive!(|pairs| {
         if !outermost {
             return;
         }
+        next.set(next.get() + 1);
+        let generation = next.get();
         spawn(async move {
-            let owned = mirrored.peek().clone();
-            if DomBridge
-                .mirror_document_theme(&pairs, &owned)
-                .await
-                .is_ok()
-            {
-                mirrored.set(
-                    pairs
-                        .iter()
-                        .filter_map(|(name, value)| value.map(|value| (*name, value)))
-                        .collect(),
-                );
-            }
+            let _ = DomBridge
+                .mirror_document_theme(token, generation, Some(&pairs))
+                .await;
         });
     }));
     use_drop(move || {
-        if let Ok(owned) = mirrored.try_peek() {
-            if !owned.is_empty() {
-                DomBridge.release_document_theme(&owned);
-            }
+        if outermost {
+            DomBridge.release_document_theme(token, generation.get() + 1);
         }
     });
     rsx! {

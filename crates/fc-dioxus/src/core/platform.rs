@@ -7,11 +7,6 @@ use super::{attrs::ThemePairs, id::Id};
 use dioxus::prelude::*;
 use std::fmt;
 
-// Names and values arrive through the channel, never as script text. A root removes only
-// a value it wrote that is still there, so neither a theme the application set on <html>
-// itself nor one a sibling root wrote since is cleared by a root that inherits or leaves.
-const MIRROR_THEME: &str = "const [pairs, owned] = await dioxus.recv(); const root = document.documentElement; for (const [name, value] of pairs) { const mine = owned.find(([n]) => n === name); if (value !== null) root.setAttribute(name, value); else if (mine && root.getAttribute(name) === mine[1]) root.removeAttribute(name); } return 'ok';";
-
 /// Capabilities detected after mount, never used to change the initial tree.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct Capabilities {
@@ -316,32 +311,41 @@ impl DomBridge {
         let started = eval.send(preference.query()).is_ok();
         PreferenceWatch { eval, started }
     }
-    /// Mirror a root's theme attributes onto `<html>`, setting each present one and
-    /// removing the absent ones listed in `owned`, the pairs this root wrote before.
-    /// Hosts without a document keep the theme scoped to the root's own element.
+    /// Mirror a root's theme attributes onto `<html>`, or release them with `None`.
+    /// `token` names the root and `generation` orders its updates, so the document side
+    /// can drop one that arrives late and restore what the page had once no root owns a
+    /// name. Hosts without a document keep the theme scoped to the root's own element.
     /// # Errors
     /// Returns `Unsupported` when the host cannot run script.
     pub(crate) async fn mirror_document_theme(
         self,
-        pairs: &ThemePairs,
-        owned: &[(&'static str, &'static str)],
+        token: u64,
+        generation: u64,
+        pairs: Option<&ThemePairs>,
     ) -> Result<(), DomError> {
-        let eval = document::eval(MIRROR_THEME);
-        eval.send((pairs.to_vec(), owned.to_vec()))
-            .map_err(|_| DomError::Unsupported)?;
+        let eval = Self::send_document_theme(token, generation, pairs)?;
         match eval.join::<String>().await {
             Ok(_) => Ok(()),
             Err(_) => Err(DomError::Unsupported),
         }
     }
-    /// Remove the attributes a root mirrored onto `<html>`, without waiting: this runs
-    /// as the root unmounts, when nothing is left to await it.
+    /// Release a root's attributes on `<html>` without waiting: this runs as the root
+    /// unmounts, when nothing is left to await it.
     // A method like the rest of the bridge, so every host call reads `DomBridge.…`.
     #[allow(clippy::unused_self)]
-    pub(crate) fn release_document_theme(self, owned: &[(&'static str, &'static str)]) {
-        let pairs: Vec<(&str, Option<&str>)> =
-            owned.iter().map(|(name, _)| (*name, None)).collect();
-        let _ = document::eval(MIRROR_THEME).send((pairs, owned.to_vec()));
+    pub(crate) fn release_document_theme(self, token: u64, generation: u64) {
+        let _ = Self::send_document_theme(token, generation, None);
+    }
+    fn send_document_theme(
+        token: u64,
+        generation: u64,
+        pairs: Option<&ThemePairs>,
+    ) -> Result<document::Eval, DomError> {
+        // Names and values arrive through the channel, never as script text.
+        let eval = document::eval(include_str!("document-theme.js"));
+        eval.send((token, generation, pairs.map(|pairs| pairs.to_vec())))
+            .map_err(|_| DomError::Unsupported)?;
+        Ok(eval)
     }
     /// Detect available host APIs after mounting; SSR and native return defaults.
     pub async fn capabilities(self) -> Capabilities {

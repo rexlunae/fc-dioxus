@@ -742,6 +742,50 @@ test("the webview sandboxes its frame, keeps its own history, and refuses unsafe
   assert.equal(await evaluate(`${refused}.querySelector('[role=alert]').textContent.startsWith('This page could not be loaded.')`), true);
 });
 
+test("the outermost root mirrors its scheme onto <html>, in order, and System clears it", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const root = "document.querySelector('[data-fc-version]')";
+  await until(`document.documentElement.dataset.fcTheme === 'light' && document.documentElement.dataset.fcDesign === ${root}.dataset.fcDesign`);
+  const choose = value => `(() => { const s = document.getElementById('theme'); s.value = '${value}'; s.dispatchEvent(new Event('change', { bubbles: true })); })()`;
+  await evaluate(choose("dark"));
+  await until("document.documentElement.dataset.fcTheme === 'dark'");
+  // Back-to-back changes start overlapping mirror scripts; only the last may stand.
+  await evaluate(`${choose("light")}; ${choose("dark")}; ${choose("light")}; ${choose("dark")}`);
+  await until(`${root}.dataset.fcTheme === 'dark' && document.documentElement.dataset.fcTheme === 'dark'`);
+  await sleep(300);
+  assert.equal(await evaluate("document.documentElement.dataset.fcTheme"), "dark", "a late, older update must not win");
+  await evaluate(choose("system"));
+  await until(`!(${root}.hasAttribute('data-fc-theme')) && !document.documentElement.hasAttribute('data-fc-theme')`);
+  assert.deepEqual(exceptions, []);
+});
+
+test("the document theme owner keeps sibling roots, restores the page's own value, and drops stale updates", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  // The same script the roots run, driven directly with a name no root uses, so sibling
+  // roots and out-of-order delivery can be produced on demand.
+  const script = readFileSync(new URL("../../crates/fc-dioxus/src/core/document-theme.js", import.meta.url), "utf8");
+  const run = (token, generation, value) => evaluate(`(async () => { const dioxus = { recv: async () => ${JSON.stringify([token, generation, value === undefined ? null : [["data-test-theme", value]]])} }; ${script} })()`);
+  const current = () => evaluate("document.documentElement.getAttribute('data-test-theme')");
+  await evaluate("document.documentElement.setAttribute('data-test-theme', 'app')");
+  assert.equal(await run(9001, 1, "light"), "ok");
+  assert.equal(await run(9002, 1, "light"), "ok");
+  assert.equal(await current(), "light");
+  await run(9001, 2);
+  assert.equal(await current(), "light", "a sibling that leaves keeps the value another root still owns");
+  await run(9002, 2, "dark");
+  assert.equal(await run(9002, 2, "light"), "stale");
+  assert.equal(await current(), "dark");
+  await run(9002, 4, null);
+  assert.equal(await current(), "app", "the page's own value returns when the last owner lets go");
+  assert.equal(await run(9002, 3, "light"), "stale", "an update older than the release is dropped");
+  await run(9001, 1, "dark");
+  assert.equal(await current(), "app", "a released root is not revived");
+  await evaluate("document.documentElement.removeAttribute('data-test-theme')");
+  await run(9003, 1, "light");
+  await run(9003, 2);
+  assert.equal(await current(), null, "a page that had nothing gets nothing back");
+});
+
 test("the theme picker previews each design and drives a nested FutureCss", async () => {
   await load("fixtures=false&theme=light", 1200);
   const picker = "document.querySelector('#theme-picker .fc-theme-picker')";

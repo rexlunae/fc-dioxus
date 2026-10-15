@@ -546,10 +546,16 @@ The outermost root also mirrors its `data-fc-theme`, `data-fc-brand`, `data-fc-d
 and `data-fc-palette` onto `<html>` after mount, where upstream expects them. A scheme on
 the wrapper cannot reach `<html>` or `<body>`, so without the mirror the page canvas
 around and beyond the content stays on the OS scheme: a light theme under a dark OS
-leaves a dark page behind light components. Nested roots never touch `<html>`. A root
-removes only a value it wrote that is still there, so an attribute the application set
-on `<html>` itself, or one a sibling root wrote later, survives it. Hosts without a
-document keep the theme on the wrapper alone.
+leaves a dark page behind light components. Nested roots never touch `<html>`.
+
+`<html>` is one element shared by every outermost root, and two roots writing the same
+value are indistinguishable there, so ownership lives in one document-side registry
+(`core/document-theme.js`) rather than in each root. Each root sends a stable token and
+a generation with every update; an update older than the root's last one is dropped,
+because each runs as its own script and they can finish out of order. The root that
+wrote a name most recently wins it, a root that leaves hands it to the next most recent
+owner, and once no root owns it the document gets back the value it had before any root
+took it, or none. Hosts without a document keep the theme on the wrapper alone.
 
 ---
 
