@@ -72,6 +72,7 @@ try {
     }
     case "check":
       sync(true);
+      run("node", ["--test", "tests/platform.test.mjs"]);
       run("cargo", ["fmt", "--all", "--", "--check"]);
       run("node", ["tools/architecture.mjs"]);
       checkModels();
