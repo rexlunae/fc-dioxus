@@ -31,7 +31,7 @@ try {
     const flip = below < 160 && above > below;
     const style = node.style;
     style.setProperty("inset-block-start", flip ? "auto" : `${anchor.bottom + GAP}px`);
-    style.setProperty("inset-block-end", flip ? `${above - GAP}px` : "auto");
+    style.setProperty("inset-block-end", flip ? `${window.innerHeight - above + GAP}px` : "auto");
     style.setProperty("inset-inline-start", `${anchor.left}px`);
     style.setProperty("min-inline-size", `${anchor.width}px`);
     const available = (flip ? above : below) - GAP;

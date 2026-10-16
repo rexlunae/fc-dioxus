@@ -257,3 +257,7 @@ components are built upstream first; a component is complete only when it is in 
 - **Scope.** Fifty-five CSS components with every option, on six renderers, is a large
   surface. The coverage, demo, and renderer tests keep "every option" and "every
   renderer" honest; the phase gates keep it finishable.
+
+Select popup placement follows future-css #62: flipped lists use the distance
+from the viewport bottom to the trigger top. `tests/platform.test.mjs` runs the
+actual host bridge against the pinned upstream binding and checks viewport bounds.
