@@ -3,7 +3,7 @@ members = ["crates/fc-dioxus", "crates/fc-a11y", "crates/fc-tokens", "demo", "xt
 resolver = "2"
 
 [workspace.package]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 rust-version = "1.88"
 license = "MIT"
@@ -13,9 +13,9 @@ authors = ["Erica Stith"]
 [workspace.dependencies]
 dioxus = { version = "=0.7.9", default-features = false, features = ["lib"] }
 dioxus-ssr = "=0.7.9"
-fc-dioxus = { path = "crates/fc-dioxus", version = "0.1.1" }
-fc-a11y = { path = "crates/fc-a11y", version = "0.1.1", default-features = false }
-fc-tokens = { path = "crates/fc-tokens", version = "0.1.1" }
+fc-dioxus = { path = "crates/fc-dioxus", version = "0.1.2" }
+fc-a11y = { path = "crates/fc-a11y", version = "0.1.2", default-features = false }
+fc-tokens = { path = "crates/fc-tokens", version = "0.1.2" }
 html5ever = "0.35"
 markup5ever_rcdom = "0.35"
 web-sys = { version = "0.3", features = ["Window", "Location"] }
