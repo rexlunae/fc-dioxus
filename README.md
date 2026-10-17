@@ -11,7 +11,7 @@ accessibility enforced by its types and checked by its own tooling.
 - **A demo that shows the Rust.** Every component appears in `fc-demo`, live and with the
   Rust source that renders it. A component is not complete until it is there.
 
-**Status: pre-1.0, published on crates.io (0.1.1).** Every upstream CSS component
+**Status: pre-1.0, published on crates.io (0.1.2).** Every upstream CSS component
 has a typed Dioxus component, shown live in the demo with its source, except the theme
 picker, which `coverage-pending.toml` tracks. Component APIs may still change between
 minor versions.
