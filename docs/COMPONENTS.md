@@ -224,7 +224,10 @@ Current action/surface APIs refine the proposals below:
   load as WASM): focus stays on the combobox and `aria-activedescendant` names the
   highlight, arrows skip unavailable options, Home and End jump, typed characters
   search within a 600 ms window, Enter, Space, a click, or Tab commit, and Escape
-  restores the previous value. The list is a manual popover placed under the invoker by
+  restores the previous value. Blur dismisses without committing or reclaiming focus;
+  Tab commits and lets focus move normally, including when switching to another select.
+  Explicit option selection and Escape return focus to the invoker.
+  The list is a manual popover placed under the invoker by
   `DomBridge::place_below`, which ports upstream's flip-and-cap positioning. With no
   options the control is `aria-disabled` and the list says "No matches". Upstream's
   fixture and binding both use `fc-select__option-label`, which select.css does not

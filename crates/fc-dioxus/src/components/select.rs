@@ -153,7 +153,7 @@ pub fn Select(
 
     // Held in signals so the handlers below are `Copy` and can be shared.
     let ids = use_signal(|| (list.clone(), invoker.clone()));
-    let show = move |visible: bool| {
+    let show = move |visible: bool, restore_focus: bool| {
         let (list, invoker) = ids.peek().clone();
         spawn(async move {
             if visible {
@@ -161,7 +161,9 @@ pub fn Select(
                 let _ = DomBridge.place_below(&list, &invoker).await;
             } else {
                 let _ = DomBridge.toggle_popover(&list, false).await;
-                let _ = DomBridge.focus(&invoker).await;
+                if restore_focus {
+                    let _ = DomBridge.focus(&invoker).await;
+                }
             }
         });
     };
@@ -171,9 +173,11 @@ pub fn Select(
         }
         select.write().open(state.get().as_deref());
         open.set(true);
-        show(true);
+        show(true, false);
     };
-    let mut close_list = move |commit: bool| {
+    // A blur or Tab already has a destination. Restoring focus there steals
+    // it from the next control and can leave another selector open but unfocused.
+    let mut close_list = move |commit: bool, restore_focus: bool| {
         if !open() {
             return;
         }
@@ -183,7 +187,7 @@ pub fn Select(
         if commit && after != state.get() {
             state.set(after);
         }
-        show(false);
+        show(false, restore_focus);
     };
     let mut attributes = component_attributes(
         attributes,
@@ -219,8 +223,8 @@ pub fn Select(
             aria_controls: open().then(|| list.to_string()),
             aria_activedescendant: if open() { active.map(option_id) } else { None },
             aria_disabled: blocked.then_some("true"),
-            onclick: move |_| if !blocked { if open() { close_list(true) } else { open_list() } },
-            onfocusout: move |_| close_list(false),
+            onclick: move |_| if !blocked { if open() { close_list(true, true) } else { open_list() } },
+            onfocusout: move |_| close_list(false, false),
             onkeydown: move |event| {
                 if blocked { return; }
                 let key = event.key();
@@ -239,17 +243,17 @@ pub fn Select(
                     }
                     Key::Enter => {
                         event.prevent_default();
-                        if open() { close_list(true) } else { open_list() }
+                        if open() { close_list(true, true) } else { open_list() }
                     }
                     Key::Escape if open() => {
                         event.prevent_default();
-                        close_list(false);
+                        close_list(false, true);
                     }
-                    Key::Tab => close_list(true),
+                    Key::Tab => close_list(true, false),
                     Key::Character(text) if open() && !event.modifiers().ctrl() && !event.modifiers().meta() && !event.modifiers().alt() => {
                         event.prevent_default();
                         if text == " " && select.peek().active().is_some() {
-                            close_list(true);
+                            close_list(true, true);
                             return;
                         }
                         select.write().typeahead(&text);
@@ -300,7 +304,7 @@ fn option_view(
     selected: bool,
     active: bool,
     mut select: Signal<model::Select>,
-    mut close: impl FnMut(bool) + 'static,
+    mut close: impl FnMut(bool, bool) + 'static,
 ) -> Element {
     let disabled = choice.disabled;
     let mut data = crate::spread![value_attribute(&choice.value)];
@@ -321,7 +325,7 @@ fn option_view(
                     }
                 };
                 select.write().move_by(delta);
-                close(true);
+                close(true, true);
             },
             ..data,
             span { class: BEM.element("option-check"), aria_hidden: "true", if selected { "✓" } }

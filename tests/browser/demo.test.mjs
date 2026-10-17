@@ -526,6 +526,38 @@ test("menus move focus in, skip what cannot be used, search by typing, and retur
   await until(`document.activeElement === ${area}`);
 });
 
+// Real browser focus is required here: a pure select-model test cannot observe
+// an asynchronous DOM focus restore stealing the next control's focus.
+test("select blur preserves its destination and switching selectors still dismisses", async () => {
+  await load("fixtures=false&theme=light", 1200);
+  const first = "document.querySelectorAll('#select [role=combobox]')[0]";
+  const second = "document.querySelectorAll('#select [role=combobox]')[1]";
+  const destination = "document.querySelector('#composer textarea')";
+  const popup = control => `document.getElementById(${control}.id + '-listbox')`;
+  const click = async control => {
+    const point = await evaluate(`(() => { const node = ${control}; node.scrollIntoView({block:'center',behavior:'instant'}); const box = node.getBoundingClientRect(); return {x:box.x+box.width/2,y:box.y+box.height/2}; })()`);
+    await send("Input.dispatchMouseEvent", {type:"mousePressed", ...point, button:"left", clickCount:1});
+    await send("Input.dispatchMouseEvent", {type:"mouseReleased", ...point, button:"left", clickCount:1});
+  };
+  await click(first);
+  await until(`${popup(first)}.matches(':popover-open')`);
+  await click(second);
+  await until(`!${popup(first)}.matches(':popover-open') && ${popup(second)}.matches(':popover-open')`);
+  await settle();
+  assert.equal(await evaluate(`document.activeElement === ${second}`), true, "blur must not reclaim focus from the second selector");
+  await evaluate(`${destination}.focus()`);
+  await until(`!${popup(second)}.matches(':popover-open')`);
+  await settle();
+  assert.equal(await evaluate(`document.activeElement === ${destination}`), true, "blur must leave the destination focused");
+  await click(first);
+  await until(`${popup(first)}.matches(':popover-open')`);
+  await press("Tab", "Tab", 9);
+  await until(`!${popup(first)}.matches(':popover-open')`);
+  await settle();
+  assert.equal(await evaluate(`document.activeElement === ${second}`), true, "Tab must reach the next selector");
+  assert.deepEqual(exceptions, []);
+});
+
 test("the context strip resolves models by provider and dims effort instead of dropping it", async () => {
   await load("fixtures=false&theme=light", 1200);
   const strip = "document.querySelector('#context-strip .fc-context-strip')";
