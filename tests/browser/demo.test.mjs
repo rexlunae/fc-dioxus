@@ -165,6 +165,14 @@ test("every upstream preset changes rendered styling in light and dark and passe
           appearance: [card.backgroundColor, card.backgroundImage, card.borderRadius, card.borderWidth, card.boxShadow, card.fontFamily, button.backgroundColor, button.borderRadius],
           overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1 };
       })()`);
+      // A preference inside a content card must not select the whole card.
+      const cardPalette=()=>evaluate(`(() => {const card=document.getElementById('feature-composition'),s=getComputedStyle(card);return [s.backgroundColor,s.backgroundImage,s.color];})()`);
+      const beforePreference=await cardPalette();
+      await evaluate("document.querySelector('#feature-composition .fc-check__input').click()");
+      await settle();
+      assert.deepEqual(await cardPalette(),beforePreference,`${preset}/${scheme} preference must not select its card`);
+      await evaluate("document.querySelector('#feature-composition .fc-check__input').click()");
+      await settle();
       const contrast = await evaluate(`(() => {
         const card=document.getElementById('feature-composition'), ink=getComputedStyle(card).color;
         const unpainted=[...card.querySelectorAll('.fc-card__subtitle,.fc-card__body > p,.fc-card__body > .fc-dl dt,.fc-field__label,.fc-field__hint,.fc-check,.fc-check__hint,#feature-clear')];
