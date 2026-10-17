@@ -50,7 +50,7 @@ pub fn States() -> Element {
         }
         // Keep the reference fixture above and also exercise real composed
         // content: the browser's theme audit must cover inherited text colors.
-        Card { variant: CardVariant::Feature,
+        Card { variant: CardVariant::Feature, id: "feature-composition",
             CardHeader { CardHeading {
                 CardTitle { "Feature content and nested surfaces" }
                 CardSubtitle { "Body text, metadata and controls follow the surface foreground." }
@@ -63,11 +63,15 @@ pub fn States() -> Element {
                 Field { label: rsx! { "Confirmation code" }, hint: rsx! { "Labels and hints remain readable on the feature fill." },
                     Input { value: ReadSignal::from(confirmation), oninput: move |value| confirmation.set(value) }
                 }
+                Checkbox { label: rsx! { "Remember preference" }, hint: rsx! { "Readable check hint" } }
+                InputGroup { Input { aria_label: "Grouped confirmation" }
+                    Button { variant: ButtonVariant::Ghost, "Search" }
+                }
                 Disclosure { summary: rsx! { "A nested neutral surface" }, boxed: true, open: true,
                     DescriptionList { DescriptionItem { term: rsx! { "Text palette" }, "Belongs to this surface" } }
                 }
             }
-            CardFooter { Button { variant: ButtonVariant::Ghost, onclick: move |_| confirmation.set(String::new()), "Clear code" } }
+            CardFooter { Button { id: "feature-clear", variant: ButtonVariant::Ghost, onclick: move |_| confirmation.set(String::new()), "Clear code" } }
         }
     }
 }
