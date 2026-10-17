@@ -313,7 +313,7 @@
      */
     font: var(--fc-type-heading-6);
     letter-spacing: var(--fc-type-heading-6-tracking);
-    color: var(--fc-color-text-muted);
+    color: var(--fc-content-muted, var(--fc-color-text-muted));
   }
 
   /*
@@ -385,6 +385,8 @@
   }
 
   :where(code):not(pre code) {
+    text-shadow: none;
+    color: var(--fc-color-text-default);
     background-color: var(--fc-color-bg-subtle);
     padding-inline: 0.25em;
     border-radius: var(--fc-radius-sm);
@@ -397,7 +399,7 @@
   :where(blockquote) {
     border-inline-start: var(--fc-border-width-thick) solid var(--fc-color-border-default);
     padding-inline-start: var(--fc-space-4);
-    color: var(--fc-color-text-muted);
+    color: var(--fc-content-muted, var(--fc-color-text-muted));
     font-style: italic;
   }
 
@@ -420,7 +422,7 @@
   }
 
   :where(caption) {
-    color: var(--fc-color-text-muted);
+    color: var(--fc-content-muted, var(--fc-color-text-muted));
     text-align: start;
     padding-block-end: var(--fc-space-2);
   }
@@ -434,7 +436,7 @@
 
   :where(thead th) {
     font-weight: var(--fc-font-weight-semibold);
-    color: var(--fc-color-text-muted);
+    color: var(--fc-content-muted, var(--fc-color-text-muted));
     border-block-end-color: var(--fc-color-border-default);
   }
 
@@ -447,6 +449,8 @@
    * browser default, which is frequently far too faint to read.
    */
   :where(input, textarea, select) {
+    text-shadow: none;
+    color: var(--fc-color-text-default);
     background-color: var(--fc-color-bg-surface);
     border: var(--fc-border-width-thin) solid var(--fc-color-border-interactive);
     border-radius: var(--fc-radius-md);
@@ -734,6 +738,7 @@
 
 @layer fc.components {
   .fc-btn {
+    text-shadow: none;
     /*
      * inline-flex + gap rather than padding alone: it keeps the label centred
      * when an icon is present, and lets the label wrap instead of forcing the
@@ -902,7 +907,7 @@
     }
 
     .fc-btn--subtle:hover {
-      background-color: var(--fc-btn-subtle-bg, color-mix(in oklab, currentColor calc(var(--fc-opacity-pressed-overlay) * 100%), transparent));
+      background-color: var(--fc-btn-subtle-bg-hover, color-mix(in oklab, currentColor calc(var(--fc-opacity-pressed-overlay) * 100%), transparent));
     }
     .fc-btn--ghost:hover,
     .fc-btn--tertiary:hover {
@@ -932,7 +937,7 @@
   }
 
   .fc-btn--subtle:active {
-    background-color: var(--fc-btn-subtle-bg, color-mix(in oklab, currentColor calc(var(--fc-opacity-pressed-overlay) * 150%), transparent));
+    background-color: var(--fc-btn-subtle-bg-active, color-mix(in oklab, currentColor calc(var(--fc-opacity-pressed-overlay) * 150%), transparent));
   }
   .fc-btn--ghost:active,
   .fc-btn--tertiary:active {
@@ -5066,6 +5071,7 @@
   /* ---- Text controls --------------------------------------------------- */
 
   .fc-input {
+    text-shadow: none;
     display: block;
     inline-size: 100%;
     min-block-size: var(--fc-size-target-comfortable);
@@ -5718,6 +5724,7 @@
 
 @layer fc.components {
   .fc-card {
+    text-shadow: none;
     /* A painted surface resets contextual text inherited from an outer feature. */
     --fc-content-fg: var(--fc-color-text-default);
     --fc-content-muted: var(--fc-color-text-muted);
@@ -5756,7 +5763,9 @@
     --fc-btn-ghost-bg-hover: var(--fc-color-bg-muted);
     --fc-btn-ghost-fg-hover: var(--fc-color-text-default);
     --fc-btn-ghost-bg-active: var(--fc-color-bg-subtle);
-    --fc-btn-subtle-bg: var(--fc-color-bg-muted);
+    --fc-btn-subtle-bg: var(--fc-color-bg-surface);
+    --fc-btn-subtle-bg-hover: var(--fc-color-bg-muted);
+    --fc-btn-subtle-bg-active: var(--fc-color-bg-sunken);
     --fc-btn-subtle-fg: var(--fc-color-text-default);
     background-color: var(--fc-theme-feature-bg, var(--fc-color-bg-surface));
     background-image: var(--fc-theme-feature-image, none);
@@ -6226,6 +6235,7 @@
 
 @layer fc.components {
   .fc-alert {
+    text-shadow: none;
     --fc-content-fg: var(--fc-alert-fg);
     --fc-content-muted: var(--fc-alert-fg);
     --fc-content-danger: var(--fc-alert-fg);
@@ -6387,6 +6397,7 @@
 
 @layer fc.components {
   .fc-dialog {
+    text-shadow: none;
     --fc-content-fg: var(--fc-color-text-default);
     --fc-content-muted: var(--fc-color-text-muted);
     --fc-content-danger: var(--fc-color-danger-text);
@@ -6730,6 +6741,7 @@
 
 @layer fc.components {
   .fc-popover {
+    text-shadow: none;
     --fc-content-fg: var(--fc-color-text-default);
     --fc-content-muted: var(--fc-color-text-muted);
     --fc-content-danger: var(--fc-color-danger-text);
@@ -6965,6 +6977,7 @@
   }
 
   .fc-toast {
+    text-shadow: none;
     --fc-content-fg: var(--fc-color-text-default);
     --fc-content-muted: var(--fc-color-text-muted);
     --fc-content-danger: var(--fc-color-danger-text);
@@ -8610,6 +8623,7 @@
 
   /* Boxed: a bordered card per item, for settings pages and FAQ blocks. */
   .fc-disclosure--boxed {
+    text-shadow: none;
     --fc-content-fg: var(--fc-color-text-default);
     --fc-content-muted: var(--fc-color-text-muted);
     --fc-content-danger: var(--fc-color-danger-text);
