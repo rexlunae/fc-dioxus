@@ -151,6 +151,8 @@ pub enum Token {
     ColorSelectedBg,
     /// CSS token --fc-color-selected-fg.
     ColorSelectedFg,
+    /// CSS token --fc-color-subtle-hover-bg.
+    ColorSubtleHoverBg,
     /// CSS token --fc-color-success-bg.
     ColorSuccessBg,
     /// CSS token --fc-color-success-bg-active.
@@ -534,6 +536,7 @@ TokenData { name: "--fc-color-pride-violet", variable: "var(--fc-color-pride-vio
 TokenData { name: "--fc-color-pride-yellow", variable: "var(--fc-color-pride-yellow)", light: "#887000", dark: "#d0be79" },
 TokenData { name: "--fc-color-selected-bg", variable: "var(--fc-color-selected-bg)", light: "#e5f3ff", dark: "#041f3f" },
 TokenData { name: "--fc-color-selected-fg", variable: "var(--fc-color-selected-fg)", light: "#0051b0", dark: "#a3ceff" },
+TokenData { name: "--fc-color-subtle-hover-bg", variable: "var(--fc-color-subtle-hover-bg)", light: "#b7bbc1", dark: "#3a3d44" },
 TokenData { name: "--fc-color-success-bg", variable: "var(--fc-color-success-bg)", light: "#196632", dark: "#56d57b" },
 TokenData { name: "--fc-color-success-bg-active", variable: "var(--fc-color-success-bg-active)", light: "#103a1c", dark: "#b7f3c2" },
 TokenData { name: "--fc-color-success-bg-hover", variable: "var(--fc-color-success-bg-hover)", light: "#154f27", dark: "#86e79c" },
@@ -762,6 +765,7 @@ impl Token {
         Self::ColorPrideYellow,
         Self::ColorSelectedBg,
         Self::ColorSelectedFg,
+        Self::ColorSubtleHoverBg,
         Self::ColorSuccessBg,
         Self::ColorSuccessBgActive,
         Self::ColorSuccessBgHover,
