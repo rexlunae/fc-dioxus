@@ -377,6 +377,10 @@
     outline: none;
   }
 
+  :where(h6, blockquote, caption, thead th) {
+    color: var(--fc-content-muted, var(--fc-color-text-muted));
+  }
+
   /* Inline code. */
   :where(code, kbd, samp, pre) {
     font-family: var(--fc-font-family-mono);
@@ -399,7 +403,6 @@
   :where(blockquote) {
     border-inline-start: var(--fc-border-width-thick) solid var(--fc-color-border-default);
     padding-inline-start: var(--fc-space-4);
-    color: var(--fc-content-muted, var(--fc-color-text-muted));
     font-style: italic;
   }
 
@@ -422,7 +425,6 @@
   }
 
   :where(caption) {
-    color: var(--fc-content-muted, var(--fc-color-text-muted));
     text-align: start;
     padding-block-end: var(--fc-space-2);
   }
@@ -436,7 +438,6 @@
 
   :where(thead th) {
     font-weight: var(--fc-font-weight-semibold);
-    color: var(--fc-content-muted, var(--fc-color-text-muted));
     border-block-end-color: var(--fc-color-border-default);
   }
 
@@ -5071,7 +5072,6 @@
   /* ---- Text controls --------------------------------------------------- */
 
   .fc-input {
-    text-shadow: none;
     display: block;
     inline-size: 100%;
     min-block-size: var(--fc-size-target-comfortable);
