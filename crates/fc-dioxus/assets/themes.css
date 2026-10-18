@@ -788,6 +788,7 @@
     --fc-color-bg-sunken: light-dark(#e6e8ec, #000000);
     --fc-color-bg-subtle: light-dark(#e6e8ec, #0e0f13);
     --fc-color-bg-muted: light-dark(#d2d4da, #24262b);
+    --fc-color-subtle-hover-bg: light-dark(#b7bbc1, #3a3d44);
     --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
     --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
@@ -856,6 +857,7 @@
     --fc-color-bg-sunken: light-dark(#dde9f9, #000000);
     --fc-color-bg-subtle: light-dark(#dde9f9, #0a1017);
     --fc-color-bg-muted: light-dark(#cad5e5, #21272f);
+    --fc-color-subtle-hover-bg: light-dark(#b7bbc1, #3a3d44);
     --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
     --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
@@ -924,6 +926,7 @@
     --fc-color-bg-sunken: light-dark(#eae5f6, #000000);
     --fc-color-bg-subtle: light-dark(#eae5f6, #110e16);
     --fc-color-bg-muted: light-dark(#d6d1e3, #28252e);
+    --fc-color-subtle-hover-bg: light-dark(#b7bbc1, #3a3d44);
     --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
     --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
@@ -992,6 +995,7 @@
     --fc-color-bg-sunken: light-dark(#ddeddf, #000000);
     --fc-color-bg-subtle: light-dark(#ddeddf, #0a120b);
     --fc-color-bg-muted: light-dark(#c9d9cc, #202922);
+    --fc-color-subtle-hover-bg: light-dark(#b7bbc1, #3a3d44);
     --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
     --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
@@ -1060,6 +1064,7 @@
     --fc-color-bg-sunken: light-dark(#e6e8ec, #000000);
     --fc-color-bg-subtle: light-dark(#e6e8ec, #0e0f13);
     --fc-color-bg-muted: light-dark(#d2d4da, #24262b);
+    --fc-color-subtle-hover-bg: light-dark(#b7bbc1, #3a3d44);
     --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
     --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
@@ -1128,6 +1133,7 @@
     --fc-color-bg-sunken: light-dark(#d6edeb, #000000);
     --fc-color-bg-subtle: light-dark(#d6edeb, #061211);
     --fc-color-bg-muted: light-dark(#c3dad8, #1c2928);
+    --fc-color-subtle-hover-bg: light-dark(#b7bbc1, #3a3d44);
     --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
     --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
@@ -1196,6 +1202,7 @@
     --fc-color-bg-sunken: light-dark(#f7e3db, #000000);
     --fc-color-bg-subtle: light-dark(#f7e3db, #160d09);
     --fc-color-bg-muted: light-dark(#e3d0c7, #2e241f);
+    --fc-color-subtle-hover-bg: light-dark(#b7bbc1, #3a3d44);
     --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
     --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
@@ -1264,6 +1271,7 @@
     --fc-color-bg-sunken: light-dark(#f6e2ea, #000000);
     --fc-color-bg-subtle: light-dark(#f6e2ea, #160c10);
     --fc-color-bg-muted: light-dark(#e2ced6, #2e2328);
+    --fc-color-subtle-hover-bg: light-dark(#b7bbc1, #3a3d44);
     --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
     --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
@@ -1332,6 +1340,7 @@
     --fc-color-bg-sunken: light-dark(#efe7d6, #000000);
     --fc-color-bg-subtle: light-dark(#efe7d6, #130f07);
     --fc-color-bg-muted: light-dark(#dcd3c2, #2a261c);
+    --fc-color-subtle-hover-bg: light-dark(#b7bbc1, #3a3d44);
     --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
     --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
@@ -1400,6 +1409,7 @@
     --fc-color-bg-sunken: light-dark(#e4e6f9, #000000);
     --fc-color-bg-subtle: light-dark(#f5fcfa, #0e0f13);
     --fc-color-bg-muted: light-dark(#d0d3e5, #24262f);
+    --fc-color-subtle-hover-bg: light-dark(#b7bbc1, #3a3d44);
     --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
     --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
@@ -1480,6 +1490,7 @@
     --fc-color-bg-sunken: light-dark(#ffffff, #000000);
     --fc-color-bg-subtle: light-dark(#ffffff, #000000);
     --fc-color-bg-muted: light-dark(#ffffff, #000000);
+    --fc-color-subtle-hover-bg: light-dark(#ffffff, #000000);
     --fc-color-bg-thumb: light-dark(#ffffff, #000000);
     --fc-color-bg-inverse: light-dark(#000000, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#ffffff, #000000);
@@ -1550,6 +1561,7 @@
     --fc-color-bg-sunken: light-dark(#ffffff, #000000);
     --fc-color-bg-subtle: light-dark(#ffffff, #000000);
     --fc-color-bg-muted: light-dark(#ffffff, #000000);
+    --fc-color-subtle-hover-bg: light-dark(#ffffff, #000000);
     --fc-color-bg-thumb: light-dark(#ffffff, #000000);
     --fc-color-bg-inverse: light-dark(#000000, #ffffff);
     --fc-color-text-inverse-muted: light-dark(#ffffff, #000000);

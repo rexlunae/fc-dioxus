@@ -54,6 +54,9 @@ Current action/surface APIs refine the proposals below:
   somewhere; unavailable, it drops its `href` and carries `aria-disabled`.
 - `Card` is a composable native container (`CardTag` includes `Label` for selectable
   cards). `CardVariant::Feature` exposes upstream's themed feature surface. All
+  feature content uses the surface's foreground context, including body copy,
+  metadata, labels, hints and transparent actions. Nested inputs, cards and boxed
+  disclosures retain their own contrast-checked semantic palette (future-css #64).
   documented parts are available; `CardTitle` uses `Option<HeadingLevel>` (`None`
   emits a span for label cards), and `CardSubtitle` supports `inline` for the same
   case. `CardMedia` takes required `Alt` and optional `src`; an omitted source emits
@@ -806,7 +809,7 @@ proportion. Date ranges stay deferred, as in the CSS library's Phase D.
 
 ```rust
 fc_modifier! { pub enum CardVariant for "fc-card" { #[default] Default => None,
-    Elevated => "elevated", Subtle => "subtle" } }
+    Elevated => "elevated", Subtle => "subtle", Feature => "feature" } }
 
 #[component] fn Card(#[props(default)] variant: CardVariant,
     /// Shorthand for the common case; use the parts for anything else.

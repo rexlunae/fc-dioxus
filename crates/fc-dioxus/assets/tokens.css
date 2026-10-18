@@ -51,6 +51,7 @@
   --fc-color-bg-sunken: light-dark(#e6e8ec, #000000);
   --fc-color-bg-subtle: light-dark(#e6e8ec, #0e0f13);
   --fc-color-bg-muted: light-dark(#d2d4da, #24262b);
+  --fc-color-subtle-hover-bg: light-dark(#b7bbc1, #3a3d44);
   --fc-color-bg-thumb: light-dark(#ffffff, #f9fafb);
   --fc-color-bg-inverse: light-dark(#0e0f13, #ffffff);
   --fc-color-text-inverse-muted: light-dark(#b7bbc1, #3a3d44);
