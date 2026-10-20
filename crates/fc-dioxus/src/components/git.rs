@@ -278,7 +278,7 @@ fn row_view(
                     }
                 }
             }
-            span { class: BEM.element("stat"), role: "gridcell", hidden: stat.is_none(),
+            span { class: BEM.element("stat"), role: "gridcell", hidden: stat.is_none().then_some(true),
                 if let Some((added, removed)) = stat {
                     span { class: BEM.element("stat-add"), "+{added}" }
                     span { class: BEM.element("stat-remove"), "−{removed}" }

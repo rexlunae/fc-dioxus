@@ -202,7 +202,7 @@ pub fn MultiSelect(
                         {option_view(option, shown, chosen.contains(&option.value), &name, toggle)}
                     }
                 }
-                p { hidden: !none_visible, ..crate::spread![multiselect_part(MultiselectPart::Empty)], "No matches. Existing selections are kept." }
+                p { hidden: (!none_visible).then_some(true), ..crate::spread![multiselect_part(MultiselectPart::Empty)], "No matches. Existing selections are kept." }
             }
         }
     }
@@ -219,7 +219,7 @@ fn option_view(
     let state = availability_attributes(&option.availability);
     let value = option.value.clone();
     rsx! {
-        label { key: "{option.value}", class: BEM.element("option"), hidden: !shown, ..crate::spread![selected_attribute(checked)],
+        label { key: "{option.value}", class: BEM.element("option"), hidden: (!shown).then_some(true), ..crate::spread![selected_attribute(checked)],
             input { class: CHECK.block(), r#type: "checkbox", name: "{name}", value: "{option.value}", checked,
                 onclick: move |event| if blocked { event.prevent_default(); },
                 onchange: move |event| if !blocked { toggle(value.clone(), event.checked()); },
