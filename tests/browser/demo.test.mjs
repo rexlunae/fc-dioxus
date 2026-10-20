@@ -215,23 +215,27 @@ test("each design applies its paired palette and every palette recolors the page
   const accent = "getComputedStyle(document.querySelector('#button .fc-btn--primary')).backgroundColor";
   const pick = (id, value) => `document.getElementById('${id}').value=${JSON.stringify(value)}; document.getElementById('${id}').dispatchEvent(new Event('change',{bubbles:true}))`;
   for (const [design, palette] of pairs) {
+    pageContext = `design=${design}; paired-palette=${palette}; scheme=light; width=1200`;
     await evaluate(pick("design", design));
     await until(`document.querySelector('[data-fc-version]').dataset.fcDesign === ${JSON.stringify(design)}`);
     assert.equal(await evaluate("document.querySelector('[data-fc-version]').dataset.fcPalette"), palette, `${design} pairs with ${palette}`);
   }
   // A chosen palette overrides the design's, and a new design returns to its pairing.
+  pageContext = "design=ocean; paired-palette=teal; scheme=light; width=1200";
   await evaluate(pick("design", "ocean"));
   await until("document.querySelector('[data-fc-version]').dataset.fcPalette === 'teal'");
   const colors = new Set();
   const palettes = await evaluate("[...document.getElementById('palette').options].map(o => o.value).filter(Boolean)");
   assert.equal(palettes.length, 10);
   for (const palette of palettes) {
+    pageContext = `design=ocean; palette=${palette}; scheme=light; width=1200`;
     await evaluate(pick("palette", palette));
     await until(`document.querySelector('[data-fc-version]').dataset.fcPalette === ${JSON.stringify(palette)}`);
     await settle();
     colors.add(await evaluate(accent));
   }
   assert.equal(colors.size, palettes.length, "each palette must give primary actions a distinct color");
+  pageContext = "design=forest; paired-palette=forest; scheme=light; width=1200";
   await evaluate(pick("design", "forest"));
   await until("document.querySelector('[data-fc-version]').dataset.fcPalette === 'forest'");
   assert.equal(await evaluate("document.getElementById('palette').value"), "");
