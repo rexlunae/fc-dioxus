@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { before, after, test } from "node:test";
+import { before, beforeEach, after, test } from "node:test";
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -10,15 +10,23 @@ import { serve } from "../../tools/serve.mjs";
 const chromePath = [process.env.CHROME_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(path => path && existsSync(path));
 assert.ok(chromePath, "Chrome is required; no browser means failure, never a skipped suite. Set CHROME_PATH.");
 const axe = readFileSync(new URL("../../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
+// Every WCAG rule still runs. The harness consumes violations only; avoid
+// generating unused per-node selectors for passing/incomplete results.
 let server, chrome, profile, ws;
 let nextId = 0;
 const pending = new Map();
 const exceptions = [];
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+let activeTest = "browser startup", pageContext = "about:blank";
+beforeEach(context => { activeTest = context.name; });
 function send(method, params = {}) {
   return new Promise((resolve, reject) => {
     const id = ++nextId;
-    const timeout = setTimeout(() => { pending.delete(id); reject(new Error(`CDP timeout: ${method}`)); }, 20000);
+    // Capture the initiating call's stack, rather than only the timer callback.
+    // Expressions are test-owned fixture code; never inspect live form values.
+    const expression = typeof params.expression === "string" ? params.expression.replace(/\s+/g, " ").slice(0, 240) : "";
+    const failure = new Error(`CDP timeout: ${method}; test=${activeTest}; page=${pageContext}; script=${expression}`);
+    const timeout = setTimeout(() => { pending.delete(id); reject(failure); }, 20000);
     pending.set(id, result => { clearTimeout(timeout); result.error ? reject(new Error(JSON.stringify(result.error))) : resolve(result.result); });
     ws.send(JSON.stringify({ id, method, params }));
   });
@@ -41,6 +49,7 @@ const settle = async () => {
   await until(quiet);
 };
 async function load(query, width = 320) {
+  pageContext = `${query}; width=${width}`;
   exceptions.length = 0;
   await send("Emulation.setDeviceMetricsOverride", { width, height: 1000, deviceScaleFactor: 1, mobile: false });
   await send("Page.navigate", { url: "about:blank" });
@@ -104,7 +113,7 @@ for (const theme of ["light", "dark"]) for (const dir of ["ltr", "rtl"]) {
     assert.ok(layout.scroll <= layout.width + 1, JSON.stringify(layout));
     assert.equal(layout.dividers.length, 6);
     assert.ok(layout.dividers.every(d => d.width > 0 && d.height > 0 && d.border > 0), JSON.stringify(layout.dividers));
-    const audit = await evaluate("axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } }).then(r => r.violations.map(v => ({id:v.id, impact:v.impact, nodes:v.nodes.map(n => [n.target, n.any.map(a => a.message)])})))");
+  const audit = await evaluate("axe.run(document, { resultTypes: ['violations'], runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } }).then(r => r.violations.map(v => ({id:v.id, impact:v.impact, nodes:v.nodes.map(n => [n.target, n.any.map(a => a.message)])})))");
     assert.deepEqual(audit, [], "axe must report zero WCAG A/AA violations");
     assert.deepEqual(exceptions, [], "no uncaught browser errors");
   });
@@ -151,9 +160,11 @@ test("every upstream preset changes rendered styling in light and dark and passe
   const expected = [...new Set([...upstream.matchAll(/data-fc-design=\"([^\"]+)\"/g)].map(match => match[1]))];
   assert.deepEqual([...presets].sort(), expected.sort());
   for (const scheme of ["light", "dark"]) {
+    pageContext = `scheme=${scheme}; width=1200`;
     await evaluate(`document.getElementById('theme').value=${JSON.stringify(scheme)}; document.getElementById('theme').dispatchEvent(new Event('change',{bubbles:true}))`);
     const appearances = new Set();
     for (const preset of presets) {
+      pageContext = `preset=${preset}; scheme=${scheme}; width=1200`;
       await evaluate(`document.getElementById('design').value=${JSON.stringify(preset)}; document.getElementById('design').dispatchEvent(new Event('change',{bubbles:true}))`);
       await until(`document.querySelector('[data-fc-version]').dataset.fcDesign === ${JSON.stringify(preset)}`);
       await settle();
@@ -188,7 +199,7 @@ test("every upstream preset changes rendered styling in light and dark and passe
       assert.equal(appearance.scheme, scheme);
       assert.equal(appearance.overflow, false, `${preset}/${scheme} overflows`);
       appearances.add(JSON.stringify(appearance.appearance));
-      const violations = await evaluate("axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>[n.target,n.any.map(a=>a.message)])})))");
+      const violations = await evaluate("axe.run(document,{resultTypes:['violations'],runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>[n.target,n.any.map(a=>a.message)])})))");
       assert.deepEqual(violations, [], `${preset}/${scheme} accessibility`);
     }
     assert.equal(appearances.size, presets.length, "each stock design must have a distinct computed appearance");
@@ -206,23 +217,27 @@ test("each design applies its paired palette and every palette recolors the page
   const accent = "getComputedStyle(document.querySelector('#button .fc-btn--primary')).backgroundColor";
   const pick = (id, value) => `document.getElementById('${id}').value=${JSON.stringify(value)}; document.getElementById('${id}').dispatchEvent(new Event('change',{bubbles:true}))`;
   for (const [design, palette] of pairs) {
+    pageContext = `design=${design}; paired-palette=${palette}; scheme=light; width=1200`;
     await evaluate(pick("design", design));
     await until(`document.querySelector('[data-fc-version]').dataset.fcDesign === ${JSON.stringify(design)}`);
     assert.equal(await evaluate("document.querySelector('[data-fc-version]').dataset.fcPalette"), palette, `${design} pairs with ${palette}`);
   }
   // A chosen palette overrides the design's, and a new design returns to its pairing.
+  pageContext = "design=ocean; paired-palette=teal; scheme=light; width=1200";
   await evaluate(pick("design", "ocean"));
   await until("document.querySelector('[data-fc-version]').dataset.fcPalette === 'teal'");
   const colors = new Set();
   const palettes = await evaluate("[...document.getElementById('palette').options].map(o => o.value).filter(Boolean)");
   assert.equal(palettes.length, 10);
   for (const palette of palettes) {
+    pageContext = `design=ocean; palette=${palette}; scheme=light; width=1200`;
     await evaluate(pick("palette", palette));
     await until(`document.querySelector('[data-fc-version]').dataset.fcPalette === ${JSON.stringify(palette)}`);
     await settle();
     colors.add(await evaluate(accent));
   }
   assert.equal(colors.size, palettes.length, "each palette must give primary actions a distinct color");
+  pageContext = "design=forest; paired-palette=forest; scheme=light; width=1200";
   await evaluate(pick("design", "forest"));
   await until("document.querySelector('[data-fc-version]').dataset.fcPalette === 'forest'");
   assert.equal(await evaluate("document.getElementById('palette').value"), "");
@@ -280,7 +295,7 @@ test("dialogs open modally and close on Escape, tooltips dismiss, toasts route a
   await evaluate("[...document.querySelectorAll('#dialog button')].find(b => b.textContent.startsWith('Delete chat')).click()");
   await until(`${open}?.matches(':modal')`);
   assert.ok(await evaluate(`${open}.contains(document.activeElement)`), "focus moves into the modal");
-  const violations = await evaluate("axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>v.id))");
+  const violations = await evaluate("axe.run(document,{resultTypes:['violations'],runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>v.id))");
   assert.deepEqual(violations, [], "an open modal passes axe");
   await send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
   await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
@@ -925,4 +940,32 @@ test("an editor removed from the page releases its document listeners", async ()
   await until(`${editors} === 5`);
   while (Date.now() < deadline + 5000 && await listeners() !== mounted) await sleep(80);
   assert.equal(await listeners(), mounted, "a remounted editor binds exactly once");
+});
+
+test("axe reporting optimization keeps every violation node and rule outcome", async () => {
+  await send("Page.navigate", { url: "about:blank" });
+  await until("location.href === 'about:blank'");
+  pageContext = "isolated negative accessibility fixture";
+  await evaluate(`(() => {
+    document.documentElement.lang = 'en'; document.title = 'Audit fixture';
+    const main = document.createElement('main'), heading = document.createElement('h1');
+    heading.textContent = 'Audit fixture'; main.append(heading);
+    for (const id of ['audit-one', 'audit-two']) {
+      const button = document.createElement('button'); button.id = id; main.append(button);
+    }
+    document.body.replaceChildren(main);
+  })()`);
+  await evaluate(axe);
+  const run = optimized => evaluate(`axe.run(document,{
+    ${optimized ? "resultTypes:['violations']," : ""}
+    runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}
+  }).then(r=>({
+    violations:r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>[n.target,n.any.map(a=>a.message)])})),
+    outcomes:Object.fromEntries(['violations','passes','incomplete','inapplicable'].map(k=>[k,r[k].map(v=>v.id).sort()]))
+  }))`);
+  const baseline = await run(false), optimized = await run(true);
+  const unnamed = baseline.violations.find(v => v.id === 'button-name');
+  assert.ok(unnamed, "the deliberately unnamed buttons must be detected");
+  assert.deepEqual(unnamed.nodes.map(n => n[0]).sort(), [['#audit-one'], ['#audit-two']]);
+  assert.deepEqual(optimized, baseline, "all violating nodes and every rule's outcome must remain unchanged");
 });
