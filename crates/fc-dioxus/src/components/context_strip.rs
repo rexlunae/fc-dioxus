@@ -110,7 +110,7 @@ pub fn ContextStrip(
                     }
                 }
             }
-            span { class: BEM.element("notice"), role: "status", hidden: model.notice().is_none(),
+            span { class: BEM.element("notice"), role: "status", hidden: model.notice().is_none().then_some(true),
                 "{model.notice().unwrap_or_default()}"
             }
         }
