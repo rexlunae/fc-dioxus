@@ -8,6 +8,12 @@ pub fn Themes() -> Element {
     const FG: Bem = Bem::new("fc-u-text-default");
     const GRID: Bem = Bem::new("fc-grid-auto");
     rsx! {
+        FutureCss { stylesheets: Stylesheets::Inline,
+            Card { CardBody {
+                p { "Embedded upstream styles for hosts without asset loading." }
+                Button { "Styled without stylesheet links" }
+            } }
+        }
         div { class: GRID.block(),
             for design in Design::ALL {
                 FutureCss { design: *design, stylesheets: Stylesheets::External,

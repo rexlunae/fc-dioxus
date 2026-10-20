@@ -363,6 +363,9 @@ pub enum Stylesheets {
     /// Root foundation files plus the stylesheets of rendered components.
     #[default]
     Automatic,
+    /// Embed the generated upstream bundle for hosts without stylesheet asset loading.
+    /// Includes every component stylesheet; the host's CSP must permit inline styles.
+    Inline,
     /// The application already loads the upstream bundle.
     External,
 }
@@ -403,7 +406,8 @@ pub struct FutureCssProps {
     /// Inline direction, inherited when omitted.
     #[props(default)]
     pub direction: Option<Direction>,
-    /// Set to external if the app already loads the CSS bundle.
+    /// Set to external if the app already loads the CSS bundle, or inline for
+    /// hosts without an asset resource provider.
     #[props(default)]
     pub stylesheets: Stylesheets,
     /// The application's component tree.
@@ -474,6 +478,10 @@ pub fn FutureCss(props: FutureCssProps) -> Element {
         }
     });
     rsx! {
+        if props.stylesheets == Stylesheets::Inline {
+            // Only the pinned, generated bundle is embedded; never consumer CSS.
+            style { dangerous_inner_html: include_str!("../assets/future-css.css") }
+        }
         if props.stylesheets == Stylesheets::Automatic {
             document::Stylesheet { href: assets::LAYERS_CSS }
             document::Stylesheet { href: assets::TOKENS_CSS }
