@@ -31,14 +31,15 @@ fn inline_generated_css_applies_without_host_resource_or_html_loading() {
         doc.initial_build();
         doc.inner.resolve(0.0);
         for (id, expected) in [("hidden", hidden), ("visible", false)] {
-            let node = doc.inner.get_element_by_id(id).unwrap();
-            let node = doc.inner.get_node(node).unwrap();
-            let style = node.primary_styles().unwrap();
-            assert_eq!(
-                style.clone_display().is_none(),
-                expected,
-                "{policy:?}: {id}"
-            );
+            let actual = doc
+                .inner
+                .get_element_by_id(id)
+                .and_then(|node| doc.inner.get_node(node))
+                .and_then(|node| {
+                    node.primary_styles()
+                        .map(|style| style.clone_display().is_none())
+                });
+            assert_eq!(actual, Some(expected), "{policy:?}: {id}");
         }
     }
 }
