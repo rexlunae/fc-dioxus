@@ -34,9 +34,10 @@ fn expanded_split_omits_hidden_and_collapsed_split_keeps_it() {
                 .iter()
                 .any(|attr| attr.name.local.as_ref() == "hidden")
         });
-        let display = node
-            .and_then(|node| node.primary_styles())
-            .map(|style| style.clone_display().is_none());
+        let display = node.and_then(|node| {
+            node.primary_styles()
+                .map(|style| style.clone_display().is_none())
+        });
         assert_eq!(attribute, Some(hidden), "hidden attribute at {size}%");
         assert_eq!(display, Some(hidden), "display at {size}%");
     }
