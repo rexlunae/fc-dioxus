@@ -262,6 +262,11 @@ Browser-harness diagnostics stay in that existing integration; Rust owns compone
 and native-renderer tests. CDP timeouts preserve the initiating call stack, test,
 fixture/preset context and a bounded excerpt of test-authored script, without
 reading form values. They retain the same deadline and still fail the gate.
+Audits request `resultTypes: ['violations']` to avoid generating unused node
+selectors for other result groups; every selected WCAG rule still runs and all
+violating nodes remain available. This is axe's documented reporting optimization,
+not a rule filter. A negative browser fixture with two unnamed buttons compares
+all violation nodes and all rule outcome groups against an unoptimized audit.
 The tier 2 renderers that run in a browser (liveview) run the same suite; the others run
 the smoke suite described in [DESIGN.md, Renderers](DESIGN.md#renderers).
 
