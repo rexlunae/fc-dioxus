@@ -6,6 +6,27 @@ use fc_dioxus::prelude::*;
 use std::{cell::RefCell, rc::Rc};
 
 #[test]
+fn inline_stylesheets_embed_the_generated_bundle_without_component_links() {
+    let bundle = include_str!("../assets/future-css.css");
+    assert!(!bundle.to_ascii_lowercase().contains("</style"));
+    let render = |stylesheets| {
+        dioxus_ssr::render_element(rsx! {
+            FutureCss { stylesheets,
+                Button { "Action" }
+                Card { CardBody { "Content" } }
+            }
+        })
+    };
+    let inline = render(Stylesheets::Inline);
+    assert!(inline.contains(bundle));
+    assert_eq!(inline.matches("<style").count(), 1);
+    assert!(!inline.contains("<link"));
+    assert!(inline.contains("fc-button") && inline.contains("fc-card"));
+    let external = render(Stylesheets::External);
+    assert!(!external.contains("<style") && !external.contains("<link"));
+}
+
+#[test]
 fn validated_text_and_identifiers_reject_bad_input() {
     assert!(AccessibleName::try_from(" \n\t").is_err());
     assert_eq!(

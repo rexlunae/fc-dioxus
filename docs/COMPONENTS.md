@@ -391,6 +391,14 @@ Shared types (`Availability`, `Lifecycle`, `MessageRole`, `Tone`, `Orientation`,
 
 ### `FutureCss` and theming
 
+`Stylesheets::Automatic` loads foundation and component stylesheet assets as links.
+`Stylesheets::External` leaves loading to the host. `Stylesheets::Inline` embeds
+the unchanged generated upstream bundle once per root and suppresses component
+links. Choose Inline for renderers without an asset resource provider; it needs
+no filesystem or network access. It includes every component's CSS and therefore
+has a larger initial style payload than Automatic. Web hosts must allow the
+inline stylesheet under their Content Security Policy; Automatic stays the default.
+
 Specified in [DESIGN.md](DESIGN.md#theme). `Theme`: `System`, `Light`, `Dark`,
 `HighContrastLight`, `HighContrastDark`, and `FollowSystem` (`data-fc-theme="system"`: the
 OS preference even inside a root that sets a scheme, where `System` inherits it). `Design`: the 21 stock presets, with `name()`,
