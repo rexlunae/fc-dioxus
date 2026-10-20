@@ -44,5 +44,10 @@ fc-highlight = { git = "https://github.com/rexlunae/future-css", rev = "af9f44bd
 dioxus-ssr.workspace = true
 fc-a11y = { workspace = true, features = ["html"] }
 
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+# The demo's native renderer already uses this engine. Exercise inline CSS with
+# its default resource/HTML providers, without adding a terminal runtime.
+dioxus-native-dom = "=0.7.10"
+
 [lints]
 workspace = true

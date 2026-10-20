@@ -479,8 +479,9 @@ pub fn FutureCss(props: FutureCssProps) -> Element {
     });
     rsx! {
         if props.stylesheets == Stylesheets::Inline {
+            // Text children also work on hosts without an HTML parser provider.
             // Only the pinned, generated bundle is embedded; never consumer CSS.
-            style { dangerous_inner_html: include_str!("../assets/future-css.css") }
+            style { {include_str!("../assets/future-css.css")} }
         }
         if props.stylesheets == Stylesheets::Automatic {
             document::Stylesheet { href: assets::LAYERS_CSS }
