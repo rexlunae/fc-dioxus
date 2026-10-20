@@ -265,7 +265,7 @@ pub fn Webview(
                 allow: "",
                 onload: move |_| if !current_failed(state) { set_state(WebviewState::Loaded) },
             }
-            div { class: BEM.element("overlay"), role: "alert", hidden: !failed,
+            div { class: BEM.element("overlay"), role: "alert", hidden: (!failed).then_some(true),
                 if failed {
                     p { class: BEM.element("error"), {error.clone().unwrap_or_else(|| "This page could not be loaded.".to_owned())} }
                     Button { variant: ButtonVariant::Secondary, size: ButtonSize::Sm,
