@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { before, after, test } from "node:test";
+import { before, beforeEach, after, test } from "node:test";
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -15,10 +15,16 @@ let nextId = 0;
 const pending = new Map();
 const exceptions = [];
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+let activeTest = "browser startup", pageContext = "about:blank";
+beforeEach(context => { activeTest = context.name; });
 function send(method, params = {}) {
   return new Promise((resolve, reject) => {
     const id = ++nextId;
-    const timeout = setTimeout(() => { pending.delete(id); reject(new Error(`CDP timeout: ${method}`)); }, 20000);
+    // Capture the initiating call's stack, rather than only the timer callback.
+    // Expressions are test-owned fixture code; never inspect live form values.
+    const expression = typeof params.expression === "string" ? params.expression.replace(/\s+/g, " ").slice(0, 240) : "";
+    const failure = new Error(`CDP timeout: ${method}; test=${activeTest}; page=${pageContext}; script=${expression}`);
+    const timeout = setTimeout(() => { pending.delete(id); reject(failure); }, 20000);
     pending.set(id, result => { clearTimeout(timeout); result.error ? reject(new Error(JSON.stringify(result.error))) : resolve(result.result); });
     ws.send(JSON.stringify({ id, method, params }));
   });
@@ -41,6 +47,7 @@ const settle = async () => {
   await until(quiet);
 };
 async function load(query, width = 320) {
+  pageContext = `${query}; width=${width}`;
   exceptions.length = 0;
   await send("Emulation.setDeviceMetricsOverride", { width, height: 1000, deviceScaleFactor: 1, mobile: false });
   await send("Page.navigate", { url: "about:blank" });
@@ -151,9 +158,11 @@ test("every upstream preset changes rendered styling in light and dark and passe
   const expected = [...new Set([...upstream.matchAll(/data-fc-design=\"([^\"]+)\"/g)].map(match => match[1]))];
   assert.deepEqual([...presets].sort(), expected.sort());
   for (const scheme of ["light", "dark"]) {
+    pageContext = `scheme=${scheme}; width=1200`;
     await evaluate(`document.getElementById('theme').value=${JSON.stringify(scheme)}; document.getElementById('theme').dispatchEvent(new Event('change',{bubbles:true}))`);
     const appearances = new Set();
     for (const preset of presets) {
+      pageContext = `preset=${preset}; scheme=${scheme}; width=1200`;
       await evaluate(`document.getElementById('design').value=${JSON.stringify(preset)}; document.getElementById('design').dispatchEvent(new Event('change',{bubbles:true}))`);
       await until(`document.querySelector('[data-fc-version]').dataset.fcDesign === ${JSON.stringify(preset)}`);
       await settle();
