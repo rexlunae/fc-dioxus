@@ -2822,6 +2822,7 @@ source = "git+https://github.com/rexlunae/future-css?rev=af9f44bd151bc14bcfe0c49
 name = "fc-dioxus"
 version = "0.1.1"
 dependencies = [
+ "blitz-dom",
  "dioxus",
  "dioxus-native-dom",
  "dioxus-ssr",

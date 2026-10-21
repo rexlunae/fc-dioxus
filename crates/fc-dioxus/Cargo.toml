@@ -48,6 +48,7 @@ fc-a11y = { workspace = true, features = ["html"] }
 # The demo's native renderer already uses this engine. Exercise inline CSS with
 # its default resource/HTML providers, without adding a terminal runtime.
 dioxus-native-dom = "=0.7.10"
+blitz-dom = { version = "=0.2.4", default-features = false }
 
 [lints]
 workspace = true
