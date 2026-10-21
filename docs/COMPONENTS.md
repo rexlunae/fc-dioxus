@@ -889,28 +889,33 @@ Horizontal renders `<hr>`; vertical renders `role=separator aria-orientation=ver
 fc_modifier! { pub enum DialogSize for "fc-dialog" { #[default] Md => None,
     Sm => "sm", Lg => "lg", Fullscreen => "fullscreen" } }
 
-#[component] fn Dialog(title: Element, #[props(default)] title_level: HeadingLevel,
+#[component] fn Dialog(open: bool, onclose: EventHandler<()>, title: Element,
+    #[props(default = HeadingLevel::H2)] heading: HeadingLevel,
     #[props(default)] description: Option<Element>,
-    open: ReadSignal<bool>, onopenchange: EventHandler<bool>,
-    #[props(default = true)] modal: bool,                   // showModal(); false: show()
+    #[props(default = true)] modal: bool,
     #[props(default)] size: DialogSize,
-    #[props(default)] close_label: Option<AccessibleName>,  // None hides the close button
+    #[props(default)] placement: DialogPlacement,          // Center, Sheet, Bottom
+    #[props(default)] close_label: Option<AccessibleName>, // None uses "Close"
     #[props(default)] footer: Option<Element>,
-    #[props(default)] initial_focus: Option<Id>,
+    #[props(default)] handle: bool,
+    #[props(default)] scrollable: bool,
+    #[props(default)] fc_id: Option<Id>,
+    #[props(default)] class: Option<String>,
+    #[props(extends = GlobalAttributes)] attributes: Vec<Attribute>,
     children: Element) -> Element;
-
-#[component] fn Sheet(/* Dialog props minus size */) -> Element;        // --sheet, inline end
-#[component] fn BottomSheet(/* Dialog props minus size */,
-    #[props(default = true)] handle: bool) -> Element;                   // --bottom, __handle
-#[component] fn DialogFooter(children: Element) -> Element;
 ```
 
-- Opening calls `showModal()` through `DomBridge`; Escape and the native `cancel` event
-  route to `onopenchange(false)`; focus returns to the invoker on close.
+- Opening a modal dialog calls `showModal()` through `DomBridge`; the host supplies
+  the top layer and modal focus behavior. The native `cancel` event (including
+  Escape on supporting hosts) and close button call `onclose(())`; the owner sets
+  `open` to false. `modal: false` opens the same element in place.
 - Hosts without `showModal` open the dialog inline. Closed dialogs omit `open`, so
   native hosts preserve the boolean attribute's presence-based meaning.
-- `role=alertdialog` is `Dialog { alert: true }`, which also makes `description` required
-  at runtime (debug report), because an alert dialog without its message is just a box.
+- `placement: DialogPlacement::Sheet` docks to the inline end; `Bottom` docks to the
+  block end, with an optional decorative `handle`. The `footer` slot renders the
+  footer; `scrollable` makes the body keyboard reachable.
+- The title names the dialog through `aria-labelledby`. A supplied description is
+  connected with `aria-describedby`.
 
 ### Popover and tooltip (`popover.css`)
 
