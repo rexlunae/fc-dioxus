@@ -911,6 +911,10 @@ fc_modifier! { pub enum DialogSize for "fc-dialog" { #[default] Md => None,
   `open` to false. `modal: false` opens the same element in place.
 - Hosts without `showModal` open the dialog inline. Closed dialogs omit `open`, so
   native hosts preserve the boolean attribute's presence-based meaning.
+- That inline fallback does not supply modal focus, background inertness or Escape
+  cancellation. Its missing keyboard-dismissal contract is tracked in
+  [future-css#65](https://github.com/rexlunae/future-css/issues/65); native modal
+  cancellation and the close button remain the existing close-request paths.
 - `placement: DialogPlacement::Sheet` docks to the inline end; `Bottom` docks to the
   block end, with an optional decorative `handle`. The `footer` slot renders the
   footer; `scrollable` makes the body keyboard reachable.
@@ -1678,6 +1682,7 @@ its issue link, and gets an API entry above only once upstream has shipped its C
 
 | Need | Kind | Blocks | Upstream issue |
 | --- | --- | --- | --- |
+| Dialog Escape dismissal when a requested modal host falls back inline, including prevented/nested events and explicit nonmodal semantics | Keyboard/binding contract | Keyboard dismissal of unsupported-modal `Dialog` fallback | [future-css#65](https://github.com/rexlunae/future-css/issues/65) |
 | `fc-calendar`: date and time values, month grid, `add_months`, first day of week, parity with `datepicker.ts` | New model crate | `DatePicker`, `TimePicker` | To be filed |
 | `fc-markdown`: Rust port of `markdown.ts`, with a plain-text output for announcements | New model crate | `StreamingText { markdown: true }`, Markdown in `Message` | To be filed |
 | `fc-ansi`: ANSI SGR parsing into terminal runs, with a TypeScript twin for upstream's demo | New model crate | Raw ANSI input to `Terminal` | [future-css#53](https://github.com/rexlunae/future-css/issues/53) |
