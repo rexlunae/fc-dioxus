@@ -907,6 +907,8 @@ fc_modifier! { pub enum DialogSize for "fc-dialog" { #[default] Md => None,
 
 - Opening calls `showModal()` through `DomBridge`; Escape and the native `cancel` event
   route to `onopenchange(false)`; focus returns to the invoker on close.
+- Hosts without `showModal` open the dialog inline. Closed dialogs omit `open`, so
+  native hosts preserve the boolean attribute's presence-based meaning.
 - `role=alertdialog` is `Dialog { alert: true }`, which also makes `description` required
   at runtime (debug report), because an alert dialog without its message is just a box.
 
