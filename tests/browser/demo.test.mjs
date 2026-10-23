@@ -16,23 +16,25 @@ let server, chrome, profile, ws;
 let nextId = 0;
 const pending = new Map();
 const exceptions = [];
+// Full-page axe audits can exceed the ordinary CDP budget on hosted runners.
+const AXE_TIMEOUT = 90000;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let activeTest = "browser startup", pageContext = "about:blank";
 beforeEach(context => { activeTest = context.name; });
-function send(method, params = {}) {
+function send(method, params = {}, ms = 20000) {
   return new Promise((resolve, reject) => {
     const id = ++nextId;
     // Capture the initiating call's stack, rather than only the timer callback.
     // Expressions are test-owned fixture code; never inspect live form values.
     const expression = typeof params.expression === "string" ? params.expression.replace(/\s+/g, " ").slice(0, 240) : "";
     const failure = new Error(`CDP timeout: ${method}; test=${activeTest}; page=${pageContext}; script=${expression}`);
-    const timeout = setTimeout(() => { pending.delete(id); reject(failure); }, 20000);
+    const timeout = setTimeout(() => { pending.delete(id); reject(failure); }, ms);
     pending.set(id, result => { clearTimeout(timeout); result.error ? reject(new Error(JSON.stringify(result.error))) : resolve(result.result); });
     ws.send(JSON.stringify({ id, method, params }));
   });
 }
-async function evaluate(expression) {
-  const result = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
+async function evaluate(expression, ms) {
+  const result = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true }, ms);
   if (result.exceptionDetails) throw new Error(JSON.stringify(result.exceptionDetails));
   return result.result.value;
 }
@@ -113,7 +115,7 @@ for (const theme of ["light", "dark"]) for (const dir of ["ltr", "rtl"]) {
     assert.ok(layout.scroll <= layout.width + 1, JSON.stringify(layout));
     assert.equal(layout.dividers.length, 6);
     assert.ok(layout.dividers.every(d => d.width > 0 && d.height > 0 && d.border > 0), JSON.stringify(layout.dividers));
-  const audit = await evaluate("axe.run(document, { resultTypes: ['violations'], runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } }).then(r => r.violations.map(v => ({id:v.id, impact:v.impact, nodes:v.nodes.map(n => [n.target, n.any.map(a => a.message)])})))");
+  const audit = await evaluate("axe.run(document, { resultTypes: ['violations'], runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } }).then(r => r.violations.map(v => ({id:v.id, impact:v.impact, nodes:v.nodes.map(n => [n.target, n.any.map(a => a.message)])})))", AXE_TIMEOUT);
     assert.deepEqual(audit, [], "axe must report zero WCAG A/AA violations");
     assert.deepEqual(exceptions, [], "no uncaught browser errors");
   });
@@ -199,7 +201,7 @@ test("every upstream preset changes rendered styling in light and dark and passe
       assert.equal(appearance.scheme, scheme);
       assert.equal(appearance.overflow, false, `${preset}/${scheme} overflows`);
       appearances.add(JSON.stringify(appearance.appearance));
-      const violations = await evaluate("axe.run(document,{resultTypes:['violations'],runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>[n.target,n.any.map(a=>a.message)])})))");
+      const violations = await evaluate("axe.run(document,{resultTypes:['violations'],runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>[n.target,n.any.map(a=>a.message)])})))", AXE_TIMEOUT);
       assert.deepEqual(violations, [], `${preset}/${scheme} accessibility`);
     }
     assert.equal(appearances.size, presets.length, "each stock design must have a distinct computed appearance");
@@ -295,7 +297,7 @@ test("dialogs open modally and close on Escape, tooltips dismiss, toasts route a
   await evaluate("[...document.querySelectorAll('#dialog button')].find(b => b.textContent.startsWith('Delete chat')).click()");
   await until(`${open}?.matches(':modal')`);
   assert.ok(await evaluate(`${open}.contains(document.activeElement)`), "focus moves into the modal");
-  const violations = await evaluate("axe.run(document,{resultTypes:['violations'],runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>v.id))");
+  const violations = await evaluate("axe.run(document,{resultTypes:['violations'],runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}}).then(r=>r.violations.map(v=>v.id))", AXE_TIMEOUT);
   assert.deepEqual(violations, [], "an open modal passes axe");
   await send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
   await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
