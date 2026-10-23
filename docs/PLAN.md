@@ -215,6 +215,11 @@ registry:
   nightly rustc rejects, so 0.1.0 did not build on newer toolchains. 0.1.2 (2026-10-16)
   ships the Select popup flip and repins future-css to a6d2846, whose model crates are
   unchanged from their published 0.1.0, so upstream did not republish.
+  The 0.1.3 release brings the feature-surface contrast fix at af9f44b, inline
+  generated stylesheets for resource-free renderers, native-compatible hidden/open
+  attributes, and browser audit timeout diagnostics. Version 0.1.2 was already
+  published before its release branch merged, so the combined changes use a new
+  patch version.
 - docs.rs builds with every feature (configured in the library manifest).
 - The demo's web build published per release, linked from the docs and the README.
 - A compatibility table between `fc-dioxus` versions, Dioxus versions, and future-css

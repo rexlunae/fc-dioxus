@@ -113,7 +113,7 @@ pub fn Dialog(
             document::Stylesheet { href: assets::COMPONENTS_BUTTON_CSS }
             document::Stylesheet { href: assets::COMPONENTS_DIALOG_CSS }
         }
-        dialog { id: "{id}", open: open && inline(), aria_labelledby: "{title_id}",
+        dialog { id: "{id}", open: (open && inline()).then_some(true), aria_labelledby: "{title_id}",
             aria_describedby: description_id.as_ref().map(ToString::to_string),
             oncancel: move |event| { event.prevent_default(); onclose.call(()); },
             ..attributes,

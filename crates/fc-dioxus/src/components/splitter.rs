@@ -234,7 +234,7 @@ pub fn Split(
     let size = current();
     let primary_view = rsx! {
         div { class: ClassList::new(PANE.block()).with_modifier(PANE, PaneRole::Primary).to_string(), id: "{pane}",
-            hidden: size <= 0.0,
+            hidden: (size <= 0.0).then_some(true),
             role: primary_label.as_ref().map(|_| "region"), aria_label: primary_label.as_ref().map(ToString::to_string),
             tabindex: primary_label.as_ref().map(|_| "0"),
             ..crate::spread![custom_property(CustomProperty::SplitSize, format!("{size}%"))],

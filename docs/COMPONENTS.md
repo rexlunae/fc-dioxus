@@ -54,6 +54,9 @@ Current action/surface APIs refine the proposals below:
   somewhere; unavailable, it drops its `href` and carries `aria-disabled`.
 - `Card` is a composable native container (`CardTag` includes `Label` for selectable
   cards). `CardVariant::Feature` exposes upstream's themed feature surface. All
+  feature content uses the surface's foreground context, including body copy,
+  metadata, labels, hints and transparent actions. Nested inputs, cards and boxed
+  disclosures retain their own contrast-checked semantic palette (future-css #64).
   documented parts are available; `CardTitle` uses `Option<HeadingLevel>` (`None`
   emits a span for label cards), and `CardSubtitle` supports `inline` for the same
   case. `CardMedia` takes required `Alt` and optional `src`; an omitted source emits
@@ -224,7 +227,10 @@ Current action/surface APIs refine the proposals below:
   load as WASM): focus stays on the combobox and `aria-activedescendant` names the
   highlight, arrows skip unavailable options, Home and End jump, typed characters
   search within a 600 ms window, Enter, Space, a click, or Tab commit, and Escape
-  restores the previous value. The list is a manual popover placed under the invoker by
+  restores the previous value. Blur dismisses without committing or reclaiming focus;
+  Tab commits and lets focus move normally, including when switching to another select.
+  Explicit option selection and Escape return focus to the invoker.
+  The list is a manual popover placed under the invoker by
   `DomBridge::place_below`, which ports upstream's flip-and-cap positioning. With no
   options the control is `aria-disabled` and the list says "No matches". Upstream's
   fixture and binding both use `fc-select__option-label`, which select.css does not
@@ -384,6 +390,14 @@ Shared types (`Availability`, `Lifecycle`, `MessageRole`, `Tone`, `Orientation`,
 ## Foundation
 
 ### `FutureCss` and theming
+
+`Stylesheets::Automatic` loads foundation and component stylesheet assets as links.
+`Stylesheets::External` leaves loading to the host. `Stylesheets::Inline` embeds
+the unchanged generated upstream bundle once per root and suppresses component
+links. Choose Inline for renderers without an asset resource provider; it needs
+no filesystem or network access. It includes every component's CSS and therefore
+has a larger initial style payload than Automatic. Web hosts must allow the
+inline stylesheet under their Content Security Policy; Automatic stays the default.
 
 Specified in [DESIGN.md](DESIGN.md#theme). `Theme`: `System`, `Light`, `Dark`,
 `HighContrastLight`, `HighContrastDark`, and `FollowSystem` (`data-fc-theme="system"`: the
@@ -803,7 +817,7 @@ proportion. Date ranges stay deferred, as in the CSS library's Phase D.
 
 ```rust
 fc_modifier! { pub enum CardVariant for "fc-card" { #[default] Default => None,
-    Elevated => "elevated", Subtle => "subtle" } }
+    Elevated => "elevated", Subtle => "subtle", Feature => "feature" } }
 
 #[component] fn Card(#[props(default)] variant: CardVariant,
     /// Shorthand for the common case; use the parts for anything else.
@@ -875,26 +889,37 @@ Horizontal renders `<hr>`; vertical renders `role=separator aria-orientation=ver
 fc_modifier! { pub enum DialogSize for "fc-dialog" { #[default] Md => None,
     Sm => "sm", Lg => "lg", Fullscreen => "fullscreen" } }
 
-#[component] fn Dialog(title: Element, #[props(default)] title_level: HeadingLevel,
+#[component] fn Dialog(open: bool, onclose: EventHandler<()>, title: Element,
+    #[props(default = HeadingLevel::H2)] heading: HeadingLevel,
     #[props(default)] description: Option<Element>,
-    open: ReadSignal<bool>, onopenchange: EventHandler<bool>,
-    #[props(default = true)] modal: bool,                   // showModal(); false: show()
+    #[props(default = true)] modal: bool,
     #[props(default)] size: DialogSize,
-    #[props(default)] close_label: Option<AccessibleName>,  // None hides the close button
+    #[props(default)] placement: DialogPlacement,          // Center, Sheet, Bottom
+    #[props(default)] close_label: Option<AccessibleName>, // None uses "Close"
     #[props(default)] footer: Option<Element>,
-    #[props(default)] initial_focus: Option<Id>,
+    #[props(default)] handle: bool,
+    #[props(default)] scrollable: bool,
+    #[props(default)] fc_id: Option<Id>,
+    #[props(default)] class: Option<String>,
+    #[props(extends = GlobalAttributes)] attributes: Vec<Attribute>,
     children: Element) -> Element;
-
-#[component] fn Sheet(/* Dialog props minus size */) -> Element;        // --sheet, inline end
-#[component] fn BottomSheet(/* Dialog props minus size */,
-    #[props(default = true)] handle: bool) -> Element;                   // --bottom, __handle
-#[component] fn DialogFooter(children: Element) -> Element;
 ```
 
-- Opening calls `showModal()` through `DomBridge`; Escape and the native `cancel` event
-  route to `onopenchange(false)`; focus returns to the invoker on close.
-- `role=alertdialog` is `Dialog { alert: true }`, which also makes `description` required
-  at runtime (debug report), because an alert dialog without its message is just a box.
+- Opening a modal dialog calls `showModal()` through `DomBridge`; the host supplies
+  the top layer and modal focus behavior. The native `cancel` event (including
+  Escape on supporting hosts) and close button call `onclose(())`; the owner sets
+  `open` to false. `modal: false` opens the same element in place.
+- Hosts without `showModal` open the dialog inline. Closed dialogs omit `open`, so
+  native hosts preserve the boolean attribute's presence-based meaning.
+- That inline fallback does not supply modal focus, background inertness or Escape
+  cancellation. Its missing keyboard-dismissal contract is tracked in
+  [future-css#65](https://github.com/rexlunae/future-css/issues/65); native modal
+  cancellation and the close button remain the existing close-request paths.
+- `placement: DialogPlacement::Sheet` docks to the inline end; `Bottom` docks to the
+  block end, with an optional decorative `handle`. The `footer` slot renders the
+  footer; `scrollable` makes the body keyboard reachable.
+- The title names the dialog through `aria-labelledby`. A supplied description is
+  connected with `aria-describedby`.
 
 ### Popover and tooltip (`popover.css`)
 
@@ -1657,6 +1682,7 @@ its issue link, and gets an API entry above only once upstream has shipped its C
 
 | Need | Kind | Blocks | Upstream issue |
 | --- | --- | --- | --- |
+| Dialog Escape dismissal when a requested modal host falls back inline, including prevented/nested events and explicit nonmodal semantics | Keyboard/binding contract | Keyboard dismissal of unsupported-modal `Dialog` fallback | [future-css#65](https://github.com/rexlunae/future-css/issues/65) |
 | `fc-calendar`: date and time values, month grid, `add_months`, first day of week, parity with `datepicker.ts` | New model crate | `DatePicker`, `TimePicker` | To be filed |
 | `fc-markdown`: Rust port of `markdown.ts`, with a plain-text output for announcements | New model crate | `StreamingText { markdown: true }`, Markdown in `Message` | To be filed |
 | `fc-ansi`: ANSI SGR parsing into terminal runs, with a TypeScript twin for upstream's demo | New model crate | Raw ANSI input to `Terminal` | [future-css#53](https://github.com/rexlunae/future-css/issues/53) |

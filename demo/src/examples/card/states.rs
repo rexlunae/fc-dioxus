@@ -7,6 +7,7 @@ pub fn States() -> Element {
     const GRID: Bem = Bem::new("fc-grid-auto");
     const CHECK: Bem = Bem::new("fc-check__input");
     let mut plan = use_signal(|| "team");
+    let mut confirmation = use_signal(String::new);
     rsx! {
         div { class: GRID.block(),
             Card {
@@ -46,6 +47,31 @@ pub fn States() -> Element {
         Card { variant: CardVariant::Feature,
             h3 { "Theme feature surface" }
             p { "Color and elevation ship with the library." }
+        }
+        // Keep the reference fixture above and also exercise real composed
+        // content: the browser's theme audit must cover inherited text colors.
+        Card { variant: CardVariant::Feature, id: "feature-composition",
+            CardHeader { CardHeading {
+                CardTitle { "Feature content and nested surfaces" }
+                CardSubtitle { "Body text, metadata and controls follow the surface foreground." }
+            } }
+            CardBody {
+                p { "Color and elevation ship with the library." }
+                DescriptionList {
+                    DescriptionItem { term: rsx! { "Connection" }, "Verified" }
+                }
+                Field { label: rsx! { "Confirmation code" }, hint: rsx! { "Labels and hints remain readable on the feature fill." },
+                    Input { value: ReadSignal::from(confirmation), oninput: move |value| confirmation.set(value) }
+                }
+                Checkbox { label: rsx! { "Remember preference" }, hint: rsx! { "Readable check hint" } }
+                InputGroup { Input { aria_label: "Grouped confirmation" }
+                    Button { variant: ButtonVariant::Ghost, "Search" }
+                }
+                Disclosure { summary: rsx! { "A nested neutral surface" }, boxed: true, open: true,
+                    DescriptionList { DescriptionItem { term: rsx! { "Text palette" }, "Belongs to this surface" } }
+                }
+            }
+            CardFooter { Button { id: "feature-clear", variant: ButtonVariant::Ghost, onclick: move |_| confirmation.set(String::new()), "Clear code" } }
         }
     }
 }

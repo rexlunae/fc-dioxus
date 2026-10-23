@@ -567,6 +567,20 @@ took it, or none. Hosts without a document keep the theme on the wrapper alone.
 
 ## Renderers
 
+Inactive HTML `hidden` flags are omitted rather than passed as boolean false.
+This preserves HTML's presence semantics on supported older native DOM hosts
+that serialize false as `hidden="false"` (which still hides the element). Active
+flags remain present; ARIA string values are unchanged. Dioxus fixed its general
+native boolean handling in [#5913](https://github.com/DioxusLabs/dioxus/pull/5913);
+the toolkit keeps correct absent/present markup with its pinned 0.7 renderer too.
+
+Hosts without a stylesheet resource provider can select `Stylesheets::Inline`
+on `FutureCss`. This embeds the unchanged generated upstream bundle and disables
+component links; it does not add a resource provider or grant network/filesystem
+access. Inline CSS delivery alone does not establish renderer layout or keyboard
+acceptance. Automatic linked loading remains the default; External keeps loading
+under the host's control.
+
 Every renderer Dioxus ships is supported, at least on a best-effort basis: web, desktop,
 mobile, server-side rendering with fullstack hydration, liveview, and native (Blitz).
 Support is tiered by how much of the platform the renderer provides and how much of it
